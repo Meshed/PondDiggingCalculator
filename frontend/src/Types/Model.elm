@@ -10,6 +10,8 @@ import Components.ProjectForm exposing (FormData)
 import Types.DeviceType exposing (DeviceType)
 import Utils.Calculations exposing (CalculationResult)
 import Utils.Config exposing (Config)
+import Utils.Debounce exposing (DebounceState)
+import Utils.Performance exposing (PerformanceMetrics)
 
 
 
@@ -21,7 +23,11 @@ type alias Model =
     , config : Maybe Config
     , formData : Maybe FormData
     , calculationResult : Maybe CalculationResult
+    , lastValidResult : Maybe CalculationResult -- Preserve during validation errors
     , deviceType : DeviceType
+    , calculationInProgress : Bool -- Prevent race conditions
+    , performanceMetrics : PerformanceMetrics -- Track calculation performance
+    , debounceState : DebounceState -- For input debouncing
     }
 
 

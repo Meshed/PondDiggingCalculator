@@ -13,6 +13,7 @@ import Styles.Components as Components
 import Styles.Responsive as Responsive
 import Styles.Theme as Theme
 import Types.DeviceType exposing (DeviceType)
+import Types.Fields exposing (ExcavatorField(..), TruckField(..), PondField(..), ProjectField(..))
 import Types.Validation exposing (ValidationError)
 import Utils.Config exposing (Config, Defaults)
 import Utils.Validation as Validation
@@ -106,8 +107,8 @@ updateFormData msg formData =
 
 {-| Render the project input form with validation
 -}
-view : DeviceType -> FormData -> (FormMsg -> msg) -> Html msg
-view deviceType formData toMsg =
+view : DeviceType -> FormData -> (ExcavatorField -> String -> msg) -> (TruckField -> String -> msg) -> (PondField -> String -> msg) -> (ProjectField -> String -> msg) -> Html msg
+view deviceType formData excavatorMsg truckMsg pondMsg projectMsg =
     div [ class (Components.getFormClasses deviceType) ]
         [ -- Info banner about defaults
           div [ class "mb-6 p-4 bg-blue-50 border border-blue-200 rounded-md" ]
@@ -128,7 +129,7 @@ view deviceType formData toMsg =
                     , id = "excavator-capacity"
                     , value = formData.excavatorCapacity
                     , placeholder = ""
-                    , onInput = UpdateExcavatorCapacity >> toMsg
+                    , onInput = excavatorMsg BucketCapacity
                     , error = getFieldError "excavatorCapacity" formData.errors
                     }
                 , inputField deviceType
@@ -136,7 +137,7 @@ view deviceType formData toMsg =
                     , id = "excavator-cycle"
                     , value = formData.excavatorCycleTime
                     , placeholder = ""
-                    , onInput = UpdateExcavatorCycleTime >> toMsg
+                    , onInput = excavatorMsg CycleTime
                     , error = getFieldError "excavatorCycleTime" formData.errors
                     }
                 , inputField deviceType
@@ -144,7 +145,7 @@ view deviceType formData toMsg =
                     , id = "truck-capacity"
                     , value = formData.truckCapacity
                     , placeholder = ""
-                    , onInput = UpdateTruckCapacity >> toMsg
+                    , onInput = truckMsg TruckCapacity
                     , error = getFieldError "truckCapacity" formData.errors
                     }
                 , inputField deviceType
@@ -152,7 +153,7 @@ view deviceType formData toMsg =
                     , id = "truck-roundtrip"
                     , value = formData.truckRoundTripTime
                     , placeholder = ""
-                    , onInput = UpdateTruckRoundTripTime >> toMsg
+                    , onInput = truckMsg RoundTripTime
                     , error = getFieldError "truckRoundTripTime" formData.errors
                     }
                 ]
@@ -165,7 +166,7 @@ view deviceType formData toMsg =
                     , id = "work-hours"
                     , value = formData.workHoursPerDay
                     , placeholder = ""
-                    , onInput = UpdateWorkHours >> toMsg
+                    , onInput = projectMsg WorkHours
                     , error = getFieldError "workHoursPerDay" formData.errors
                     }
                 , inputField deviceType
@@ -173,7 +174,7 @@ view deviceType formData toMsg =
                     , id = "pond-length"
                     , value = formData.pondLength
                     , placeholder = ""
-                    , onInput = UpdatePondLength >> toMsg
+                    , onInput = pondMsg PondLength
                     , error = getFieldError "pondLength" formData.errors
                     }
                 , inputField deviceType
@@ -181,7 +182,7 @@ view deviceType formData toMsg =
                     , id = "pond-width"
                     , value = formData.pondWidth
                     , placeholder = ""
-                    , onInput = UpdatePondWidth >> toMsg
+                    , onInput = pondMsg PondWidth
                     , error = getFieldError "pondWidth" formData.errors
                     }
                 , inputField deviceType
@@ -189,7 +190,7 @@ view deviceType formData toMsg =
                     , id = "pond-depth"
                     , value = formData.pondDepth
                     , placeholder = ""
-                    , onInput = UpdatePondDepth >> toMsg
+                    , onInput = pondMsg PondDepth
                     , error = getFieldError "pondDepth" formData.errors
                     }
                 ]

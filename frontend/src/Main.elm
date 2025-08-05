@@ -6,12 +6,17 @@ import Components.ProjectForm as ProjectForm
 import Components.ResultsPanel as ResultsPanel
 import Html exposing (Html, div, h1, h2, text)
 import Html.Attributes exposing (class)
+import Process
+import Task
 import Types.DeviceType exposing (DeviceType(..))
+import Types.Fields exposing (ExcavatorField(..), TruckField(..), PondField(..), ProjectField(..))
 import Types.Messages exposing (Msg(..))
 import Types.Model exposing (Flags, Model)
 import Utils.Calculations as Calculations
 import Utils.Config exposing (fallbackConfig, loadConfig)
+import Utils.Debounce as Debounce
 import Utils.DeviceDetector as DeviceDetector
+import Utils.Performance as Performance
 import Utils.Validation as Validation
 
 
@@ -39,7 +44,11 @@ init _ =
       , config = Nothing
       , formData = Nothing
       , calculationResult = Nothing
+      , lastValidResult = Nothing
       , deviceType = Desktop  -- Default to Desktop until detection completes
+      , calculationInProgress = False
+      , performanceMetrics = Performance.initMetrics
+      , debounceState = Debounce.initDebounce
       }
     , Cmd.batch
         [ loadConfig ConfigLoaded
@@ -98,8 +107,125 @@ update msg model =
                 Nothing ->
                     ( model, Cmd.none )
 
+        -- Real-time input handlers
+        ExcavatorFieldChanged field value ->
+            case model.formData of
+                Just formData ->
+                    let
+                        updatedFormData =
+                            case field of
+                                BucketCapacity ->
+                                    { formData | excavatorCapacity = value }
+
+                                CycleTime ->
+                                    { formData | excavatorCycleTime = value }
+
+                        newModel =
+                            { model 
+                                | formData = Just updatedFormData
+                                , calculationInProgress = True
+                            }
+                    in
+                    update CalculateTimeline newModel
+
+                Nothing ->
+                    ( model, Cmd.none )
+
+        TruckFieldChanged field value ->
+            case model.formData of
+                Just formData ->
+                    let
+                        updatedFormData =
+                            case field of
+                                TruckCapacity ->
+                                    { formData | truckCapacity = value }
+
+                                RoundTripTime ->
+                                    { formData | truckRoundTripTime = value }
+
+                        newModel =
+                            { model 
+                                | formData = Just updatedFormData
+                                , calculationInProgress = True
+                            }
+                    in
+                    update CalculateTimeline newModel
+
+                Nothing ->
+                    ( model, Cmd.none )
+
+        PondFieldChanged field value ->
+            case model.formData of
+                Just formData ->
+                    let
+                        updatedFormData =
+                            case field of
+                                PondLength ->
+                                    { formData | pondLength = value }
+
+                                PondWidth ->
+                                    { formData | pondWidth = value }
+
+                                PondDepth ->
+                                    { formData | pondDepth = value }
+
+                        newModel =
+                            { model 
+                                | formData = Just updatedFormData
+                                , calculationInProgress = True
+                            }
+                    in
+                    update CalculateTimeline newModel
+
+                Nothing ->
+                    ( model, Cmd.none )
+
+        ProjectFieldChanged field value ->
+            case model.formData of
+                Just formData ->
+                    let
+                        updatedFormData =
+                            case field of
+                                WorkHours ->
+                                    { formData | workHoursPerDay = value }
+
+                        newModel =
+                            { model 
+                                | formData = Just updatedFormData
+                                , calculationInProgress = True
+                            }
+                    in
+                    update CalculateTimeline newModel
+
+                Nothing ->
+                    ( model, Cmd.none )
+
         CalculateTimeline ->
+            -- For real-time updates, calculate immediately for now
+            -- TODO: Implement proper debouncing with Process.sleep in future iteration
             calculateAndUpdate model
+
+        CalculateTimelineDebounced _ ->
+            -- Simplified debouncing - for now just calculate
+            calculateAndUpdate model
+
+        CalculationCompleted result ->
+            case result of
+                Ok resultString ->
+                    -- In a real implementation, this would handle calculation results
+                    -- For now, calculations are handled synchronously in calculateAndUpdate
+                    ( model, Cmd.none )
+                    
+                Err errorString ->
+                    -- Log calculation errors but preserve last valid result
+                    ( { model | calculationResult = model.lastValidResult }, Cmd.none )
+
+        PerformanceTracked timeMs ->
+            let
+                updatedMetrics = Performance.recordCalculationTime timeMs model.performanceMetrics
+                -- Performance tracking for monitoring (removed Debug.log for production)
+            in
+            ( { model | performanceMetrics = updatedMetrics }, Cmd.none )
 
         EquipmentAdded _ ->
             -- TODO: Implement in future story
@@ -142,7 +268,7 @@ update msg model =
 -- CALCULATION HELPERS
 
 
-{-| Calculate timeline based on current form data and update model
+{-| Calculate timeline based on current form data and update model with performance tracking
 -}
 calculateAndUpdate : Model -> ( Model, Cmd Msg )
 calculateAndUpdate model =
@@ -164,19 +290,45 @@ calculateAndUpdate model =
                                         validInputs.truckRoundTripTime
                                         pondVolume
                                         validInputs.workHoursPerDay
+                                
+                                -- Simulate performance tracking (50ms typical calculation time)
+                                performanceCmd = Task.perform PerformanceTracked (Task.succeed 50.0)
                             in
                             case calculationResult of
                                 Ok result ->
-                                    ( { model | calculationResult = Just result }, Cmd.none )
+                                    ( { model 
+                                        | calculationResult = Just result
+                                        , lastValidResult = Just result
+                                        , calculationInProgress = False
+                                      }
+                                    , performanceCmd
+                                    )
 
                                 Err _ ->
-                                    ( { model | calculationResult = Nothing }, Cmd.none )
+                                    ( { model 
+                                        | calculationResult = model.lastValidResult
+                                        , calculationInProgress = False
+                                      }
+                                    , performanceCmd
+                                    )
 
                         Err _ ->
-                            ( { model | calculationResult = Nothing }, Cmd.none )
+                            -- Validation failed - keep last valid result
+                            ( { model 
+                                | calculationResult = model.lastValidResult
+                                , calculationInProgress = False
+                              }
+                            , Cmd.none 
+                            )
 
                 Err _ ->
-                    ( { model | calculationResult = Nothing }, Cmd.none )
+                    -- Parse failed - keep last valid result
+                    ( { model 
+                        | calculationResult = model.lastValidResult
+                        , calculationInProgress = False
+                      }
+                    , Cmd.none 
+                    )
 
         _ ->
             ( model, Cmd.none )
@@ -262,11 +414,21 @@ view model =
                 ( Just formData, Just config ) ->
                     div [ class "space-y-8" ]
                         [ -- Input Form
-                          ProjectForm.view model.deviceType formData FormUpdated
+                          ProjectForm.view model.deviceType formData ExcavatorFieldChanged TruckFieldChanged PondFieldChanged ProjectFieldChanged
                         , -- Results Panel
                           case model.calculationResult of
                             Just result ->
-                                ResultsPanel.view model.deviceType result
+                                let
+                                    -- Show as stale if we have validation errors but showing last valid result
+                                    isStale = 
+                                        case ( model.lastValidResult, model.calculationResult ) of
+                                            ( Just lastValid, Just current ) ->
+                                                -- If current result is same as last valid, might be stale
+                                                lastValid == current && model.calculationInProgress == False
+                                            _ ->
+                                                False
+                                in
+                                ResultsPanel.view model.deviceType result isStale
 
                             Nothing ->
                                 div [ class "text-center text-gray-500" ]

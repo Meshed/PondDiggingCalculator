@@ -9,9 +9,9 @@ module Types.Messages exposing (Msg(..))
 import Browser.Dom as Dom
 import Components.ProjectForm exposing (FormMsg)
 import Types.Equipment exposing (Equipment)
+import Types.Fields exposing (ExcavatorField, TruckField, PondField, ProjectField)
 import Types.Validation exposing (ValidationError)
 import Utils.Config exposing (Config)
-
 
 
 -- APPLICATION MESSAGES
@@ -25,6 +25,14 @@ type Msg
     | EquipmentUpdated Equipment
     | ValidationFailed ValidationError
     | FormUpdated FormMsg
+    -- Real-time input change messages
+    | ExcavatorFieldChanged ExcavatorField String
+    | TruckFieldChanged TruckField String
+    | PondFieldChanged PondField String
+    | ProjectFieldChanged ProjectField String
     | CalculateTimeline
+    | CalculateTimelineDebounced Float -- Current time in millis
+    | CalculationCompleted (Result String String) -- Result CalculationError CalculationResult
+    | PerformanceTracked Float -- milliseconds
     | DeviceDetected (Result Dom.Error { width : Int, height : Int })
     | WindowResized Int Int

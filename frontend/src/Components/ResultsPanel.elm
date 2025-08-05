@@ -17,13 +17,25 @@ import Utils.Calculations exposing (Bottleneck(..), CalculationResult, Confidenc
 -- VIEW
 
 
-{-| Render calculation results with detailed breakdown
+{-| Render calculation results with detailed breakdown and error state indicators
 -}
-view : DeviceType -> CalculationResult -> Html msg
-view deviceType result =
+view : DeviceType -> CalculationResult -> Bool -> Html msg
+view deviceType result isStale =
     div [ class (Components.getResultsPanelClasses deviceType) ]
-        [ -- Main Result
-          div [ class "text-center mb-8" ]
+        [ -- Stale result indicator
+          if isStale then
+            div [ class "mb-4 p-3 bg-yellow-50 border border-yellow-200 rounded-md" ]
+                [ div [ class "flex items-center" ]
+                    [ span [ class "text-yellow-400 mr-2" ] [ text "⚠️" ]
+                    , div [ class "text-sm text-yellow-800" ]
+                        [ text "Showing last valid calculation while current inputs have validation errors" ]
+                    ]
+                ]
+          else
+            text ""
+        
+        -- Main Result
+        , div [ class "text-center mb-8" ]
             [ h3 [ class "text-3xl font-bold text-gray-900 mb-2" ]
                 [ text "Project Timeline" ]
             , div [ class "text-6xl font-bold text-indigo-600 mb-2" ]
