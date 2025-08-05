@@ -1,8 +1,8 @@
-module Utils.Config exposing (Config, Defaults, ValidationRules, loadConfig, configDecoder)
+module Utils.Config exposing (Config, Defaults, ExcavatorDefaults, TruckDefaults, ValidationRules, ValidationRange, loadConfig, configDecoder)
 
 {-| Configuration loading and JSON decoding utilities
 
-@docs Config, Defaults, ValidationRules, loadConfig, configDecoder
+@docs Config, Defaults, ExcavatorDefaults, TruckDefaults, ValidationRules, ValidationRange, loadConfig, configDecoder
 
 -}
 
@@ -21,15 +21,22 @@ type alias Config =
 
 
 type alias Defaults =
-    { excavator : EquipmentDefaults
-    , truck : EquipmentDefaults
+    { excavator : ExcavatorDefaults
+    , truck : TruckDefaults
     , project : ProjectDefaults
     }
 
 
-type alias EquipmentDefaults =
+type alias ExcavatorDefaults =
     { bucketCapacity : Float
     , cycleTime : Float
+    , name : String
+    }
+
+
+type alias TruckDefaults =
+    { capacity : Float
+    , roundTripTime : Float
     , name : String
     }
 
@@ -110,16 +117,24 @@ configDecoder =
 defaultsDecoder : Decoder Defaults
 defaultsDecoder =
     Decode.map3 Defaults
-        (Decode.field "excavator" equipmentDefaultsDecoder)
-        (Decode.field "truck" equipmentDefaultsDecoder)
+        (Decode.field "excavator" excavatorDefaultsDecoder)
+        (Decode.field "truck" truckDefaultsDecoder)
         (Decode.field "project" projectDefaultsDecoder)
 
 
-equipmentDefaultsDecoder : Decoder EquipmentDefaults
-equipmentDefaultsDecoder =
-    Decode.map3 EquipmentDefaults
+excavatorDefaultsDecoder : Decoder ExcavatorDefaults
+excavatorDefaultsDecoder =
+    Decode.map3 ExcavatorDefaults
         (Decode.field "bucketCapacity" Decode.float)
         (Decode.field "cycleTime" Decode.float)
+        (Decode.field "name" Decode.string)
+
+
+truckDefaultsDecoder : Decoder TruckDefaults
+truckDefaultsDecoder =
+    Decode.map3 TruckDefaults
+        (Decode.field "capacity" Decode.float)
+        (Decode.field "roundTripTime" Decode.float)
         (Decode.field "name" Decode.string)
 
 

@@ -16,11 +16,13 @@ suite =
                 \_ ->
                     let
                         expectedMessage =
-                            "Pond Digging Calculator - Foundation Setup Complete"
+                            "Pond Digging Calculator - Core Calculation Engine"
                         
                         model =
                             { message = expectedMessage
                             , config = Nothing
+                            , formData = Nothing
+                            , calculationResult = Nothing
                             }
                     in
                     Expect.equal expectedMessage model.message
@@ -43,6 +45,8 @@ suite =
                         model =
                             { message = "Test"
                             , config = Nothing
+                            , formData = Nothing
+                            , calculationResult = Nothing
                             }
                         
                         sampleConfig : Config
@@ -50,7 +54,7 @@ suite =
                             { version = "1.0.0"
                             , defaults = 
                                 { excavator = { bucketCapacity = 2.5, cycleTime = 2.0, name = "Test Excavator" }
-                                , truck = { bucketCapacity = 12.0, cycleTime = 15.0, name = "Test Truck" }
+                                , truck = { capacity = 12.0, roundTripTime = 15.0, name = "Test Truck" }
                                 , project = { workHoursPerDay = 8.0, pondLength = 50.0, pondWidth = 30.0, pondDepth = 6.0 }
                                 }
                             , validation = 
@@ -71,6 +75,8 @@ suite =
                         model =
                             { message = "Test"
                             , config = Nothing
+                            , formData = Nothing
+                            , calculationResult = Nothing
                             }
                         
                         error = ConfigurationError "Test error"

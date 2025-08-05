@@ -9,6 +9,7 @@ module Types.Messages exposing (Msg(..))
 import Types.Equipment exposing (Equipment)
 import Types.Validation exposing (ValidationError)
 import Utils.Config exposing (Config)
+import Components.ProjectForm exposing (FormMsg)
 
 
 -- APPLICATION MESSAGES
@@ -20,3 +21,5 @@ type Msg
     | EquipmentRemoved String
     | EquipmentUpdated Equipment
     | ValidationFailed ValidationError
+    | FormUpdated FormMsg
+    | CalculateTimeline
