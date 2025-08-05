@@ -1,7 +1,9 @@
 # Elm
 elm-stuff/
 node_modules/
+frontend/node_modules/
 dist/
+frontend/dist/
 build/
 
 # Elm compilation outputs
@@ -71,6 +73,7 @@ jspm_packages/
 # Parcel bundler cache
 .cache
 .parcel-cache
+frontend/.parcel-cache/
 
 # Webpack build outputs
 webpack-stats.json

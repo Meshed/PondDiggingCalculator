@@ -1,0 +1,19 @@
+{
+  "name": "pond-digging-calculator",
+  "version": "1.0.0",
+  "description": "Frontend for Pond Digging Calculator - Elm application",
+  "scripts": {
+    "dev": "parcel serve public/index.html",
+    "build": "parcel build public/index.html",
+    "test": "elm-test",
+    "test:watch": "elm-test --watch"
+  },
+  "keywords": ["elm", "pond", "calculator", "excavation"],
+  "author": "Pond Digging Calculator Team",
+  "license": "MIT",
+  "devDependencies": {
+    "parcel": "^2.0.0",
+    "@parcel/transformer-elm": "^2.0.0",
+    "tailwindcss": "^3.4.0"
+  }
+}

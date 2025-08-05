@@ -282,6 +282,83 @@ The Pond Digging Calculator evolves into a suite of specialized earthwork estima
 - **Brainstorming Session Results:** `/docs/brainstorming-session-results.md`
 - **Original Project Specification:** `/docs/Pond Digging Calculator.txt`
 
+## Development Setup
+
+### Prerequisites
+
+- **Node.js** (v14+) and npm
+- **Elm** (v0.19.1) - installed globally via `npm install -g elm@latest-0.19.1`
+- **elm-test** - installed globally via `npm install -g elm-test`
+
+### Installation & Setup
+
+1. **Clone the repository:**
+   ```bash
+   git clone <repository-url>
+   cd PondDiggingCalculator
+   ```
+
+2. **Install frontend dependencies:**
+   ```bash
+   cd frontend
+   npm install
+   ```
+
+3. **Run development server:**
+   ```bash
+   npm run dev
+   ```
+   The application will be available at `http://localhost:1234`
+
+### Build Commands
+
+- **Development server:** `npm run dev` - Starts Parcel development server with hot reload
+- **Production build:** `npm run build` - Creates optimized build in `dist/` directory  
+- **Run tests:** `npm run test` - Executes all Elm unit tests
+- **Watch tests:** `npm run test:watch` - Runs tests in watch mode
+
+### Project Structure
+
+```
+frontend/
+├── src/
+│   ├── Main.elm                    # Application entry point
+│   ├── Types/                      # Core type definitions
+│   │   ├── Model.elm              # Application state
+│   │   ├── Equipment.elm          # Equipment domain types
+│   │   ├── Validation.elm         # Validation types
+│   │   └── Messages.elm           # Application messages
+│   ├── Components/                 # UI components (future)
+│   ├── Pages/                      # Page modules (future)
+│   ├── Utils/                      # Utility functions
+│   │   ├── Config.elm             # Configuration loading
+│   │   └── Storage.elm            # Local storage operations
+│   └── Styles/
+│       └── Theme.elm              # Tailwind class constants
+├── public/
+│   ├── index.html                 # Main HTML template
+│   └── config.json                # Application configuration
+├── tests/
+│   ├── Unit/                      # Unit tests
+│   └── Integration/               # Integration tests (future)
+├── elm.json                       # Elm package configuration
+├── package.json                   # Node.js dependencies
+└── tailwind.config.js             # Tailwind CSS configuration
+```
+
+### Testing
+
+- **Unit tests** are located in `frontend/tests/Unit/`
+- Run `npm run test` to execute all tests
+- Test files use descriptive naming with underscores (e.g., `should_calculate_correct_timeline`)
+- All calculation functions must have corresponding unit tests
+
+### Configuration
+
+- Default equipment values are stored in `frontend/public/config.json`
+- Configuration includes default excavator/truck specifications and validation rules
+- Values can be updated without code changes
+
 ## Next Steps
 
 ### Immediate Actions
@@ -289,5 +366,5 @@ The Pond Digging Calculator evolves into a suite of specialized earthwork estima
 1. **Conduct construction equipment research** to identify realistic default values for excavator bucket capacities, cycle times, truck capacities, and operational parameters
 2. **Design configuration file structure** for easily updateable default values that can be modified pre/post deployment
 3. **Collaborate with UI/UX expert** to design mixed equipment fleet management interface for desktop/tablet experience
-4. **Set up Elm development environment** and project structure following functional programming best practices
+4. ~~**Set up Elm development environment** and project structure following functional programming best practices~~ ✅ **COMPLETED**
 5. **Create initial wireframes** distinguishing desktop/tablet comprehensive interface from mobile simplified calculator experience
