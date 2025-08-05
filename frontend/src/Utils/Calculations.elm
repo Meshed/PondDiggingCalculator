@@ -1,11 +1,6 @@
-module Utils.Calculations exposing 
-    ( calculateExcavatorRate
-    , calculateTruckRate
-    , calculateTimeline
-    , CalculationResult
-    , CalculationError(..)
-    , Bottleneck(..)
-    , ConfidenceLevel(..)
+module Utils.Calculations exposing
+    ( calculateExcavatorRate, calculateTruckRate, calculateTimeline
+    , CalculationResult, CalculationError(..), Bottleneck(..), ConfidenceLevel(..)
     )
 
 {-| Core calculation engine for pond digging timeline estimates
@@ -19,23 +14,29 @@ import Types.Equipment exposing (CubicYards, Minutes)
 import Types.Validation exposing (ValidationError)
 
 
+
 -- CONSTANTS
 
-{-| Real-world efficiency factor for excavators accounting for positioning, 
-    operator breaks, and site conditions
+
+{-| Real-world efficiency factor for excavators accounting for positioning,
+operator breaks, and site conditions
 -}
 excavatorEfficiencyFactor : Float
-excavatorEfficiencyFactor = 0.85
+excavatorEfficiencyFactor =
+    0.85
 
 
 {-| Truck efficiency factor accounting for loading/unloading time,
-    traffic delays, and coordination with excavators
+traffic delays, and coordination with excavators
 -}
 truckEfficiencyFactor : Float
-truckEfficiencyFactor = 0.8
+truckEfficiencyFactor =
+    0.8
+
 
 
 -- TYPES
+
 
 type CalculationError
     = ValidationError ValidationError
@@ -56,10 +57,10 @@ type ConfidenceLevel
 
 
 type alias CalculationResult =
-    { timelineInDays : Int      -- whole days (rounded up)
-    , totalHours : Float        -- precise calculation
-    , excavationRate : Float    -- cy/hour
-    , haulingRate : Float       -- cy/hour
+    { timelineInDays : Int -- whole days (rounded up)
+    , totalHours : Float -- precise calculation
+    , excavationRate : Float -- cy/hour
+    , haulingRate : Float -- cy/hour
     , bottleneck : Bottleneck
     , confidence : ConfidenceLevel
     , assumptions : List String
@@ -67,88 +68,119 @@ type alias CalculationResult =
     }
 
 
+
 -- CALCULATION FUNCTIONS
 
+
 {-| Calculate the hourly excavation rate for a single excavator.
-    Takes bucket capacity in cubic yards and cycle time in minutes.
-    Returns cubic yards per hour accounting for real-world efficiency.
+Takes bucket capacity in cubic yards and cycle time in minutes.
+Returns cubic yards per hour accounting for real-world efficiency.
 -}
 calculateExcavatorRate : CubicYards -> Minutes -> CubicYards
 calculateExcavatorRate bucketCapacity cycleTime =
     let
-        cyclesPerHour = 60.0 / cycleTime
-        theoreticalRate = cyclesPerHour * bucketCapacity
+        cyclesPerHour =
+            60.0 / cycleTime
+
+        theoreticalRate =
+            cyclesPerHour * bucketCapacity
     in
     -- Apply efficiency factor because real-world conditions reduce productivity
     theoreticalRate * excavatorEfficiencyFactor
 
 
 {-| Calculate the hourly hauling rate for a single truck.
-    Takes truck capacity in cubic yards and round-trip time in minutes.
-    Returns cubic yards per hour accounting for loading/unloading efficiency.
+Takes truck capacity in cubic yards and round-trip time in minutes.
+Returns cubic yards per hour accounting for loading/unloading efficiency.
 -}
 calculateTruckRate : CubicYards -> Minutes -> CubicYards
 calculateTruckRate truckCapacity roundTripTime =
     let
-        tripsPerHour = 60.0 / roundTripTime
-        theoreticalRate = tripsPerHour * truckCapacity
+        tripsPerHour =
+            60.0 / roundTripTime
+
+        theoreticalRate =
+            tripsPerHour * truckCapacity
     in
     -- Apply efficiency factor for loading/unloading and coordination delays
     theoreticalRate * truckEfficiencyFactor
 
 
 {-| Calculate complete timeline for pond digging project.
-    Takes excavator specs, truck specs, pond volume, and work hours per day.
-    Returns detailed calculation result with timeline rounded up to whole days.
+Takes excavator specs, truck specs, pond volume, and work hours per day.
+Returns detailed calculation result with timeline rounded up to whole days.
 -}
 calculateTimeline : CubicYards -> Minutes -> CubicYards -> Minutes -> Float -> Float -> Result CalculationError CalculationResult
 calculateTimeline excavatorCapacity excavatorCycle truckCapacity truckRoundTrip pondVolume workHoursPerDay =
     if pondVolume <= 0 then
         Err (InvalidConfiguration "Pond volume must be positive")
+
     else if workHoursPerDay <= 0 then
         Err (InvalidConfiguration "Work hours per day must be positive")
+
     else
         let
-            excavationRate = calculateExcavatorRate excavatorCapacity excavatorCycle
-            haulingRate = calculateTruckRate truckCapacity truckRoundTrip
-            
+            excavationRate =
+                calculateExcavatorRate excavatorCapacity excavatorCycle
+
+            haulingRate =
+                calculateTruckRate truckCapacity truckRoundTrip
+
             -- The limiting factor determines overall productivity
-            effectiveRate = min excavationRate haulingRate
-            
+            effectiveRate =
+                min excavationRate haulingRate
+
             -- Calculate timeline
-            totalHours = pondVolume / effectiveRate
-            timelineInDays = ceiling (totalHours / workHoursPerDay)
-            
+            totalHours =
+                pondVolume / effectiveRate
+
+            timelineInDays =
+                ceiling (totalHours / workHoursPerDay)
+
             -- Determine bottleneck
-            bottleneck = 
+            bottleneck =
                 if abs (excavationRate - haulingRate) < 5.0 then
                     Balanced
+
                 else if excavationRate < haulingRate then
                     ExcavationBottleneck
+
                 else
                     HaulingBottleneck
-            
+
             -- Assess confidence based on equipment balance
-            confidence = 
+            confidence =
                 case bottleneck of
-                    Balanced -> High
-                    _ -> if abs (excavationRate - haulingRate) > 20.0 then Low else Medium
-            
+                    Balanced ->
+                        High
+
+                    _ ->
+                        if abs (excavationRate - haulingRate) > 20.0 then
+                            Low
+
+                        else
+                            Medium
+
             -- Generate assumptions and warnings
-            assumptions = 
+            assumptions =
                 [ "Excavator efficiency: " ++ String.fromFloat (excavatorEfficiencyFactor * 100) ++ "%"
                 , "Truck efficiency: " ++ String.fromFloat (truckEfficiencyFactor * 100) ++ "%"
                 , "No weather delays assumed"
                 , "Site conditions allow continuous operation"
                 ]
-            
-            warnings = 
+
+            warnings =
                 case bottleneck of
-                    ExcavationBottleneck -> ["Excavation is the limiting factor - consider additional excavators"]
-                    HaulingBottleneck -> ["Hauling is the limiting factor - consider additional trucks"]
-                    Balanced -> []
+                    ExcavationBottleneck ->
+                        [ "Excavation is the limiting factor - consider additional excavators" ]
+
+                    HaulingBottleneck ->
+                        [ "Hauling is the limiting factor - consider additional trucks" ]
+
+                    Balanced ->
+                        []
         in
-        Ok 
+        Ok
             { timelineInDays = timelineInDays
             , totalHours = totalHours
             , excavationRate = excavationRate

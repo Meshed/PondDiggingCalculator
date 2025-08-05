@@ -13,9 +13,9 @@
     },
     "project": {
       "workHoursPerDay": 8.0,
-      "pondLength": 50.0,
-      "pondWidth": 30.0,
-      "pondDepth": 6.0
+      "pondLength": 40.0,
+      "pondWidth": 25.0,
+      "pondDepth": 5.0
     }
   },
   "validation": {

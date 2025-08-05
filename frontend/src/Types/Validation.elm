@@ -6,12 +6,12 @@ module Types.Validation exposing (ValidationError(..), ValidationResult)
 
 -}
 
-
 -- VALIDATION TYPES
 
+
 type ValidationError
-    = ValueTooLow Float Float  -- actual, minimum
-    | ValueTooHigh Float Float  -- actual, maximum
+    = ValueTooLow Float Float -- actual, minimum
+    | ValueTooHigh Float Float -- actual, maximum
     | InvalidFormat String
     | RequiredField String
     | ConfigurationError String

@@ -6,8 +6,8 @@ module Types.Equipment exposing (Equipment, EquipmentType(..), EquipmentId, Cubi
 
 -}
 
-
 -- EQUIPMENT TYPES
+
 
 type alias EquipmentId =
     String

@@ -6,12 +6,14 @@ module Components.ResultsPanel exposing (view)
 
 -}
 
-import Html exposing (Html, div, h3, h4, p, text, span, ul, li)
+import Html exposing (Html, div, h3, h4, li, p, span, text, ul)
 import Html.Attributes exposing (class)
-import Utils.Calculations exposing (CalculationResult, Bottleneck(..), ConfidenceLevel(..))
+import Utils.Calculations exposing (Bottleneck(..), CalculationResult, ConfidenceLevel(..))
+
 
 
 -- VIEW
+
 
 {-| Render calculation results with detailed breakdown
 -}
@@ -25,11 +27,18 @@ view result =
             , div [ class "text-6xl font-bold text-indigo-600 mb-2" ]
                 [ text (String.fromInt result.timelineInDays) ]
             , div [ class "text-xl text-gray-600" ]
-                [ text (if result.timelineInDays == 1 then "day" else "days") ]
+                [ text
+                    (if result.timelineInDays == 1 then
+                        "day"
+
+                     else
+                        "days"
+                    )
+                ]
             , div [ class "text-sm text-gray-500 mt-2" ]
                 [ text ("(" ++ formatHours result.totalHours ++ " total hours)") ]
             ]
-        
+
         -- Calculation Breakdown
         , div [ class "grid grid-cols-1 md:grid-cols-2 gap-6 mb-6" ]
             [ -- Equipment Rates
@@ -42,7 +51,7 @@ view result =
                     , bottleneckIndicator result.bottleneck
                     ]
                 ]
-            
+
             -- Project Analysis
             , div [ class "bg-gray-50 p-4 rounded-lg" ]
                 [ h4 [ class "text-lg font-semibold text-gray-800 mb-3" ]
@@ -54,23 +63,26 @@ view result =
                     ]
                 ]
             ]
-        
+
         -- Assumptions and Warnings
         , div [ class "space-y-4" ]
             [ if not (List.isEmpty result.assumptions) then
                 assumptionsSection result.assumptions
+
               else
                 text ""
-            
             , if not (List.isEmpty result.warnings) then
                 warningsSection result.warnings
+
               else
                 text ""
             ]
         ]
 
 
+
 -- HELPER FUNCTIONS
+
 
 {-| Display a productivity rate with label and units
 -}
@@ -78,7 +90,7 @@ productivityRow : String -> Float -> String -> Html msg
 productivityRow label rate units =
     div [ class "flex justify-between items-center" ]
         [ span [ class "text-sm font-medium text-gray-700" ] [ text label ]
-        , span [ class "text-sm text-gray-900" ] 
+        , span [ class "text-sm text-gray-900" ]
             [ text (formatRate rate ++ " " ++ units) ]
         ]
 
@@ -88,16 +100,16 @@ productivityRow label rate units =
 bottleneckIndicator : Bottleneck -> Html msg
 bottleneckIndicator bottleneck =
     let
-        (label, color) = 
+        ( label, color ) =
             case bottleneck of
                 ExcavationBottleneck ->
-                    ("Excavation Limited", "text-amber-600")
-                
+                    ( "Excavation Limited", "text-amber-600" )
+
                 HaulingBottleneck ->
-                    ("Hauling Limited", "text-amber-600")
-                
+                    ( "Hauling Limited", "text-amber-600" )
+
                 Balanced ->
-                    ("Well Balanced", "text-green-600")
+                    ( "Well Balanced", "text-green-600" )
     in
     div [ class "flex justify-between items-center" ]
         [ span [ class "text-sm font-medium text-gray-700" ] [ text "Bottleneck" ]
@@ -110,16 +122,16 @@ bottleneckIndicator bottleneck =
 confidenceIndicator : ConfidenceLevel -> Html msg
 confidenceIndicator confidence =
     let
-        (label, color, description) = 
+        ( label, color, description ) =
             case confidence of
                 High ->
-                    ("High", "text-green-600", "Equipment well balanced")
-                
+                    ( "High", "text-green-600", "Equipment well balanced" )
+
                 Medium ->
-                    ("Medium", "text-amber-600", "Minor equipment imbalance")
-                
+                    ( "Medium", "text-amber-600", "Minor equipment imbalance" )
+
                 Low ->
-                    ("Low", "text-red-600", "Significant equipment imbalance")
+                    ( "Low", "text-red-600", "Significant equipment imbalance" )
     in
     div [ class "space-y-1" ]
         [ div [ class "flex justify-between items-center" ]
@@ -138,12 +150,15 @@ assumptionsSection assumptions =
         [ h4 [ class "text-sm font-semibold text-blue-800 mb-2" ]
             [ text "Calculation Assumptions" ]
         , ul [ class "text-xs text-blue-700 space-y-1" ]
-            (List.map (\assumption ->
-                li [ class "flex items-start" ]
-                    [ span [ class "mr-2" ] [ text "•" ]
-                    , text assumption
-                    ]
-            ) assumptions)
+            (List.map
+                (\assumption ->
+                    li [ class "flex items-start" ]
+                        [ span [ class "mr-2" ] [ text "•" ]
+                        , text assumption
+                        ]
+                )
+                assumptions
+            )
         ]
 
 
@@ -155,16 +170,21 @@ warningsSection warnings =
         [ h4 [ class "text-sm font-semibold text-amber-800 mb-2" ]
             [ text "Recommendations" ]
         , ul [ class "text-xs text-amber-700 space-y-1" ]
-            (List.map (\warning ->
-                li [ class "flex items-start" ]
-                    [ span [ class "mr-2" ] [ text "⚠" ]
-                    , text warning
-                    ]
-            ) warnings)
+            (List.map
+                (\warning ->
+                    li [ class "flex items-start" ]
+                        [ span [ class "mr-2" ] [ text "⚠" ]
+                        , text warning
+                        ]
+                )
+                warnings
+            )
         ]
 
 
+
 -- FORMATTING HELPERS
+
 
 {-| Format rate to 1 decimal place
 -}
@@ -179,5 +199,6 @@ formatHours : Float -> String
 formatHours hours =
     if hours < 10 then
         String.fromFloat (toFloat (round (hours * 10)) / 10)
+
     else
         String.fromInt (round hours)

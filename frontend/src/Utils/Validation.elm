@@ -1,12 +1,7 @@
-module Utils.Validation exposing 
-    ( validateExcavatorCapacity
-    , validateCycleTime
-    , validateTruckCapacity
-    , validateRoundTripTime
-    , validateWorkHours
-    , validatePondDimensions
-    , validateAllInputs
-    , ProjectInputs
+module Utils.Validation exposing
+    ( validateExcavatorCapacity, validateCycleTime, validateTruckCapacity
+    , validateRoundTripTime, validateWorkHours, validatePondDimensions
+    , validateAllInputs, ProjectInputs
     )
 
 {-| Input validation functions for pond digging calculator
@@ -19,10 +14,12 @@ module Utils.Validation exposing
 
 import Types.Equipment exposing (CubicYards, Minutes)
 import Types.Validation exposing (ValidationError(..), ValidationResult)
-import Utils.Config exposing (ValidationRules, ValidationRange)
+import Utils.Config exposing (ValidationRange, ValidationRules)
+
 
 
 -- TYPES
+
 
 type alias ProjectInputs =
     { excavatorCapacity : Float
@@ -36,10 +33,12 @@ type alias ProjectInputs =
     }
 
 
+
 -- VALIDATION FUNCTIONS
 
+
 {-| Validate excavator bucket capacity against industry standards.
-    Returns validated capacity or specific validation error.
+Returns validated capacity or specific validation error.
 -}
 validateExcavatorCapacity : ValidationRange -> Float -> ValidationResult CubicYards
 validateExcavatorCapacity rules capacity =
@@ -47,7 +46,7 @@ validateExcavatorCapacity rules capacity =
 
 
 {-| Validate excavator cycle time against operational limits.
-    Returns validated cycle time or specific validation error.
+Returns validated cycle time or specific validation error.
 -}
 validateCycleTime : ValidationRange -> Float -> ValidationResult Minutes
 validateCycleTime rules cycleTime =
@@ -55,7 +54,7 @@ validateCycleTime rules cycleTime =
 
 
 {-| Validate truck capacity against industry standards.
-    Returns validated capacity or specific validation error.
+Returns validated capacity or specific validation error.
 -}
 validateTruckCapacity : ValidationRange -> Float -> ValidationResult CubicYards
 validateTruckCapacity rules capacity =
@@ -63,7 +62,7 @@ validateTruckCapacity rules capacity =
 
 
 {-| Validate truck round-trip time against operational limits.
-    Returns validated round-trip time or specific validation error.
+Returns validated round-trip time or specific validation error.
 -}
 validateRoundTripTime : ValidationRange -> Float -> ValidationResult Minutes
 validateRoundTripTime rules roundTripTime =
@@ -71,7 +70,7 @@ validateRoundTripTime rules roundTripTime =
 
 
 {-| Validate daily work hours against labor regulations.
-    Returns validated work hours or specific validation error.
+Returns validated work hours or specific validation error.
 -}
 validateWorkHours : ValidationRange -> Float -> ValidationResult Float
 validateWorkHours rules workHours =
@@ -79,7 +78,7 @@ validateWorkHours rules workHours =
 
 
 {-| Validate pond dimensions against construction feasibility.
-    Returns validated dimension or specific validation error.
+Returns validated dimension or specific validation error.
 -}
 validatePondDimensions : ValidationRange -> Float -> ValidationResult Float
 validatePondDimensions rules dimension =
@@ -87,48 +86,60 @@ validatePondDimensions rules dimension =
 
 
 {-| Validate all project inputs at once.
-    Returns validated inputs or the first validation error encountered.
+Returns validated inputs or the first validation error encountered.
 -}
 validateAllInputs : ValidationRules -> ProjectInputs -> ValidationResult ProjectInputs
 validateAllInputs rules inputs =
     validateExcavatorCapacity rules.excavatorCapacity inputs.excavatorCapacity
-        |> Result.andThen (\_ ->
-            validateCycleTime rules.cycleTime inputs.excavatorCycleTime
-        )
-        |> Result.andThen (\_ ->
-            validateTruckCapacity rules.truckCapacity inputs.truckCapacity
-        )
-        |> Result.andThen (\_ ->
-            validateRoundTripTime rules.roundTripTime inputs.truckRoundTripTime
-        )
-        |> Result.andThen (\_ ->
-            validateWorkHours rules.workHours inputs.workHoursPerDay
-        )
-        |> Result.andThen (\_ ->
-            validatePondDimensions rules.pondDimensions inputs.pondLength
-        )
-        |> Result.andThen (\_ ->
-            validatePondDimensions rules.pondDimensions inputs.pondWidth
-        )
-        |> Result.andThen (\_ ->
-            validatePondDimensions rules.pondDimensions inputs.pondDepth
-        )
+        |> Result.andThen
+            (\_ ->
+                validateCycleTime rules.cycleTime inputs.excavatorCycleTime
+            )
+        |> Result.andThen
+            (\_ ->
+                validateTruckCapacity rules.truckCapacity inputs.truckCapacity
+            )
+        |> Result.andThen
+            (\_ ->
+                validateRoundTripTime rules.roundTripTime inputs.truckRoundTripTime
+            )
+        |> Result.andThen
+            (\_ ->
+                validateWorkHours rules.workHours inputs.workHoursPerDay
+            )
+        |> Result.andThen
+            (\_ ->
+                validatePondDimensions rules.pondDimensions inputs.pondLength
+            )
+        |> Result.andThen
+            (\_ ->
+                validatePondDimensions rules.pondDimensions inputs.pondWidth
+            )
+        |> Result.andThen
+            (\_ ->
+                validatePondDimensions rules.pondDimensions inputs.pondDepth
+            )
         |> Result.map (\_ -> inputs)
+
 
 
 -- HELPER FUNCTIONS
 
+
 {-| Generic range validation helper.
-    Validates a value against minimum and maximum constraints.
+Validates a value against minimum and maximum constraints.
 -}
 validateRange : String -> ValidationRange -> Float -> ValidationResult Float
 validateRange fieldName range value =
     if value <= 0 then
         Err (RequiredField fieldName)
+
     else if value < range.min then
         Err (ValueTooLow value range.min)
+
     else if value > range.max then
         Err (ValueTooHigh value range.max)
+
     else
         Ok value
 

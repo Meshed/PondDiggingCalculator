@@ -6,8 +6,8 @@ module Utils.Storage exposing (saveToLocalStorage, loadFromLocalStorage, storage
 
 -}
 
-
 -- STORAGE UTILITIES
+
 
 storageKey : String
 storageKey =
@@ -15,8 +15,8 @@ storageKey =
 
 
 {-| Save configuration to local storage
-    Note: In a real implementation, this would use ports to JavaScript
-    For now, this is a placeholder for the storage interface
+Note: In a real implementation, this would use ports to JavaScript
+For now, this is a placeholder for the storage interface
 -}
 saveToLocalStorage : String -> Cmd msg
 saveToLocalStorage value =
@@ -25,8 +25,8 @@ saveToLocalStorage value =
 
 
 {-| Load configuration from local storage
-    Note: In a real implementation, this would use ports to JavaScript
-    For now, this is a placeholder for the storage interface
+Note: In a real implementation, this would use ports to JavaScript
+For now, this is a placeholder for the storage interface
 -}
 loadFromLocalStorage : (Maybe String -> msg) -> Cmd msg
 loadFromLocalStorage toMsg =

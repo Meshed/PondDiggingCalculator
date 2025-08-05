@@ -6,12 +6,14 @@ module Types.Model exposing (Model, Flags)
 
 -}
 
-import Utils.Config exposing (Config)
 import Components.ProjectForm exposing (FormData)
 import Utils.Calculations exposing (CalculationResult)
+import Utils.Config exposing (Config)
+
 
 
 -- MODEL
+
 
 type alias Model =
     { message : String

@@ -6,13 +6,15 @@ module Types.Messages exposing (Msg(..))
 
 -}
 
+import Components.ProjectForm exposing (FormMsg)
 import Types.Equipment exposing (Equipment)
 import Types.Validation exposing (ValidationError)
 import Utils.Config exposing (Config)
-import Components.ProjectForm exposing (FormMsg)
+
 
 
 -- APPLICATION MESSAGES
+
 
 type Msg
     = NoOp

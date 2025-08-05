@@ -6,8 +6,8 @@ module Styles.Theme exposing (container, textCenter, button, card, input, errorT
 
 -}
 
-
 -- LAYOUT CLASSES
+
 
 container : String
 container =
@@ -19,7 +19,9 @@ textCenter =
     "text-center"
 
 
+
 -- COMPONENT CLASSES
+
 
 button : String
 button =

@@ -6,15 +6,17 @@ module Components.ProjectForm exposing (view, FormData, FormMsg(..), initFormDat
 
 -}
 
-import Html exposing (Html, div, label, input, text, span)
-import Html.Attributes exposing (type_, value, placeholder, class, id)
+import Html exposing (Html, div, input, label, span, text)
+import Html.Attributes exposing (class, id, placeholder, type_, value)
 import Html.Events exposing (onInput)
 import Types.Validation exposing (ValidationError)
 import Utils.Config exposing (Config, Defaults)
 import Utils.Validation as Validation
 
 
+
 -- TYPES
+
 
 type alias FormData =
     { excavatorCapacity : String
@@ -25,7 +27,7 @@ type alias FormData =
     , pondLength : String
     , pondWidth : String
     , pondDepth : String
-    , errors : List (String, String)  -- (fieldName, errorMessage)
+    , errors : List ( String, String ) -- (fieldName, errorMessage)
     }
 
 
@@ -40,7 +42,9 @@ type FormMsg
     | UpdatePondDepth String
 
 
+
 -- INIT
+
 
 {-| Initialize form data with default values from configuration
 -}
@@ -58,7 +62,9 @@ initFormData defaults =
     }
 
 
+
 -- UPDATE
+
 
 {-| Update form data based on user input
 -}
@@ -90,14 +96,25 @@ updateFormData msg formData =
             { formData | pondDepth = value }
 
 
+
 -- VIEW
+
 
 {-| Render the project input form with validation
 -}
 view : FormData -> (FormMsg -> msg) -> Html msg
 view formData toMsg =
     div [ class "project-form max-w-4xl mx-auto p-6 bg-white rounded-lg shadow-lg" ]
-        [ div [ class "grid grid-cols-1 md:grid-cols-2 gap-6" ]
+        [ -- Info banner about defaults
+          div [ class "mb-6 p-4 bg-blue-50 border border-blue-200 rounded-md" ]
+            [ div [ class "flex" ]
+                [ div [ class "flex-shrink-0" ]
+                    [ span [ class "text-blue-400" ] [ text "ℹ️" ] ]
+                , div [ class "ml-3" ]
+                    [ text "Default values for common equipment are pre-loaded. Adjust any values to match your specific project requirements." ]
+                ]
+            ]
+        , div [ class "grid grid-cols-1 md:grid-cols-2 gap-6" ]
             [ -- Equipment Section
               div [ class "space-y-4" ]
                 [ div [ class "text-lg font-semibold text-gray-800 mb-4" ]
@@ -106,7 +123,7 @@ view formData toMsg =
                     { label = "Excavator Bucket Capacity (cubic yards)"
                     , id = "excavator-capacity"
                     , value = formData.excavatorCapacity
-                    , placeholder = "2.5"
+                    , placeholder = ""
                     , onInput = UpdateExcavatorCapacity >> toMsg
                     , error = getFieldError "excavatorCapacity" formData.errors
                     }
@@ -114,7 +131,7 @@ view formData toMsg =
                     { label = "Excavator Cycle Time (minutes)"
                     , id = "excavator-cycle"
                     , value = formData.excavatorCycleTime
-                    , placeholder = "2.0"
+                    , placeholder = ""
                     , onInput = UpdateExcavatorCycleTime >> toMsg
                     , error = getFieldError "excavatorCycleTime" formData.errors
                     }
@@ -122,7 +139,7 @@ view formData toMsg =
                     { label = "Truck Capacity (cubic yards)"
                     , id = "truck-capacity"
                     , value = formData.truckCapacity
-                    , placeholder = "12.0"
+                    , placeholder = ""
                     , onInput = UpdateTruckCapacity >> toMsg
                     , error = getFieldError "truckCapacity" formData.errors
                     }
@@ -130,7 +147,7 @@ view formData toMsg =
                     { label = "Truck Round-trip Time (minutes)"
                     , id = "truck-roundtrip"
                     , value = formData.truckRoundTripTime
-                    , placeholder = "15.0"
+                    , placeholder = ""
                     , onInput = UpdateTruckRoundTripTime >> toMsg
                     , error = getFieldError "truckRoundTripTime" formData.errors
                     }
@@ -143,7 +160,7 @@ view formData toMsg =
                     { label = "Work Hours per Day"
                     , id = "work-hours"
                     , value = formData.workHoursPerDay
-                    , placeholder = "8.0"
+                    , placeholder = ""
                     , onInput = UpdateWorkHours >> toMsg
                     , error = getFieldError "workHoursPerDay" formData.errors
                     }
@@ -151,7 +168,7 @@ view formData toMsg =
                     { label = "Pond Length (feet)"
                     , id = "pond-length"
                     , value = formData.pondLength
-                    , placeholder = "50.0"
+                    , placeholder = ""
                     , onInput = UpdatePondLength >> toMsg
                     , error = getFieldError "pondLength" formData.errors
                     }
@@ -159,7 +176,7 @@ view formData toMsg =
                     { label = "Pond Width (feet)"
                     , id = "pond-width"
                     , value = formData.pondWidth
-                    , placeholder = "30.0"
+                    , placeholder = ""
                     , onInput = UpdatePondWidth >> toMsg
                     , error = getFieldError "pondWidth" formData.errors
                     }
@@ -167,7 +184,7 @@ view formData toMsg =
                     { label = "Pond Depth (feet)"
                     , id = "pond-depth"
                     , value = formData.pondDepth
-                    , placeholder = "6.0"
+                    , placeholder = ""
                     , onInput = UpdatePondDepth >> toMsg
                     , error = getFieldError "pondDepth" formData.errors
                     }
@@ -176,7 +193,9 @@ view formData toMsg =
         ]
 
 
+
 -- HELPER FUNCTIONS
+
 
 type alias InputFieldConfig msg =
     { label : String
@@ -193,10 +212,10 @@ type alias InputFieldConfig msg =
 inputField : InputFieldConfig msg -> Html msg
 inputField config =
     div [ class "space-y-2" ]
-        [ label 
+        [ label
             [ class "block text-sm font-medium text-gray-700"
             , Html.Attributes.for config.id
-            ] 
+            ]
             [ text config.label ]
         , input
             [ type_ "number"
@@ -210,7 +229,7 @@ inputField config =
         , case config.error of
             Just errorMsg ->
                 span [ class "text-sm text-red-600" ] [ text errorMsg ]
-            
+
             Nothing ->
                 span [ class "text-sm text-gray-500" ] []
         ]
@@ -221,21 +240,22 @@ inputField config =
 inputClasses : Maybe String -> String
 inputClasses error =
     let
-        baseClasses = "block w-full px-3 py-2 border rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-offset-2 sm:text-sm"
+        baseClasses =
+            "block w-full px-3 py-2 border rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-offset-2 sm:text-sm"
     in
     case error of
         Just _ ->
             baseClasses ++ " border-red-300 text-red-900 placeholder-red-300 focus:border-red-500 focus:ring-red-500"
-        
+
         Nothing ->
             baseClasses ++ " border-gray-300 placeholder-gray-400 focus:border-indigo-500 focus:ring-indigo-500"
 
 
 {-| Get error message for a specific field
 -}
-getFieldError : String -> List (String, String) -> Maybe String
+getFieldError : String -> List ( String, String ) -> Maybe String
 getFieldError fieldName errors =
     errors
-        |> List.filter (\(field, _) -> field == fieldName)
+        |> List.filter (\( field, _ ) -> field == fieldName)
         |> List.head
         |> Maybe.map Tuple.second

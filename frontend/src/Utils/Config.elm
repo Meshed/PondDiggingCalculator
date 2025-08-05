@@ -1,8 +1,8 @@
-module Utils.Config exposing (Config, Defaults, ExcavatorDefaults, TruckDefaults, ValidationRules, ValidationRange, loadConfig, configDecoder)
+module Utils.Config exposing (Config, Defaults, ExcavatorDefaults, TruckDefaults, ProjectDefaults, ValidationRules, ValidationRange, loadConfig, configDecoder, fallbackConfig)
 
 {-| Configuration loading and JSON decoding utilities
 
-@docs Config, Defaults, ExcavatorDefaults, TruckDefaults, ValidationRules, ValidationRange, loadConfig, configDecoder
+@docs Config, Defaults, ExcavatorDefaults, TruckDefaults, ProjectDefaults, ValidationRules, ValidationRange, loadConfig, configDecoder, fallbackConfig
 
 -}
 
@@ -11,7 +11,9 @@ import Json.Decode as Decode exposing (Decoder)
 import Types.Validation exposing (ValidationError(..))
 
 
+
 -- TYPES
+
 
 type alias Config =
     { version : String
@@ -65,7 +67,9 @@ type alias ValidationRange =
     }
 
 
+
 -- CONFIG LOADING
+
 
 loadConfig : (Result ValidationError Config -> msg) -> Cmd msg
 loadConfig toMsg =
@@ -104,7 +108,9 @@ httpErrorToString error =
             "Invalid JSON: " ++ message
 
 
+
 -- JSON DECODERS
+
 
 configDecoder : Decoder Config
 configDecoder =
@@ -163,3 +169,49 @@ validationRangeDecoder =
     Decode.map2 ValidationRange
         (Decode.field "min" Decode.float)
         (Decode.field "max" Decode.float)
+
+
+
+-- FALLBACK DEFAULTS
+
+
+{-| Fallback configuration used when HTTP loading fails
+-}
+fallbackConfig : Config
+fallbackConfig =
+    { version = "1.0.0"
+    , defaults = fallbackDefaults
+    , validation = fallbackValidationRules
+    }
+
+
+fallbackDefaults : Defaults
+fallbackDefaults =
+    { excavator =
+        { bucketCapacity = 2.5
+        , cycleTime = 2.0
+        , name = "Standard Excavator"
+        }
+    , truck =
+        { capacity = 12.0
+        , roundTripTime = 15.0
+        , name = "15-yard Dump Truck"
+        }
+    , project =
+        { workHoursPerDay = 8.0
+        , pondLength = 40.0
+        , pondWidth = 25.0
+        , pondDepth = 5.0
+        }
+    }
+
+
+fallbackValidationRules : ValidationRules
+fallbackValidationRules =
+    { excavatorCapacity = { min = 0.5, max = 15.0 }
+    , cycleTime = { min = 0.5, max = 10.0 }
+    , truckCapacity = { min = 5.0, max = 30.0 }
+    , roundTripTime = { min = 5.0, max = 60.0 }
+    , workHours = { min = 1.0, max = 16.0 }
+    , pondDimensions = { min = 1.0, max = 1000.0 }
+    }
