@@ -6,6 +6,7 @@ module Types.Messages exposing (Msg(..))
 
 -}
 
+import Browser.Dom as Dom
 import Components.ProjectForm exposing (FormMsg)
 import Types.Equipment exposing (Equipment)
 import Types.Validation exposing (ValidationError)
@@ -25,3 +26,5 @@ type Msg
     | ValidationFailed ValidationError
     | FormUpdated FormMsg
     | CalculateTimeline
+    | DeviceDetected (Result Dom.Error { width : Int, height : Int })
+    | WindowResized Int Int

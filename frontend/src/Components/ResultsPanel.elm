@@ -8,6 +8,8 @@ module Components.ResultsPanel exposing (view)
 
 import Html exposing (Html, div, h3, h4, li, p, span, text, ul)
 import Html.Attributes exposing (class)
+import Styles.Components as Components
+import Types.DeviceType exposing (DeviceType)
 import Utils.Calculations exposing (Bottleneck(..), CalculationResult, ConfidenceLevel(..))
 
 
@@ -17,9 +19,9 @@ import Utils.Calculations exposing (Bottleneck(..), CalculationResult, Confidenc
 
 {-| Render calculation results with detailed breakdown
 -}
-view : CalculationResult -> Html msg
-view result =
-    div [ class "results-panel max-w-4xl mx-auto p-6 bg-white rounded-lg shadow-lg" ]
+view : DeviceType -> CalculationResult -> Html msg
+view deviceType result =
+    div [ class (Components.getResultsPanelClasses deviceType) ]
         [ -- Main Result
           div [ class "text-center mb-8" ]
             [ h3 [ class "text-3xl font-bold text-gray-900 mb-2" ]

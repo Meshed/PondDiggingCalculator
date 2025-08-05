@@ -1,14 +1,17 @@
 module Main exposing (main)
 
 import Browser
+import Browser.Events
 import Components.ProjectForm as ProjectForm
 import Components.ResultsPanel as ResultsPanel
 import Html exposing (Html, div, h1, h2, text)
 import Html.Attributes exposing (class)
+import Types.DeviceType exposing (DeviceType(..))
 import Types.Messages exposing (Msg(..))
 import Types.Model exposing (Flags, Model)
 import Utils.Calculations as Calculations
 import Utils.Config exposing (fallbackConfig, loadConfig)
+import Utils.DeviceDetector as DeviceDetector
 import Utils.Validation as Validation
 
 
@@ -36,8 +39,12 @@ init _ =
       , config = Nothing
       , formData = Nothing
       , calculationResult = Nothing
+      , deviceType = Desktop  -- Default to Desktop until detection completes
       }
-    , loadConfig ConfigLoaded
+    , Cmd.batch
+        [ loadConfig ConfigLoaded
+        , DeviceDetector.detectDevice () |> Cmd.map DeviceDetected
+        ]
     )
 
 
@@ -109,6 +116,26 @@ update msg model =
         ValidationFailed _ ->
             -- TODO: Implement in future story
             ( model, Cmd.none )
+
+        DeviceDetected result ->
+            case result of
+                Ok windowSize ->
+                    let
+                        deviceType =
+                            Types.DeviceType.fromWindowSize windowSize
+                    in
+                    ( { model | deviceType = deviceType }, Cmd.none )
+
+                Err _ ->
+                    -- Keep default device type on error
+                    ( model, Cmd.none )
+
+        WindowResized width height ->
+            let
+                deviceType =
+                    Types.DeviceType.fromWindowSize { width = width, height = height }
+            in
+            ( { model | deviceType = deviceType }, Cmd.none )
 
 
 
@@ -212,7 +239,7 @@ parseFormData formData =
 
 subscriptions : Model -> Sub Msg
 subscriptions _ =
-    Sub.none
+    Browser.Events.onResize WindowResized
 
 
 
@@ -235,11 +262,11 @@ view model =
                 ( Just formData, Just config ) ->
                     div [ class "space-y-8" ]
                         [ -- Input Form
-                          ProjectForm.view formData FormUpdated
+                          ProjectForm.view model.deviceType formData FormUpdated
                         , -- Results Panel
                           case model.calculationResult of
                             Just result ->
-                                ResultsPanel.view result
+                                ResultsPanel.view model.deviceType result
 
                             Nothing ->
                                 div [ class "text-center text-gray-500" ]

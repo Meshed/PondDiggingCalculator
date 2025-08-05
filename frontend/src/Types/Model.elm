@@ -7,6 +7,7 @@ module Types.Model exposing (Model, Flags)
 -}
 
 import Components.ProjectForm exposing (FormData)
+import Types.DeviceType exposing (DeviceType)
 import Utils.Calculations exposing (CalculationResult)
 import Utils.Config exposing (Config)
 
@@ -20,6 +21,7 @@ type alias Model =
     , config : Maybe Config
     , formData : Maybe FormData
     , calculationResult : Maybe CalculationResult
+    , deviceType : DeviceType
     }
 
 

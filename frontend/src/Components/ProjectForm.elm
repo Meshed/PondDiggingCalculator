@@ -9,6 +9,10 @@ module Components.ProjectForm exposing (view, FormData, FormMsg(..), initFormDat
 import Html exposing (Html, div, input, label, span, text)
 import Html.Attributes exposing (class, id, placeholder, type_, value)
 import Html.Events exposing (onInput)
+import Styles.Components as Components
+import Styles.Responsive as Responsive
+import Styles.Theme as Theme
+import Types.DeviceType exposing (DeviceType)
 import Types.Validation exposing (ValidationError)
 import Utils.Config exposing (Config, Defaults)
 import Utils.Validation as Validation
@@ -102,9 +106,9 @@ updateFormData msg formData =
 
 {-| Render the project input form with validation
 -}
-view : FormData -> (FormMsg -> msg) -> Html msg
-view formData toMsg =
-    div [ class "project-form max-w-4xl mx-auto p-6 bg-white rounded-lg shadow-lg" ]
+view : DeviceType -> FormData -> (FormMsg -> msg) -> Html msg
+view deviceType formData toMsg =
+    div [ class (Components.getFormClasses deviceType) ]
         [ -- Info banner about defaults
           div [ class "mb-6 p-4 bg-blue-50 border border-blue-200 rounded-md" ]
             [ div [ class "flex" ]
@@ -114,12 +118,12 @@ view formData toMsg =
                     [ text "Default values for common equipment are pre-loaded. Adjust any values to match your specific project requirements." ]
                 ]
             ]
-        , div [ class "grid grid-cols-1 md:grid-cols-2 gap-6" ]
+        , div [ class (Responsive.getGridClasses deviceType) ]
             [ -- Equipment Section
               div [ class "space-y-4" ]
                 [ div [ class "text-lg font-semibold text-gray-800 mb-4" ]
                     [ text "Equipment Specifications" ]
-                , inputField
+                , inputField deviceType
                     { label = "Excavator Bucket Capacity (cubic yards)"
                     , id = "excavator-capacity"
                     , value = formData.excavatorCapacity
@@ -127,7 +131,7 @@ view formData toMsg =
                     , onInput = UpdateExcavatorCapacity >> toMsg
                     , error = getFieldError "excavatorCapacity" formData.errors
                     }
-                , inputField
+                , inputField deviceType
                     { label = "Excavator Cycle Time (minutes)"
                     , id = "excavator-cycle"
                     , value = formData.excavatorCycleTime
@@ -135,7 +139,7 @@ view formData toMsg =
                     , onInput = UpdateExcavatorCycleTime >> toMsg
                     , error = getFieldError "excavatorCycleTime" formData.errors
                     }
-                , inputField
+                , inputField deviceType
                     { label = "Truck Capacity (cubic yards)"
                     , id = "truck-capacity"
                     , value = formData.truckCapacity
@@ -143,7 +147,7 @@ view formData toMsg =
                     , onInput = UpdateTruckCapacity >> toMsg
                     , error = getFieldError "truckCapacity" formData.errors
                     }
-                , inputField
+                , inputField deviceType
                     { label = "Truck Round-trip Time (minutes)"
                     , id = "truck-roundtrip"
                     , value = formData.truckRoundTripTime
@@ -156,7 +160,7 @@ view formData toMsg =
               div [ class "space-y-4" ]
                 [ div [ class "text-lg font-semibold text-gray-800 mb-4" ]
                     [ text "Project Parameters" ]
-                , inputField
+                , inputField deviceType
                     { label = "Work Hours per Day"
                     , id = "work-hours"
                     , value = formData.workHoursPerDay
@@ -164,7 +168,7 @@ view formData toMsg =
                     , onInput = UpdateWorkHours >> toMsg
                     , error = getFieldError "workHoursPerDay" formData.errors
                     }
-                , inputField
+                , inputField deviceType
                     { label = "Pond Length (feet)"
                     , id = "pond-length"
                     , value = formData.pondLength
@@ -172,7 +176,7 @@ view formData toMsg =
                     , onInput = UpdatePondLength >> toMsg
                     , error = getFieldError "pondLength" formData.errors
                     }
-                , inputField
+                , inputField deviceType
                     { label = "Pond Width (feet)"
                     , id = "pond-width"
                     , value = formData.pondWidth
@@ -180,7 +184,7 @@ view formData toMsg =
                     , onInput = UpdatePondWidth >> toMsg
                     , error = getFieldError "pondWidth" formData.errors
                     }
-                , inputField
+                , inputField deviceType
                     { label = "Pond Depth (feet)"
                     , id = "pond-depth"
                     , value = formData.pondDepth
@@ -209,8 +213,8 @@ type alias InputFieldConfig msg =
 
 {-| Reusable input field component with validation display
 -}
-inputField : InputFieldConfig msg -> Html msg
-inputField config =
+inputField : DeviceType -> InputFieldConfig msg -> Html msg
+inputField deviceType config =
     div [ class "space-y-2" ]
         [ label
             [ class "block text-sm font-medium text-gray-700"
@@ -223,25 +227,25 @@ inputField config =
             , value config.value
             , placeholder config.placeholder
             , onInput config.onInput
-            , class (inputClasses config.error)
+            , class (inputClasses deviceType config.error)
             ]
             []
         , case config.error of
             Just errorMsg ->
-                span [ class "text-sm text-red-600" ] [ text errorMsg ]
+                span [ class (Components.getValidationMessageClasses deviceType) ] [ text errorMsg ]
 
             Nothing ->
                 span [ class "text-sm text-gray-500" ] []
         ]
 
 
-{-| Get CSS classes for input based on validation state
+{-| Get CSS classes for input based on validation state and device type
 -}
-inputClasses : Maybe String -> String
-inputClasses error =
+inputClasses : DeviceType -> Maybe String -> String
+inputClasses deviceType error =
     let
         baseClasses =
-            "block w-full px-3 py-2 border rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-offset-2 sm:text-sm"
+            Theme.getInputClasses deviceType
     in
     case error of
         Just _ ->

@@ -2,6 +2,12 @@
 module.exports = {
   content: ["./src/**/*.{elm,html,js}", "./public/*.html"],
   theme: {
+    screens: {
+      'mobile': '320px',
+      'tablet': '768px', 
+      'desktop': '1024px',
+      'wide': '1920px'
+    },
     extend: {
       colors: {
         'pond-blue': '#3b82f6',
