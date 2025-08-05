@@ -85,3 +85,7 @@ temp/
 # Build artifacts
 *.tar.gz
 *.zip
+
+# BMad and Claude configuration directories
+.bmad-core/
+.claude/
