@@ -1,0 +1,17 @@
+Problem: I need a way to determine how long it will take to dig a pond.
+
+Plan: Create a web app that will allow me to calculate how long, measured in days, it will take to dig a pond. I need to be able to specify and change quantity of dirt moved with each excavator bucket, the number of excavators used, and how long it takes for each bucket load to be dug and loaded onto an off road truck. I need to be able to enter and change the number of off road trucks, how much each off road truck holds, and the time it takes for each round trip the off road truck takes to be loaded, dumped and positioned to be loaded again. I need to be able to specify and change the number of hours that will be worked each day.
+
+Final Result: The final calculated result needs show how many days it will take to complete digging the pond, rounded up to the nearest whole day amount.
+
+Specs: This should be a client side only single page application. I want it developed in Elm. It needs to have tool tips for all inputs. It should have instructions on how to use the calculator that is short and simple enough for child or grandmother to understand. I want to be able to see the updated values when I enter or change a value without having to hit enter or move onto a new field. There should be defaulted values so that after I add the first value, the calculator doesn't error, crash or break from lack of data in the other input fields.
+
+Target Audience: Blue colar workers with only a high school level of education or lower with a moderate resistance to technology. Users easily have a tendancy to get confused or lost using technology.
+
+Design Ideas: Simple, use some sort of graphical representation or icon for each input, medium to larger text and input sizes to make the tool easier to read for older people and people with bad eye sight. While the desktop or larger sizes should include graphics, the mobile layout should be simple and more stripped down to allow easier use on cell phones and tablet.
+
+Tech: Elm - https://guide.elm-lang.org/, https://package.elm-lang.org/
+	TDD - https://en.wikipedia.org/wiki/Test-driven_development
+	BDD - https://en.wikipedia.org/wiki/Behavior-driven_development
+
+Follow TDD and BDD standards and guidelines.
