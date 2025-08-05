@@ -126,19 +126,7 @@ so that I can get immediate pond digging estimates for project planning.
 4. All calculations use pure functional approach with no side effects
 5. Basic validation ensures all inputs are positive numbers
 
-### Story 1.3: Real-time Updates
-As a construction professional,
-I want calculations to update instantly when I change any input value,
-so that I can explore different scenarios quickly during estimation sessions.
-
-#### Acceptance Criteria
-1. Timeline result updates immediately when any input field value changes
-2. No page refresh or button click required to trigger recalculation
-3. Updates occur within 100ms of input change for responsive user experience
-4. Invalid inputs display current valid calculation while showing error state
-5. Calculation accuracy maintained across all real-time updates
-
-### Story 1.4: Smart Default Values
+### Story 1.3: Smart Default Values
 As a new user,
 I want to see realistic equipment values pre-populated in all fields,
 so that I can understand the tool's purpose and get useful results without data entry.
@@ -150,11 +138,7 @@ so that I can understand the tool's purpose and get useful results without data 
 4. Users can immediately see calculated result upon page load within 10 seconds
 5. Default values can be easily modified while maintaining calculation functionality
 
-## Epic 2: Device-Responsive Interface
-
-Implement adaptive UI complexity that delivers comprehensive calculation features with rich visual interface on desktop/tablet devices while providing simplified calculator-app experience on mobile devices, ensuring the tool adapts appropriately to how construction professionals work across different device contexts.
-
-### Story 2.1: Responsive Layout Foundation
+### Story 1.4: Basic Responsive Foundation
 As a construction professional,
 I want the calculator interface to adapt to my device screen size,
 so that I get an appropriate experience whether I'm doing detailed estimation work or quick field calculations.
@@ -166,7 +150,36 @@ so that I get an appropriate experience whether I'm doing detailed estimation wo
 4. Touch targets meet minimum 44px requirement for mobile interfaces
 5. All input elements remain accessible and functional across device breakpoints
 
-### Story 2.2: Desktop/Tablet Rich Interface
+### Story 1.5: Elm Coding Standards & Patterns
+As a developer,
+I want established coding standards and patterns for the Elm codebase,
+so that I can maintain consistency and quality throughout development.
+
+#### Acceptance Criteria
+1. Elm coding style guide documented with naming conventions and formatting rules
+2. Module organization patterns established for types, components, utils, and pages
+3. Function documentation standards defined with required docstrings for public functions
+4. Error handling patterns documented using Result types and validation approaches
+5. Code review checklist created covering functional programming best practices
+6. Example code templates provided for common patterns (components, validation, calculations)
+
+### Story 1.6: Real-time Updates
+As a construction professional,
+I want calculations to update instantly when I change any input value,
+so that I can explore different scenarios quickly during estimation sessions.
+
+#### Acceptance Criteria
+1. Timeline result updates immediately when any input field value changes
+2. No page refresh or button click required to trigger recalculation
+3. Updates occur within 100ms of input change for responsive user experience
+4. Invalid inputs display current valid calculation while showing error state
+5. Calculation accuracy maintained across all real-time updates
+
+## Epic 2: Device-Responsive Interface
+
+Implement adaptive UI complexity that delivers comprehensive calculation features with rich visual interface on desktop/tablet devices while providing simplified calculator-app experience on mobile devices, ensuring the tool adapts appropriately to how construction professionals work across different device contexts.
+
+### Story 2.1: Desktop/Tablet Rich Interface
 As a construction estimator working on detailed projects,
 I want access to comprehensive calculation features with visual aids,
 so that I can perform thorough estimation work during planning sessions.
@@ -178,7 +191,7 @@ so that I can perform thorough estimation work during planning sessions.
 4. Results display prominently with additional context (e.g., "Estimated completion: X days")
 5. Interface utilizes available screen space effectively without feeling cramped or sparse
 
-### Story 2.3: Mobile Calculator Simplicity
+### Story 2.2: Mobile Calculator Simplicity
 As a construction professional needing quick field calculations,
 I want a simplified mobile interface that works like my phone's calculator,
 so that I can get immediate results without complexity or confusion.
@@ -190,7 +203,7 @@ so that I can get immediate results without complexity or confusion.
 4. Minimal visual clutter with focus on input/output clarity
 5. Results displayed prominently with clear visual emphasis
 
-### Story 2.4: Cross-Device Functionality Validation
+### Story 2.3: Cross-Device Functionality Validation
 As a user switching between devices,
 I want consistent calculation accuracy and core functionality,
 so that I can trust the tool regardless of which device I'm using.
@@ -322,19 +335,48 @@ so that I can adjust equipment specifications and settings without code changes 
 4. Configuration changes take effect on application reload without build process
 5. Configuration file structure documented for future maintenance
 
-### Story 5.2: Static Hosting Deployment
-As a project owner,
-I want the application deployed to reliable static hosting,
-so that construction professionals can access the tool consistently without server maintenance overhead.
+### Story 5.2: GitHub Pages Deployment Setup
+As a developer,
+I want detailed GitHub Pages deployment configuration and procedures,
+so that I can deploy the application reliably to production hosting.
 
 #### Acceptance Criteria
-1. Application builds successfully for static hosting deployment (GitHub Pages, Netlify, or similar)
-2. Build process optimizes assets for production performance (minification, compression)
-3. Deployment pipeline established for updating production environment
-4. Custom domain configuration available for professional presentation
-5. HTTPS enabled for security and browser compatibility
+1. GitHub Actions workflow configured for automated deployment to GitHub Pages
+2. Build process includes Elm compilation, asset optimization, and Tailwind CSS processing
+3. GitHub repository settings configured for Pages deployment from gh-pages branch
+4. Custom domain configuration documented with DNS setup instructions
+5. HTTPS certificate provisioning verified and documented
+6. Deployment pipeline includes rollback procedures for failed deployments
+7. Branch protection rules established to prevent direct pushes to deployment branch
 
-### Story 5.3: Performance Monitoring & Optimization
+### Story 5.3: User Onboarding Experience
+As a first-time user,
+I want clear guidance on how to use the calculator effectively,
+so that I can quickly understand the tool's capabilities and get useful results.
+
+#### Acceptance Criteria
+1. Welcome overlay or introductory message for first-time visitors
+2. Key features highlighted through progressive disclosure or guided tour
+3. Example calculation scenario provided to demonstrate tool capabilities
+4. Clear call-to-action buttons guide users through their first calculation
+5. Help system easily discoverable without being intrusive
+6. Mobile onboarding optimized for touch interactions and simplified workflow
+
+### Story 5.4: Construction Equipment Research & Validation
+As a developer,
+I want accurate default values based on real construction equipment specifications,
+so that the calculator provides realistic and trustworthy results for professional users.
+
+#### Acceptance Criteria
+1. Research completed on typical excavator bucket capacities (0.5-15 cubic yards)
+2. Research completed on typical excavator cycle times (0.5-10 minutes)
+3. Research completed on typical dump truck capacities (5-30 cubic yards)
+4. Research completed on typical truck round-trip times (5-60 minutes)
+5. Default values validated against industry standards and manufacturer specifications
+6. Configuration file populated with researched values and documented sources
+7. Value ranges validated for reasonableness with construction professionals
+
+### Story 5.5: Performance Monitoring & Optimization
 As a project maintainer,
 I want visibility into application performance and user experience,
 so that I can identify and resolve issues that affect professional users.
@@ -346,7 +388,7 @@ so that I can identify and resolve issues that affect professional users.
 4. Browser console logging available for basic performance debugging during development
 5. Performance monitoring framework ready for future metrics expansion in post-MVP phases
 
-### Story 5.4: Documentation & Maintenance Framework
+### Story 5.6: Documentation & Maintenance Framework
 As a future developer or maintainer,
 I want comprehensive documentation and maintenance procedures,
 so that I can understand, modify, and extend the application effectively.
