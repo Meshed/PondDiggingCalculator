@@ -5,7 +5,7 @@
   "scripts": {
     "dev": "parcel serve public/index.html",
     "build": "parcel build public/index.html",
-    "build:pages": "parcel build public/index.html && cp -r dist/* ../dist/",
+    "build:pages": "parcel build public/index.html && cp -r dist/* ../docs/",
     "test": "elm-test",
     "test:watch": "elm-test --watch"
   },
