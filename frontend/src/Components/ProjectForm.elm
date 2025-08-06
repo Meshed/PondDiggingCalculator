@@ -1,4 +1,4 @@
-module Components.ProjectForm exposing (view, FormData, FormMsg(..), initFormData, updateFormData)
+module Components.ProjectForm exposing (view, FormData, FormMsg(..), initFormData, updateFormData, inputFieldWithUnit)
 
 {-| Input form for pond digging project parameters
 
@@ -124,35 +124,43 @@ view deviceType formData excavatorMsg truckMsg pondMsg projectMsg =
               div [ class "space-y-4" ]
                 [ div [ class "text-lg font-semibold text-gray-800 mb-4" ]
                     [ text "Equipment Specifications" ]
-                , inputField deviceType
-                    { label = "Excavator Bucket Capacity (cubic yards)"
+                , inputFieldWithUnit deviceType
+                    { label = "Excavator Bucket Capacity"
+                    , unit = "cubic yards"
+                    , helpText = "Volume of material the excavator bucket can hold per scoop"
                     , id = "excavator-capacity"
                     , value = formData.excavatorCapacity
-                    , placeholder = ""
+                    , placeholder = "e.g., 2.5"
                     , onInput = excavatorMsg BucketCapacity
                     , error = getFieldError "excavatorCapacity" formData.errors
                     }
-                , inputField deviceType
-                    { label = "Excavator Cycle Time (minutes)"
+                , inputFieldWithUnit deviceType
+                    { label = "Excavator Cycle Time"
+                    , unit = "minutes"
+                    , helpText = "Time to dig, swing, dump, and return to digging position"
                     , id = "excavator-cycle"
                     , value = formData.excavatorCycleTime
-                    , placeholder = ""
+                    , placeholder = "e.g., 0.5"
                     , onInput = excavatorMsg CycleTime
                     , error = getFieldError "excavatorCycleTime" formData.errors
                     }
-                , inputField deviceType
-                    { label = "Truck Capacity (cubic yards)"
+                , inputFieldWithUnit deviceType
+                    { label = "Truck Capacity"
+                    , unit = "cubic yards"
+                    , helpText = "Maximum volume of material the truck can carry"
                     , id = "truck-capacity"
                     , value = formData.truckCapacity
-                    , placeholder = ""
+                    , placeholder = "e.g., 15"
                     , onInput = truckMsg TruckCapacity
                     , error = getFieldError "truckCapacity" formData.errors
                     }
-                , inputField deviceType
-                    { label = "Truck Round-trip Time (minutes)"
+                , inputFieldWithUnit deviceType
+                    { label = "Truck Round-trip Time"
+                    , unit = "minutes"
+                    , helpText = "Total time for truck to travel to dump site, unload, and return"
                     , id = "truck-roundtrip"
                     , value = formData.truckRoundTripTime
-                    , placeholder = ""
+                    , placeholder = "e.g., 30"
                     , onInput = truckMsg RoundTripTime
                     , error = getFieldError "truckRoundTripTime" formData.errors
                     }
@@ -161,35 +169,43 @@ view deviceType formData excavatorMsg truckMsg pondMsg projectMsg =
               div [ class "space-y-4" ]
                 [ div [ class "text-lg font-semibold text-gray-800 mb-4" ]
                     [ text "Project Parameters" ]
-                , inputField deviceType
+                , inputFieldWithUnit deviceType
                     { label = "Work Hours per Day"
+                    , unit = "hours"
+                    , helpText = "Number of productive work hours per day"
                     , id = "work-hours"
                     , value = formData.workHoursPerDay
-                    , placeholder = ""
+                    , placeholder = "e.g., 8"
                     , onInput = projectMsg WorkHours
                     , error = getFieldError "workHoursPerDay" formData.errors
                     }
-                , inputField deviceType
-                    { label = "Pond Length (feet)"
+                , inputFieldWithUnit deviceType
+                    { label = "Pond Length"
+                    , unit = "feet"
+                    , helpText = "Length of the pond to be excavated"
                     , id = "pond-length"
                     , value = formData.pondLength
-                    , placeholder = ""
+                    , placeholder = "e.g., 100"
                     , onInput = pondMsg PondLength
                     , error = getFieldError "pondLength" formData.errors
                     }
-                , inputField deviceType
-                    { label = "Pond Width (feet)"
+                , inputFieldWithUnit deviceType
+                    { label = "Pond Width"
+                    , unit = "feet"
+                    , helpText = "Width of the pond to be excavated"
                     , id = "pond-width"
                     , value = formData.pondWidth
-                    , placeholder = ""
+                    , placeholder = "e.g., 50"
                     , onInput = pondMsg PondWidth
                     , error = getFieldError "pondWidth" formData.errors
                     }
-                , inputField deviceType
-                    { label = "Pond Depth (feet)"
+                , inputFieldWithUnit deviceType
+                    { label = "Pond Depth"
+                    , unit = "feet"
+                    , helpText = "Average depth of the pond to be excavated"
                     , id = "pond-depth"
                     , value = formData.pondDepth
-                    , placeholder = ""
+                    , placeholder = "e.g., 10"
                     , onInput = pondMsg PondDepth
                     , error = getFieldError "pondDepth" formData.errors
                     }
@@ -204,6 +220,18 @@ view deviceType formData excavatorMsg truckMsg pondMsg projectMsg =
 
 type alias InputFieldConfig msg =
     { label : String
+    , id : String
+    , value : String
+    , placeholder : String
+    , onInput : String -> msg
+    , error : Maybe String
+    }
+
+
+type alias InputFieldWithUnitConfig msg =
+    { label : String
+    , unit : String
+    , helpText : String
     , id : String
     , value : String
     , placeholder : String
@@ -254,6 +282,69 @@ inputClasses deviceType error =
 
         Nothing ->
             baseClasses ++ " border-gray-300 placeholder-gray-400 focus:border-indigo-500 focus:ring-indigo-500"
+
+
+{-| Enhanced input field component with unit display and help text
+-}
+inputFieldWithUnit : DeviceType -> InputFieldWithUnitConfig msg -> Html msg
+inputFieldWithUnit deviceType config =
+    let
+        labelClass =
+            case deviceType of
+                Types.DeviceType.Desktop ->
+                    "block text-sm font-semibold text-gray-700 mb-1"
+                
+                Types.DeviceType.Tablet ->
+                    "block text-sm font-semibold text-gray-700 mb-1"
+                
+                _ ->
+                    "block text-sm font-medium text-gray-700"
+        
+        helpTextClass =
+            case deviceType of
+                Types.DeviceType.Desktop ->
+                    "text-xs text-gray-500 mt-1"
+                
+                Types.DeviceType.Tablet ->
+                    "text-xs text-gray-500 mt-1"
+                
+                _ ->
+                    "hidden"
+    in
+    div [ class "space-y-2" ]
+        [ label
+            [ class labelClass
+            , Html.Attributes.for config.id
+            ]
+            [ text config.label
+            , span [ class "ml-2 text-xs font-normal text-gray-500" ]
+                [ text ("(" ++ config.unit ++ ")") ]
+            ]
+        , div [ class "relative" ]
+            [ input
+                [ type_ "number"
+                , id config.id
+                , value config.value
+                , placeholder config.placeholder
+                , onInput config.onInput
+                , class (inputClasses deviceType config.error)
+                ]
+                []
+            , div [ class "absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none" ]
+                [ span [ class "text-gray-500 text-sm" ] [ text config.unit ]
+                ]
+            ]
+        , if deviceType /= Types.DeviceType.Mobile then
+            div [ class helpTextClass ] [ text config.helpText ]
+          else
+            text ""
+        , case config.error of
+            Just errorMsg ->
+                span [ class (Components.getValidationMessageClasses deviceType) ] [ text errorMsg ]
+
+            Nothing ->
+                text ""
+        ]
 
 
 {-| Get error message for a specific field

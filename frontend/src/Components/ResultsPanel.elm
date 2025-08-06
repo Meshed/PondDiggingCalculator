@@ -21,7 +21,41 @@ import Utils.Calculations exposing (Bottleneck(..), CalculationResult, Confidenc
 -}
 view : DeviceType -> CalculationResult -> Bool -> Html msg
 view deviceType result isStale =
-    div [ class (Components.getResultsPanelClasses deviceType) ]
+    let
+        panelClass =
+            case deviceType of
+                Types.DeviceType.Desktop ->
+                    Components.getResultsPanelClasses deviceType ++ " p-6"
+                
+                Types.DeviceType.Tablet ->
+                    Components.getResultsPanelClasses deviceType ++ " p-5"
+                
+                _ ->
+                    Components.getResultsPanelClasses deviceType ++ " p-4"
+        
+        headingClass =
+            case deviceType of
+                Types.DeviceType.Desktop ->
+                    "text-4xl font-bold text-gray-900 mb-3"
+                
+                Types.DeviceType.Tablet ->
+                    "text-3xl font-bold text-gray-900 mb-2"
+                
+                _ ->
+                    "text-2xl font-bold text-gray-900 mb-2"
+        
+        mainNumberClass =
+            case deviceType of
+                Types.DeviceType.Desktop ->
+                    "text-7xl font-bold text-indigo-600 mb-3"
+                
+                Types.DeviceType.Tablet ->
+                    "text-6xl font-bold text-indigo-600 mb-2"
+                
+                _ ->
+                    "text-5xl font-bold text-indigo-600 mb-2"
+    in
+    div [ class panelClass ]
         [ -- Stale result indicator
           if isStale then
             div [ class "mb-4 p-3 bg-yellow-50 border border-yellow-200 rounded-md" ]
@@ -34,28 +68,32 @@ view deviceType result isStale =
           else
             text ""
         
-        -- Main Result
+        -- Main Result with Enhanced Display
         , div [ class "text-center mb-8" ]
-            [ h3 [ class "text-3xl font-bold text-gray-900 mb-2" ]
-                [ text "Project Timeline" ]
-            , div [ class "text-6xl font-bold text-indigo-600 mb-2" ]
+            [ h3 [ class headingClass ]
+                [ text "Estimated Completion Timeline" ]
+            , div [ class mainNumberClass ]
                 [ text (String.fromInt result.timelineInDays) ]
             , div [ class "text-xl text-gray-600" ]
                 [ text
                     (if result.timelineInDays == 1 then
-                        "day"
+                        "working day"
 
                      else
-                        "days"
+                        "working days"
                     )
                 ]
             , div [ class "text-sm text-gray-500 mt-2" ]
                 [ text ("(" ++ formatHours result.totalHours ++ " total hours)") ]
+            , if deviceType /= Types.DeviceType.Mobile then
+                viewAdditionalMetrics result
+              else
+                text ""
             ]
 
-        -- Calculation Breakdown
-        , div [ class "grid grid-cols-1 md:grid-cols-2 gap-6 mb-6" ]
-            [ -- Equipment Rates
+        -- Enhanced Calculation Breakdown
+        , div [ class (getBreakdownGridClass deviceType) ]
+            [ -- Equipment Rates with Visual Indicators
               div [ class "bg-gray-50 p-4 rounded-lg" ]
                 [ h4 [ class "text-lg font-semibold text-gray-800 mb-3" ]
                     [ text "Equipment Productivity" ]
@@ -63,15 +101,23 @@ view deviceType result isStale =
                     [ productivityRow "Excavation Rate" result.excavationRate "cy/hour"
                     , productivityRow "Hauling Rate" result.haulingRate "cy/hour"
                     , bottleneckIndicator result.bottleneck
+                    , if deviceType /= Types.DeviceType.Mobile then
+                        viewEfficiencyBar result.excavationRate result.haulingRate
+                      else
+                        text ""
                     ]
                 ]
 
-            -- Project Analysis
+            -- Enhanced Project Analysis
             , div [ class "bg-gray-50 p-4 rounded-lg" ]
                 [ h4 [ class "text-lg font-semibold text-gray-800 mb-3" ]
                     [ text "Project Analysis" ]
                 , div [ class "space-y-2" ]
                     [ confidenceIndicator result.confidence
+                    , if deviceType /= Types.DeviceType.Mobile then
+                        viewProjectDetails result
+                      else
+                        text ""
                     , div [ class "text-sm text-gray-600" ]
                         [ text "Rounded up to whole days for scheduling" ]
                     ]
@@ -216,3 +262,160 @@ formatHours hours =
 
     else
         String.fromInt (round hours)
+
+
+{-| View additional metrics for desktop/tablet
+-}
+viewAdditionalMetrics : CalculationResult -> Html msg
+viewAdditionalMetrics result =
+    let
+        totalVolume =
+            result.totalHours * min result.excavationRate result.haulingRate
+        
+        truckTrips =
+            if result.haulingRate > 0 then
+                ceiling (totalVolume / 15.0)
+            else
+                0
+    in
+    div [ class "mt-4 pt-4 border-t border-gray-300" ]
+        [ div [ class "grid grid-cols-3 gap-4 text-center" ]
+            [ div []
+                [ div [ class "text-2xl font-bold text-gray-700" ]
+                    [ text (formatVolume totalVolume) ]
+                , div [ class "text-xs text-gray-500" ] [ text "Total Dirt Moved (cu.yd)" ]
+                ]
+            , div []
+                [ div [ class "text-2xl font-bold text-gray-700" ]
+                    [ text (String.fromInt truckTrips) ]
+                , div [ class "text-xs text-gray-500" ] [ text "Truck Trips Required" ]
+                ]
+            , div []
+                [ div [ class "text-2xl font-bold text-gray-700" ]
+                    [ text (formatDailyProgress result.totalHours result.timelineInDays) ]
+                , div [ class "text-xs text-gray-500" ] [ text "Hours per Day" ]
+                ]
+            ]
+        ]
+
+
+{-| Format volume with commas
+-}
+formatVolume : Float -> String
+formatVolume volume =
+    let
+        rounded =
+            round volume
+        
+        formatted =
+            if rounded >= 1000 then
+                let
+                    thousands =
+                        rounded // 1000
+                    
+                    remainder =
+                        modBy 1000 rounded
+                    
+                    remainderStr =
+                        if remainder < 10 then
+                            "00" ++ String.fromInt remainder
+                        else if remainder < 100 then
+                            "0" ++ String.fromInt remainder
+                        else
+                            String.fromInt remainder
+                in
+                String.fromInt thousands ++ "," ++ remainderStr
+            else
+                String.fromInt rounded
+    in
+    formatted
+
+
+{-| Format daily progress
+-}
+formatDailyProgress : Float -> Int -> String
+formatDailyProgress totalHours days =
+    if days > 0 then
+        String.fromFloat (toFloat (round ((totalHours / toFloat days) * 10)) / 10)
+    else
+        "0"
+
+
+{-| View efficiency bar visualization
+-}
+viewEfficiencyBar : Float -> Float -> Html msg
+viewEfficiencyBar excavationRate haulingRate =
+    let
+        maxRate =
+            max excavationRate haulingRate
+        
+        excavationPercent =
+            if maxRate > 0 then
+                (excavationRate / maxRate) * 100
+            else
+                0
+        
+        haulingPercent =
+            if maxRate > 0 then
+                (haulingRate / maxRate) * 100
+            else
+                0
+    in
+    div [ class "mt-3 pt-3 border-t border-gray-200" ]
+        [ div [ class "text-xs text-gray-600 mb-2" ] [ text "Equipment Balance" ]
+        , div [ class "space-y-2" ]
+            [ div [ class "flex items-center" ]
+                [ span [ class "text-xs text-gray-500 w-20" ] [ text "Excavation" ]
+                , div [ class "flex-1 bg-gray-200 rounded-full h-2 ml-2" ]
+                    [ div
+                        [ class "bg-yellow-500 h-2 rounded-full"
+                        , Html.Attributes.style "width" (String.fromFloat excavationPercent ++ "%")
+                        ]
+                        []
+                    ]
+                ]
+            , div [ class "flex items-center" ]
+                [ span [ class "text-xs text-gray-500 w-20" ] [ text "Hauling" ]
+                , div [ class "flex-1 bg-gray-200 rounded-full h-2 ml-2" ]
+                    [ div
+                        [ class "bg-blue-500 h-2 rounded-full"
+                        , Html.Attributes.style "width" (String.fromFloat haulingPercent ++ "%")
+                        ]
+                        []
+                    ]
+                ]
+            ]
+        ]
+
+
+{-| View project details for desktop/tablet
+-}
+viewProjectDetails : CalculationResult -> Html msg
+viewProjectDetails result =
+    div [ class "pt-2 space-y-1" ]
+        [ div [ class "flex justify-between text-sm" ]
+            [ span [ class "text-gray-600" ] [ text "Effective Rate" ]
+            , span [ class "font-medium text-gray-900" ]
+                [ text (formatRate (min result.excavationRate result.haulingRate) ++ " cy/hr") ]
+            ]
+        , div [ class "flex justify-between text-sm" ]
+            [ span [ class "text-gray-600" ] [ text "Daily Output" ]
+            , span [ class "font-medium text-gray-900" ]
+                [ text (formatRate ((min result.excavationRate result.haulingRate) * 8.0) ++ " cy/day") ]
+            ]
+        ]
+
+
+{-| Get breakdown grid class based on device type
+-}
+getBreakdownGridClass : DeviceType -> String
+getBreakdownGridClass deviceType =
+    case deviceType of
+        Types.DeviceType.Desktop ->
+            "grid grid-cols-2 gap-6 mb-6"
+        
+        Types.DeviceType.Tablet ->
+            "grid grid-cols-2 gap-4 mb-6"
+        
+        _ ->
+            "grid grid-cols-1 gap-4 mb-6"

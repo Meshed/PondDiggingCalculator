@@ -10,14 +10,136 @@ import Expect
 import Test exposing (Test, describe, test)
 import Utils.Config exposing (fallbackConfig)
 import Components.ProjectForm as ProjectForm
-import Utils.Calculations exposing (calculateTimeline)
+import Components.EquipmentCard as EquipmentCard
+import Components.ResultsPanel as ResultsPanel
+import Utils.Calculations exposing (calculateTimeline, CalculationResult, Bottleneck(..), ConfidenceLevel(..))
 import Utils.Validation as Validation
+import Types.DeviceType exposing (DeviceType(..))
+import Types.Equipment exposing (Equipment, EquipmentType(..))
+import Test.Html.Query as Query
+import Test.Html.Selector as Selector exposing (..)
+import Html
 
 
 suite : Test
 suite =
     describe "Component Integration Tests"
-        [ describe "Form Initialization with Defaults"
+        [ describe "Rich Interface Component Interactions"
+            [ test "should_display_enhanced_input_fields_with_units_and_help_text" <|
+                \_ ->
+                    let
+                        formData = ProjectForm.initFormData fallbackConfig.defaults
+                        
+                        -- Test that enhanced input field renders with units
+                        inputFieldHtml = ProjectForm.inputFieldWithUnit Desktop
+                            { label = "Test Field"
+                            , unit = "cubic yards"
+                            , helpText = "Test help text"
+                            , id = "test-field"
+                            , value = "10.0"
+                            , placeholder = "Enter value"
+                            , onInput = \_ -> ()
+                            , error = Nothing
+                            }
+                        
+                        queryResult = Query.fromHtml inputFieldHtml
+                    in
+                    queryResult
+                        |> Query.has [ Selector.text "cubic yards" ]
+            
+            , test "should_render_equipment_cards_with_visual_icons" <|
+                \_ ->
+                    let
+                        testEquipment = createTestExcavator
+                        config =
+                            { equipment = testEquipment
+                            , isActive = True
+                            , showAdvanced = True
+                            , fleetCount = 2
+                            }
+                        
+                        cardHtml = EquipmentCard.view Desktop config (\_ -> ())
+                        queryResult = Query.fromHtml cardHtml
+                    in
+                    queryResult
+                        |> Query.findAll [ Selector.tag "svg" ]
+                        |> Query.count (Expect.atLeast 1)
+            
+            , test "should_display_fleet_count_badges_correctly" <|
+                \_ ->
+                    let
+                        testEquipment = createTestExcavator
+                        config =
+                            { equipment = testEquipment
+                            , isActive = True
+                            , showAdvanced = True
+                            , fleetCount = 5
+                            }
+                        
+                        cardHtml = EquipmentCard.view Desktop config (\_ -> ())
+                        queryResult = Query.fromHtml cardHtml
+                    in
+                    queryResult
+                        |> Query.has [ Selector.text "Fleet: 5" ]
+            
+            , test "should_show_productivity_indicators_for_active_excavators" <|
+                \_ ->
+                    let
+                        testEquipment = createTestExcavator
+                        config =
+                            { equipment = testEquipment
+                            , isActive = True
+                            , showAdvanced = True
+                            , fleetCount = 1
+                            }
+                        
+                        cardHtml = EquipmentCard.view Desktop config (\_ -> ())
+                        queryResult = Query.fromHtml cardHtml
+                    in
+                    queryResult
+                        |> Query.has [ Selector.text "Productivity" ]
+            
+            , test "should_display_enhanced_results_with_additional_metrics" <|
+                \_ ->
+                    let
+                        testResult = createTestCalculationResult
+                        resultsHtml = ResultsPanel.view Desktop testResult False
+                        queryResult = Query.fromHtml resultsHtml
+                    in
+                    queryResult
+                        |> Query.has [ Selector.text "Total Dirt Moved" ]
+            
+            , test "should_show_visual_efficiency_bars_for_desktop" <|
+                \_ ->
+                    let
+                        testResult = createTestCalculationResult
+                        resultsHtml = ResultsPanel.view Desktop testResult False
+                        queryResult = Query.fromHtml resultsHtml
+                    in
+                    queryResult
+                        |> Query.has [ Selector.text "Equipment Balance" ]
+            
+            , test "should_adapt_layout_for_different_device_types" <|
+                \_ ->
+                    let
+                        testResult = createTestCalculationResult
+                        
+                        desktopHtml = ResultsPanel.view Desktop testResult False
+                        tabletHtml = ResultsPanel.view Tablet testResult False
+                        mobileHtml = ResultsPanel.view Mobile testResult False
+                        
+                        desktopQuery = Query.fromHtml desktopHtml
+                        tabletQuery = Query.fromHtml tabletHtml
+                        mobileQuery = Query.fromHtml mobileHtml
+                    in
+                    Expect.all
+                        [ \_ -> desktopQuery |> Query.has [ Selector.class "text-7xl" ]
+                        , \_ -> tabletQuery |> Query.has [ Selector.class "text-6xl" ]
+                        , \_ -> mobileQuery |> Query.has [ Selector.class "text-5xl" ]
+                        ] ()
+            ]
+        
+        , describe "Form Initialization with Defaults"
             [ test "should_initialize_form_with_all_default_values_populated" <|
                 \_ ->
                     let
@@ -186,3 +308,28 @@ suite =
                         updated3
             ]
         ]
+
+
+-- Helper functions for rich interface tests
+createTestExcavator : Equipment
+createTestExcavator =
+    { id = "excavator-1"
+    , name = "CAT 320 Excavator"
+    , equipmentType = Excavator
+    , bucketCapacity = 2.5
+    , cycleTime = 0.5
+    , isActive = True
+    }
+
+
+createTestCalculationResult : CalculationResult
+createTestCalculationResult =
+    { timelineInDays = 3
+    , totalHours = 24.0
+    , excavationRate = 120.0
+    , haulingRate = 100.0
+    , bottleneck = HaulingBottleneck
+    , confidence = Medium
+    , assumptions = [ "Standard conditions" ]
+    , warnings = [ "Consider equipment balance" ]
+    }
