@@ -11,11 +11,21 @@
     "test:watch": "elm-test --watch",
     "test:e2e": "cypress run",
     "test:e2e:open": "cypress open",
+    "test:e2e:chrome": "cypress run --browser chrome",
+    "test:e2e:firefox": "cypress run --browser firefox",
+    "test:e2e:edge": "cypress run --browser edge",
+    "test:e2e:all-browsers": "npm run test:e2e:chrome && npm run test:e2e:firefox && npm run test:e2e:edge",
+    "test:e2e:mobile": "cypress run --spec 'tests/E2E/cypress/integration/mobile-device-workflows.spec.js'",
+    "test:e2e:performance": "cypress run --spec 'tests/E2E/cypress/integration/performance-validation.spec.js'",
+    "test:e2e:accessibility": "cypress run --spec 'tests/E2E/cypress/integration/accessibility.spec.js'",
+    "test:e2e:user-journeys": "cypress run --spec 'tests/E2E/cypress/integration/user-journeys.spec.js'",
+    "test:e2e:comprehensive": "npm run test:e2e:user-journeys && npm run test:e2e:performance && npm run test:e2e:accessibility && npm run test:e2e:mobile",
     "format": "npx elm-format src/ tests/ --yes",
     "format:check": "npx elm-format src/ tests/ --validate",
     "lint": "npm run format:check",
     "pretest": "npm run format:check",
-    "validate": "npm run format:check && npm run build && npm test"
+    "validate": "npm run format:check && npm run build && npm test",
+    "validate:full": "npm run validate && npm run test:e2e:comprehensive"
   },
   "keywords": ["elm", "pond", "calculator", "excavation"],
   "author": "Pond Digging Calculator Team",
@@ -24,6 +34,13 @@
     "parcel": "^2.0.0",
     "@parcel/transformer-elm": "^2.0.0",
     "tailwindcss": "^3.4.0",
-    "cypress": "^13.0.0"
+    "cypress": "^13.0.0",
+    "cypress-real-events": "^1.12.0",
+    "cypress-axe": "^1.5.0",
+    "cypress-multi-reporters": "^1.6.4",
+    "cypress-mochawesome-reporter": "^3.8.2",
+    "mochawesome": "^7.1.3",
+    "mochawesome-merge": "^4.3.0",
+    "mochawesome-report-generator": "^6.2.0"
   }
 }
