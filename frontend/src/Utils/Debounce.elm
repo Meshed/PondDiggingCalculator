@@ -6,7 +6,6 @@ module Utils.Debounce exposing (DebounceState, initDebounce, getDelayForDevice, 
 
 -}
 
-
 -- TYPES
 
 
@@ -14,6 +13,7 @@ type alias DebounceState =
     { lastInputTime : Float
     , delay : Float
     }
+
 
 
 -- CONFIGURATION
@@ -26,16 +26,13 @@ defaultDelay =
     300.0
 
 
-{-| Device-specific delays for mobile vs desktop
+{-| Device-agnostic delay - consistent 300ms across all devices as per story requirements
 -}
 getDelayForDevice : String -> Float
 getDelayForDevice deviceType =
-    case deviceType of
-        "Mobile" ->
-            500.0 -- Longer delay for mobile devices
+    -- Story requirement: identical 300ms delay across Mobile/Tablet/Desktop
+    defaultDelay
 
-        _ ->
-            defaultDelay -- 300ms for desktop
 
 
 -- INITIALIZATION
@@ -48,6 +45,7 @@ initDebounce =
     { lastInputTime = 0.0
     , delay = defaultDelay
     }
+
 
 
 -- DEBOUNCE LOGIC

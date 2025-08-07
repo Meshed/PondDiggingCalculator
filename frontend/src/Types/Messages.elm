@@ -9,9 +9,10 @@ module Types.Messages exposing (Msg(..))
 import Browser.Dom as Dom
 import Components.ProjectForm exposing (FormMsg)
 import Types.Equipment exposing (Equipment)
-import Types.Fields exposing (ExcavatorField, TruckField, PondField, ProjectField)
+import Types.Fields exposing (ExcavatorField, PondField, ProjectField, TruckField)
 import Types.Validation exposing (ValidationError)
 import Utils.Config exposing (Config)
+
 
 
 -- APPLICATION MESSAGES
@@ -25,7 +26,7 @@ type Msg
     | EquipmentUpdated Equipment
     | ValidationFailed ValidationError
     | FormUpdated FormMsg
-    -- Real-time input change messages
+      -- Real-time input change messages
     | ExcavatorFieldChanged ExcavatorField String
     | TruckFieldChanged TruckField String
     | PondFieldChanged PondField String
@@ -36,4 +37,7 @@ type Msg
     | PerformanceTracked Float -- milliseconds
     | DeviceDetected (Result Dom.Error { width : Int, height : Int })
     | WindowResized Int Int
-    -- REMOVED: MobileMsg - Mobile now uses same messages as desktop!
+
+
+
+-- REMOVED: MobileMsg - Mobile now uses same messages as desktop!

@@ -1,4 +1,7 @@
-module Components.ProjectForm exposing (view, FormData, FormMsg(..), initFormData, updateFormData, inputFieldWithUnit)
+module Components.ProjectForm exposing
+    ( view, FormData, FormMsg(..), initFormData, updateFormData
+    , inputFieldWithUnit
+    )
 
 {-| Input form for pond digging project parameters
 
@@ -13,7 +16,7 @@ import Styles.Components as Components
 import Styles.Responsive as Responsive
 import Styles.Theme as Theme
 import Types.DeviceType exposing (DeviceType)
-import Types.Fields exposing (ExcavatorField(..), TruckField(..), PondField(..), ProjectField(..))
+import Types.Fields exposing (ExcavatorField(..), PondField(..), ProjectField(..), TruckField(..))
 import Types.Validation exposing (ValidationError)
 import Utils.Config exposing (Config, Defaults)
 import Utils.Validation as Validation
@@ -100,7 +103,7 @@ updateFormData msg formData =
 
         UpdatePondDepth value ->
             { formData | pondDepth = value }
-        
+
         ClearForm ->
             -- Reset to default config values - this should be handled at the Main level
             -- For now, just return the same formData, actual reset will happen in Main
@@ -299,21 +302,21 @@ inputFieldWithUnit deviceType config =
             case deviceType of
                 Types.DeviceType.Desktop ->
                     "block text-sm font-semibold text-gray-700 mb-1"
-                
+
                 Types.DeviceType.Tablet ->
                     "block text-sm font-semibold text-gray-700 mb-1"
-                
+
                 _ ->
                     "block text-sm font-medium text-gray-700"
-        
+
         helpTextClass =
             case deviceType of
                 Types.DeviceType.Desktop ->
                     "text-xs text-gray-500 mt-1"
-                
+
                 Types.DeviceType.Tablet ->
                     "text-xs text-gray-500 mt-1"
-                
+
                 _ ->
                     "hidden"
     in
@@ -342,6 +345,7 @@ inputFieldWithUnit deviceType config =
             ]
         , if deviceType /= Types.DeviceType.Mobile then
             div [ class helpTextClass ] [ text config.helpText ]
+
           else
             text ""
         , case config.error of

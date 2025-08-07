@@ -2,8 +2,8 @@ module Unit.MainTests exposing (..)
 
 import Expect
 import Test exposing (..)
-import Types.Model exposing (Model)
 import Types.Messages exposing (Msg(..))
+import Types.Model exposing (Model)
 import Types.Validation exposing (ValidationError(..))
 import Utils.Config exposing (Config)
 
@@ -17,7 +17,7 @@ suite =
                     let
                         expectedMessage =
                             "Pond Digging Calculator - Core Calculation Engine"
-                        
+
                         model =
                             { message = expectedMessage
                             , config = Nothing
@@ -26,7 +26,6 @@ suite =
                             }
                     in
                     Expect.equal expectedMessage model.message
-            
             , test "should_initialize_model_with_no_config" <|
                 \_ ->
                     let
@@ -37,7 +36,6 @@ suite =
                     in
                     Expect.equal Nothing model.config
             ]
-        
         , describe "Message Handling"
             [ test "should_handle_config_loaded_success" <|
                 \_ ->
@@ -48,16 +46,16 @@ suite =
                             , formData = Nothing
                             , calculationResult = Nothing
                             }
-                        
+
                         sampleConfig : Config
                         sampleConfig =
                             { version = "1.0.0"
-                            , defaults = 
+                            , defaults =
                                 { excavator = { bucketCapacity = 2.5, cycleTime = 2.0, name = "Test Excavator" }
                                 , truck = { capacity = 12.0, roundTripTime = 15.0, name = "Test Truck" }
                                 , project = { workHoursPerDay = 8.0, pondLength = 50.0, pondWidth = 30.0, pondDepth = 6.0 }
                                 }
-                            , validation = 
+                            , validation =
                                 { excavatorCapacity = { min = 0.5, max = 15.0 }
                                 , cycleTime = { min = 0.5, max = 10.0 }
                                 , truckCapacity = { min = 5.0, max = 30.0 }
@@ -68,7 +66,6 @@ suite =
                             }
                     in
                     Expect.equal (Just sampleConfig) (Just sampleConfig)
-            
             , test "should_handle_config_loaded_error" <|
                 \_ ->
                     let
@@ -78,8 +75,9 @@ suite =
                             , formData = Nothing
                             , calculationResult = Nothing
                             }
-                        
-                        error = ConfigurationError "Test error"
+
+                        error =
+                            ConfigurationError "Test error"
                     in
                     Expect.equal Nothing model.config
             ]

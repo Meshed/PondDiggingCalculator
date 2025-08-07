@@ -9,14 +9,14 @@ design patterns and avoid visual inconsistencies.
 
 -}
 
+import Components.ProjectForm as ProjectForm
 import Expect
-import Test exposing (Test, describe, test)
 import Html exposing (Html)
 import Html.Attributes exposing (class)
+import Test exposing (Test, describe, test)
 import Types.DeviceType exposing (DeviceType(..))
-import Components.ProjectForm as ProjectForm
-import Views.MobileView as MobileView
 import Utils.Config as Config
+import Views.MobileView as MobileView
 
 
 suite : Test
@@ -38,11 +38,12 @@ colorConsistencyTests =
                 -- Mobile should not use dramatically different colors
                 -- that make it look like a separate application
                 let
-                    mobileUsesConsistentColors = 
+                    mobileUsesConsistentColors =
                         -- Mobile should use neutral backgrounds like desktop
                         -- Not bright gradients that clash with desktop styling
-                        True -- This documents the expectation
-                        
+                        True
+
+                    -- This documents the expectation
                     desktopUsesNeutralColors =
                         -- Desktop uses gray-100, white backgrounds
                         True
@@ -52,26 +53,29 @@ colorConsistencyTests =
                     , \_ -> Expect.equal True desktopUsesNeutralColors
                     ]
                     ()
-                
         , test "should_use_consistent_text_colors_for_labels" <|
             \_ ->
                 -- All device types should use similar text color schemes
                 -- for section labels and input labels
                 let
-                    mobileTextColors = "consistent with desktop"
-                    desktopTextColors = "gray-700 for labels"
+                    mobileTextColors =
+                        "consistent with desktop"
+
+                    desktopTextColors =
+                        "gray-700 for labels"
                 in
                 -- Both should use professional, consistent text colors
                 Expect.notEqual mobileTextColors "completely different scheme"
-                
         , test "should_avoid_mobile_looking_like_separate_application" <|
             \_ ->
                 -- Mobile should feel like the same app, just optimized for mobile
                 let
-                    mobileFeelsLikeSameApp = 
+                    mobileFeelsLikeSameApp =
                         -- FIXED: Now uses consistent gray-100 background, white cards
                         -- Same blue-50 result panels, consistent text colors
-                        True -- Fixed - mobile now matches desktop color scheme
+                        True
+
+                    -- Fixed - mobile now matches desktop color scheme
                 in
                 Expect.equal True mobileFeelsLikeSameApp
         ]
@@ -86,21 +90,29 @@ layoutConsistencyTests =
             \_ ->
                 -- All device types should group related inputs similarly
                 let
-                    mobileGroupsInputsInSections = True  -- Uses input groups
-                    desktopGroupsInputsInSections = True -- Uses form sections
+                    mobileGroupsInputsInSections =
+                        True
+
+                    -- Uses input groups
+                    desktopGroupsInputsInSections =
+                        True
+
+                    -- Uses form sections
                 in
                 Expect.all
                     [ \_ -> Expect.equal True mobileGroupsInputsInSections
                     , \_ -> Expect.equal True desktopGroupsInputsInSections
                     ]
                     ()
-                    
         , test "should_use_consistent_spacing_principles" <|
             \_ ->
                 -- Spacing should feel consistent even if adapted for device
                 let
-                    mobileUsesAppropriateSpacing = True
-                    desktopUsesAppropriateSpacing = True
+                    mobileUsesAppropriateSpacing =
+                        True
+
+                    desktopUsesAppropriateSpacing =
+                        True
                 in
                 Expect.all
                     [ \_ -> Expect.equal True mobileUsesAppropriateSpacing
@@ -120,55 +132,54 @@ textPositioningTests =
                 -- Text like "Pond Depth (ft)" should appear inside the
                 -- "Pond Dimensions" section, not outside it
                 let
-                    mobileLabelsAreProperlyContained = 
+                    mobileLabelsAreProperlyContained =
                         -- FIXED: Labels now use proper space-y-2 layout
                         -- within input groups, no absolute positioning
                         True
-                        
-                    desktopLabelsAreProperlyContained = True
+
+                    desktopLabelsAreProperlyContained =
+                        True
                 in
                 Expect.all
                     [ \_ -> Expect.equal True mobileLabelsAreProperlyContained
                     , \_ -> Expect.equal True desktopLabelsAreProperlyContained
                     ]
                     ()
-                    
         , test "should_not_have_overlapping_text_elements" <|
             \_ ->
                 -- Labels should not overlap with section boundaries
                 -- or appear in unexpected positions
                 let
-                    mobileHasNoOverlappingText = 
+                    mobileHasNoOverlappingText =
                         -- FIXED: Eliminated absolute positioning, now uses
                         -- proper div/label structure like desktop
                         True
                 in
                 Expect.equal True mobileHasNoOverlappingText
-                
         , test "should_maintain_visual_hierarchy_in_sections" <|
             \_ ->
                 -- Section titles should be clearly separate from input labels
                 -- Input labels should be clearly associated with their inputs
                 let
-                    mobileMaintainsVisualHierarchy = 
+                    mobileMaintainsVisualHierarchy =
                         -- FIXED: Clear hierarchy with section titles (text-lg font-semibold)
                         -- and input labels (text-sm font-semibold) properly spaced
                         True
-                        
-                    desktopMaintainsVisualHierarchy = True
+
+                    desktopMaintainsVisualHierarchy =
+                        True
                 in
                 Expect.all
                     [ \_ -> Expect.equal True mobileMaintainsVisualHierarchy
                     , \_ -> Expect.equal True desktopMaintainsVisualHierarchy
                     ]
                     ()
-                    
         , test "should_have_proper_touch_target_spacing" <|
             \_ ->
                 -- Touch targets should be properly spaced without
                 -- text elements interfering with touch areas
                 let
-                    mobileTouchTargetsAreClear = 
+                    mobileTouchTargetsAreClear =
                         -- FIXED: 56px height inputs with proper space-y-4 spacing
                         -- Labels above inputs don't interfere with touch
                         True
@@ -177,7 +188,9 @@ textPositioningTests =
         ]
 
 
+
 -- HELPER FUNCTIONS FOR TESTING
+
 
 createTestFormData : ProjectForm.FormData
 createTestFormData =

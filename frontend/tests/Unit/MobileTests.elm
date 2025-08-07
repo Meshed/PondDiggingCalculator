@@ -15,8 +15,11 @@ suite =
             [ test "initializes with config default values" <|
                 \_ ->
                     let
-                        ( model, _ ) = Mobile.init
-                        defaults = Config.fallbackConfig.defaults
+                        ( model, _ ) =
+                            Mobile.init
+
+                        defaults =
+                            Config.fallbackConfig.defaults
                     in
                     Expect.all
                         [ \m -> Expect.equal (String.fromFloat defaults.excavator.bucketCapacity) m.excavatorCapacity
@@ -30,60 +33,74 @@ suite =
                         ]
                         model
             ]
-        
         , describe "real-time calculation"
             [ test "calculates result when excavator capacity changes" <|
                 \_ ->
                     let
-                        ( initialModel, _ ) = Mobile.init
-                        modelWithConfig = { initialModel | config = Just Config.fallbackConfig }
-                        ( updatedModel, _ ) = Mobile.update (Mobile.ExcavatorCapacityChanged "4.0") modelWithConfig
+                        ( initialModel, _ ) =
+                            Mobile.init
+
+                        modelWithConfig =
+                            { initialModel | config = Just Config.fallbackConfig }
+
+                        ( updatedModel, _ ) =
+                            Mobile.update (Mobile.ExcavatorCapacityChanged "4.0") modelWithConfig
                     in
                     case updatedModel.result of
                         Just result ->
                             Expect.greaterThan 0 result.totalHours
-                        
+
                         Nothing ->
                             Expect.fail "Should have calculated a result"
-            
             , test "calculates result when pond dimensions change" <|
                 \_ ->
                     let
-                        ( initialModel, _ ) = Mobile.init
-                        modelWithConfig = { initialModel | config = Just Config.fallbackConfig }
-                        ( updatedModel, _ ) = Mobile.update (Mobile.PondLengthChanged "150") modelWithConfig
+                        ( initialModel, _ ) =
+                            Mobile.init
+
+                        modelWithConfig =
+                            { initialModel | config = Just Config.fallbackConfig }
+
+                        ( updatedModel, _ ) =
+                            Mobile.update (Mobile.PondLengthChanged "150") modelWithConfig
                     in
                     case updatedModel.result of
                         Just result ->
                             Expect.greaterThan 0 result.totalHours
-                        
+
                         Nothing ->
                             Expect.fail "Should have calculated a result"
             ]
-        
         , describe "clear functionality"
             [ test "resets all fields to config defaults when clear button is pressed" <|
                 \_ ->
                     let
-                        ( initialModel, _ ) = Mobile.init
-                        defaults = Config.fallbackConfig.defaults
-                        modelWithValues = 
-                            { initialModel 
+                        ( initialModel, _ ) =
+                            Mobile.init
+
+                        defaults =
+                            Config.fallbackConfig.defaults
+
+                        modelWithValues =
+                            { initialModel
                                 | excavatorCapacity = "5.0"
                                 , pondLength = "200"
-                                , config = Just Config.fallbackConfig  -- Ensure config is loaded
-                                , result = Just 
-                                    { timelineInDays = 10
-                                    , totalHours = 80.0
-                                    , excavationRate = 100.0
-                                    , haulingRate = 100.0
-                                    , bottleneck = Utils.Calculations.ExcavationBottleneck
-                                    , confidence = Utils.Calculations.High
-                                    , assumptions = []
-                                    , warnings = []
-                                    }
+                                , config = Just Config.fallbackConfig -- Ensure config is loaded
+                                , result =
+                                    Just
+                                        { timelineInDays = 10
+                                        , totalHours = 80.0
+                                        , excavationRate = 100.0
+                                        , haulingRate = 100.0
+                                        , bottleneck = Utils.Calculations.ExcavationBottleneck
+                                        , confidence = Utils.Calculations.High
+                                        , assumptions = []
+                                        , warnings = []
+                                        }
                             }
-                        ( clearedModel, _ ) = Mobile.update Mobile.ClearAll modelWithValues
+
+                        ( clearedModel, _ ) =
+                            Mobile.update Mobile.ClearAll modelWithValues
                     in
                     Expect.all
                         [ \m -> Expect.equal (String.fromFloat defaults.excavator.bucketCapacity) m.excavatorCapacity
@@ -98,36 +115,48 @@ suite =
                         ]
                         clearedModel
             ]
-        
         , describe "input validation"
             [ test "handles invalid numeric input gracefully" <|
                 \_ ->
                     let
-                        ( initialModel, _ ) = Mobile.init
-                        modelWithConfig = { initialModel | config = Just Config.fallbackConfig }
-                        ( updatedModel, _ ) = Mobile.update (Mobile.ExcavatorCapacityChanged "abc") modelWithConfig
+                        ( initialModel, _ ) =
+                            Mobile.init
+
+                        modelWithConfig =
+                            { initialModel | config = Just Config.fallbackConfig }
+
+                        ( updatedModel, _ ) =
+                            Mobile.update (Mobile.ExcavatorCapacityChanged "abc") modelWithConfig
                     in
                     -- Should preserve previous result or show nothing
                     Expect.equal initialModel.result updatedModel.result
-            
             , test "handles negative values" <|
                 \_ ->
                     let
-                        ( initialModel, _ ) = Mobile.init
-                        modelWithConfig = { initialModel | config = Just Config.fallbackConfig }
-                        ( updatedModel, _ ) = Mobile.update (Mobile.PondDepthChanged "-5") modelWithConfig
+                        ( initialModel, _ ) =
+                            Mobile.init
+
+                        modelWithConfig =
+                            { initialModel | config = Just Config.fallbackConfig }
+
+                        ( updatedModel, _ ) =
+                            Mobile.update (Mobile.PondDepthChanged "-5") modelWithConfig
                     in
                     -- Should not calculate with negative values
                     Expect.equal Nothing updatedModel.result
             ]
-        
         , describe "config loading"
             [ test "loads default values from config when available" <|
                 \_ ->
                     let
-                        ( initialModel, _ ) = Mobile.init
-                        config = Config.fallbackConfig
-                        ( updatedModel, _ ) = Mobile.update (Mobile.ConfigLoaded (Ok config)) initialModel
+                        ( initialModel, _ ) =
+                            Mobile.init
+
+                        config =
+                            Config.fallbackConfig
+
+                        ( updatedModel, _ ) =
+                            Mobile.update (Mobile.ConfigLoaded (Ok config)) initialModel
                     in
                     Expect.all
                         [ \m -> Expect.equal (String.fromFloat config.defaults.excavator.bucketCapacity) m.excavatorCapacity
@@ -137,12 +166,14 @@ suite =
                         , \m -> Expect.equal (String.fromFloat config.defaults.project.workHoursPerDay) m.workHours
                         ]
                         updatedModel
-            
             , test "uses fallback config on load error" <|
                 \_ ->
                     let
-                        ( initialModel, _ ) = Mobile.init
-                        ( updatedModel, _ ) = Mobile.update (Mobile.ConfigLoaded (Err (Types.Validation.ConfigurationError "Load failed"))) initialModel
+                        ( initialModel, _ ) =
+                            Mobile.init
+
+                        ( updatedModel, _ ) =
+                            Mobile.update (Mobile.ConfigLoaded (Err (Types.Validation.ConfigurationError "Load failed"))) initialModel
                     in
                     Expect.equal (Just Config.fallbackConfig) updatedModel.config
             ]

@@ -6,7 +6,6 @@ module Utils.Performance exposing (PerformanceMetrics, initMetrics, recordCalcul
 
 -}
 
-
 -- TYPES
 
 
@@ -19,6 +18,7 @@ type alias PerformanceMetrics =
     }
 
 
+
 -- CONSTANTS
 
 
@@ -27,6 +27,7 @@ type alias PerformanceMetrics =
 performanceThreshold : Float
 performanceThreshold =
     100.0
+
 
 
 -- INITIALIZATION
@@ -44,6 +45,7 @@ initMetrics =
     }
 
 
+
 -- RECORDING FUNCTIONS
 
 
@@ -58,6 +60,7 @@ recordCalculationTime timeMs metrics =
         newAverage =
             if metrics.calculationCount == 0 then
                 timeMs
+
             else
                 -- Simple rolling average with more weight on recent values
                 (metrics.averageTime * 0.8) + (timeMs * 0.2)
@@ -71,6 +74,7 @@ recordCalculationTime timeMs metrics =
         , maxTime = newMax
         , calculationCount = newCount
     }
+
 
 
 -- PERFORMANCE CHECKS
@@ -89,5 +93,6 @@ getPerformanceStatus : PerformanceMetrics -> String
 getPerformanceStatus metrics =
     if shouldWarn metrics then
         "⚠️ Calculation took " ++ String.fromFloat metrics.lastCalculationTime ++ "ms (exceeds " ++ String.fromFloat metrics.warningThreshold ++ "ms threshold)"
+
     else
         "✓ Calculation completed in " ++ String.fromFloat metrics.lastCalculationTime ++ "ms"

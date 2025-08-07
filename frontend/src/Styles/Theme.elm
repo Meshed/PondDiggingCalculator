@@ -1,4 +1,7 @@
-module Styles.Theme exposing (container, textCenter, button, card, input, errorText, getButtonClasses, getCardClasses, getInputClasses, getTypographyScale, getMobileCalculatorClasses, getMobileTouchTarget, getMobileInputClasses, getMobileCardClasses, getMobileGridClasses)
+module Styles.Theme exposing
+    ( container, textCenter, button, card, input, errorText, getButtonClasses, getCardClasses, getInputClasses, getTypographyScale, getMobileCalculatorClasses, getMobileTouchTarget
+    , getMobileCardClasses, getMobileGridClasses, getMobileInputClasses
+    )
 
 {-| Tailwind CSS class constants for type-safe styling
 
@@ -7,6 +10,8 @@ module Styles.Theme exposing (container, textCenter, button, card, input, errorT
 -}
 
 import Types.DeviceType exposing (DeviceType(..))
+
+
 
 -- LAYOUT CLASSES
 
@@ -59,8 +64,9 @@ getButtonClasses deviceType =
     in
     case deviceType of
         Mobile ->
-            baseClasses ++ " py-3 px-6 text-lg min-h-11"  -- 44px minimum touch target
+            baseClasses ++ " py-3 px-6 text-lg min-h-11"
 
+        -- 44px minimum touch target
         Tablet ->
             baseClasses ++ " py-3 px-5 text-base min-h-11"
 
@@ -97,8 +103,9 @@ getInputClasses deviceType =
     in
     case deviceType of
         Mobile ->
-            baseClasses ++ " py-3 px-4 text-lg min-h-11"  -- 44px minimum touch target
+            baseClasses ++ " py-3 px-4 text-lg min-h-11"
 
+        -- 44px minimum touch target
         Tablet ->
             baseClasses ++ " py-3 px-3 text-base min-h-11"
 

@@ -6,11 +6,10 @@ import Components.ProjectForm as ProjectForm
 import Components.ResultsPanel as ResultsPanel
 import Html exposing (Html, div, h1, h2, text)
 import Html.Attributes exposing (class)
-import Views.MobileView as MobileView
 import Process
 import Task
 import Types.DeviceType exposing (DeviceType(..))
-import Types.Fields exposing (ExcavatorField(..), TruckField(..), PondField(..), ProjectField(..))
+import Types.Fields exposing (ExcavatorField(..), PondField(..), ProjectField(..), TruckField(..))
 import Types.Messages exposing (Msg(..))
 import Types.Model exposing (Flags, Model)
 import Utils.Calculations as Calculations
@@ -19,6 +18,7 @@ import Utils.Debounce as Debounce
 import Utils.DeviceDetector as DeviceDetector
 import Utils.Performance as Performance
 import Utils.Validation as Validation
+import Views.MobileView as MobileView
 
 
 
@@ -46,8 +46,8 @@ init _ =
       , formData = Nothing
       , calculationResult = Nothing
       , lastValidResult = Nothing
-      , hasValidationErrors = False  -- Start with no validation errors
-      , deviceType = Desktop  -- Default to Desktop until detection completes
+      , hasValidationErrors = False -- Start with no validation errors
+      , deviceType = Desktop -- Default to Desktop until detection completes
       , calculationInProgress = False
       , performanceMetrics = Performance.initMetrics
       , debounceState = Debounce.initDebounce
@@ -100,30 +100,34 @@ update msg model =
                     case model.config of
                         Just config ->
                             let
-                                resetFormData = ProjectForm.initFormData config.defaults
-                                newModel = 
-                                    { model 
-                                    | formData = Just resetFormData
-                                    , calculationResult = Nothing
-                                    , lastValidResult = Nothing
-                                    , hasValidationErrors = False  -- Clear validation errors
+                                resetFormData =
+                                    ProjectForm.initFormData config.defaults
+
+                                newModel =
+                                    { model
+                                        | formData = Just resetFormData
+                                        , calculationResult = Nothing
+                                        , lastValidResult = Nothing
+                                        , hasValidationErrors = False -- Clear validation errors
                                     }
                             in
                             ( newModel, Cmd.none )
-                        
+
                         Nothing ->
                             let
-                                fallbackFormData = ProjectForm.initFormData fallbackConfig.defaults
-                                newModel = 
-                                    { model 
-                                    | formData = Just fallbackFormData
-                                    , calculationResult = Nothing
-                                    , lastValidResult = Nothing
-                                    , hasValidationErrors = False  -- Clear validation errors
+                                fallbackFormData =
+                                    ProjectForm.initFormData fallbackConfig.defaults
+
+                                newModel =
+                                    { model
+                                        | formData = Just fallbackFormData
+                                        , calculationResult = Nothing
+                                        , lastValidResult = Nothing
+                                        , hasValidationErrors = False -- Clear validation errors
                                     }
                             in
                             ( newModel, Cmd.none )
-                
+
                 _ ->
                     -- Handle normal form updates
                     case model.formData of
@@ -155,7 +159,7 @@ update msg model =
                                     { formData | excavatorCycleTime = value }
 
                         newModel =
-                            { model 
+                            { model
                                 | formData = Just updatedFormData
                                 , calculationInProgress = True
                             }
@@ -178,7 +182,7 @@ update msg model =
                                     { formData | truckRoundTripTime = value }
 
                         newModel =
-                            { model 
+                            { model
                                 | formData = Just updatedFormData
                                 , calculationInProgress = True
                             }
@@ -204,7 +208,7 @@ update msg model =
                                     { formData | pondDepth = value }
 
                         newModel =
-                            { model 
+                            { model
                                 | formData = Just updatedFormData
                                 , calculationInProgress = True
                             }
@@ -224,7 +228,7 @@ update msg model =
                                     { formData | workHoursPerDay = value }
 
                         newModel =
-                            { model 
+                            { model
                                 | formData = Just updatedFormData
                                 , calculationInProgress = True
                             }
@@ -249,14 +253,16 @@ update msg model =
                     -- In a real implementation, this would handle calculation results
                     -- For now, calculations are handled synchronously in calculateAndUpdate
                     ( model, Cmd.none )
-                    
+
                 Err errorString ->
                     -- Log calculation errors but preserve last valid result
                     ( { model | calculationResult = model.lastValidResult }, Cmd.none )
 
         PerformanceTracked timeMs ->
             let
-                updatedMetrics = Performance.recordCalculationTime timeMs model.performanceMetrics
+                updatedMetrics =
+                    Performance.recordCalculationTime timeMs model.performanceMetrics
+
                 -- Performance tracking for monitoring (removed Debug.log for production)
             in
             ( { model | performanceMetrics = updatedMetrics }, Cmd.none )
@@ -297,10 +303,9 @@ update msg model =
             in
             ( { model | deviceType = deviceType }, Cmd.none )
 
-        -- REMOVED: MobileMsg handler - Mobile now uses same state as desktop!
 
 
-
+-- REMOVED: MobileMsg handler - Mobile now uses same state as desktop!
 -- CALCULATION HELPERS
 
 
@@ -326,25 +331,26 @@ calculateAndUpdate model =
                                         validInputs.truckRoundTripTime
                                         pondVolume
                                         validInputs.workHoursPerDay
-                                
+
                                 -- Simulate performance tracking (50ms typical calculation time)
-                                performanceCmd = Task.perform PerformanceTracked (Task.succeed 50.0)
+                                performanceCmd =
+                                    Task.perform PerformanceTracked (Task.succeed 50.0)
                             in
                             case calculationResult of
                                 Ok result ->
-                                    ( { model 
+                                    ( { model
                                         | calculationResult = Just result
                                         , lastValidResult = Just result
-                                        , hasValidationErrors = False  -- Calculation succeeded
+                                        , hasValidationErrors = False -- Calculation succeeded
                                         , calculationInProgress = False
                                       }
                                     , performanceCmd
                                     )
 
                                 Err _ ->
-                                    ( { model 
+                                    ( { model
                                         | calculationResult = model.lastValidResult
-                                        , hasValidationErrors = True  -- Calculation failed
+                                        , hasValidationErrors = True -- Calculation failed
                                         , calculationInProgress = False
                                       }
                                     , performanceCmd
@@ -352,22 +358,22 @@ calculateAndUpdate model =
 
                         Err _ ->
                             -- Validation failed - keep last valid result
-                            ( { model 
+                            ( { model
                                 | calculationResult = model.lastValidResult
-                                , hasValidationErrors = True  -- Validation failed
+                                , hasValidationErrors = True -- Validation failed
                                 , calculationInProgress = False
                               }
-                            , Cmd.none 
+                            , Cmd.none
                             )
 
                 Err _ ->
                     -- Parse failed - keep last valid result
-                    ( { model 
+                    ( { model
                         | calculationResult = model.lastValidResult
-                        , hasValidationErrors = True  -- Parse failed
+                        , hasValidationErrors = True -- Parse failed
                         , calculationInProgress = False
                       }
-                    , Cmd.none 
+                    , Cmd.none
                     )
 
         _ ->
@@ -467,7 +473,8 @@ view model =
                                     Just result ->
                                         let
                                             -- Show as stale if we have validation errors and showing last valid result
-                                            isStale = model.hasValidationErrors
+                                            isStale =
+                                                model.hasValidationErrors
                                         in
                                         ResultsPanel.view model.deviceType result isStale
 

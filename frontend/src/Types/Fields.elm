@@ -6,7 +6,6 @@ module Types.Fields exposing (ExcavatorField(..), TruckField(..), PondField(..),
 
 -}
 
-
 -- FIELD TYPES FOR REAL-TIME UPDATES
 
 

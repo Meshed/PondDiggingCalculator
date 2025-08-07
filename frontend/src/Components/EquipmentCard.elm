@@ -7,14 +7,15 @@ module Components.EquipmentCard exposing (view, viewIcon, EquipmentCardMsg(..), 
 -}
 
 import Html exposing (Html, button, div, h4, span, text)
-import Svg exposing (svg, path, circle)
-import Svg.Attributes
-import Html.Attributes exposing (class, disabled, attribute)
+import Html.Attributes exposing (attribute, class, disabled)
 import Html.Events exposing (onClick)
 import Styles.Components as Components
 import Styles.Theme as Theme
+import Svg exposing (circle, path, svg)
+import Svg.Attributes
 import Types.DeviceType exposing (DeviceType)
 import Types.Equipment exposing (Equipment)
+
 
 
 -- TYPES
@@ -34,6 +35,7 @@ type alias EquipmentCardConfig =
     }
 
 
+
 -- VIEW
 
 
@@ -46,16 +48,16 @@ view deviceType config toMsg =
             case deviceType of
                 Types.DeviceType.Desktop ->
                     "p-6"
-                
+
                 Types.DeviceType.Tablet ->
                     "p-5"
-                
+
                 _ ->
                     "p-4"
-        
+
         baseCardClass =
             Components.getEquipmentCardClasses deviceType
-        
+
         enhancedCardClass =
             baseCardClass ++ " " ++ cardPadding ++ " bg-white rounded-lg shadow-md hover:shadow-lg transition-shadow"
     in
@@ -72,21 +74,23 @@ view deviceType config toMsg =
                 ]
             , viewFleetBadge config.fleetCount deviceType
             ]
-        
+
         -- Equipment Info Section
         , div [ class "space-y-2 mb-4" ]
             [ equipmentDetail "Type" (equipmentTypeToString config.equipment.equipmentType)
             , equipmentDetail "Capacity" (formatCapacity config.equipment.bucketCapacity)
             , if config.showAdvanced then
                 equipmentDetail "Cycle Time" (formatCycleTime config.equipment.cycleTime)
+
               else
                 text ""
             , if config.showAdvanced && config.equipment.equipmentType == Types.Equipment.Excavator then
                 viewProductivityIndicator config.equipment deviceType
+
               else
                 text ""
             ]
-        
+
         -- Action Buttons Section
         , div [ class (getButtonSectionClasses deviceType) ]
             [ button
@@ -106,10 +110,12 @@ view deviceType config toMsg =
                     , onClick (toMsg (EditEquipment config.equipment))
                     ]
                     [ text "Edit" ]
+
               else
                 text ""
             ]
         ]
+
 
 
 -- HELPER FUNCTIONS
@@ -175,21 +181,21 @@ viewIcon deviceType equipmentType =
             case deviceType of
                 Types.DeviceType.Desktop ->
                     "w-10 h-10"
-                
+
                 Types.DeviceType.Tablet ->
                     "w-9 h-9"
-                
+
                 _ ->
                     "w-8 h-8"
-        
+
         iconColor =
             case equipmentType of
                 Types.Equipment.Excavator ->
                     "text-yellow-600"
-                
+
                 Types.Equipment.Truck ->
                     "text-blue-600"
-        
+
         svgElements =
             case equipmentType of
                 Types.Equipment.Excavator ->
@@ -200,7 +206,7 @@ viewIcon deviceType equipmentType =
                     , path [ Svg.Attributes.d "M15 17v2" ] []
                     , path [ Svg.Attributes.d "M8 7V4h2l1-2h2l1 2h2v3" ] []
                     ]
-                
+
                 Types.Equipment.Truck ->
                     [ path [ Svg.Attributes.d "M3 9h14v8H3z" ] []
                     , path [ Svg.Attributes.d "M17 11h3v4h-3z" ] []
@@ -231,16 +237,17 @@ viewFleetBadge count deviceType =
             case deviceType of
                 Types.DeviceType.Desktop ->
                     "px-3 py-1 bg-indigo-100 text-indigo-700 rounded-full text-sm font-bold"
-                
+
                 Types.DeviceType.Tablet ->
                     "px-3 py-1 bg-indigo-100 text-indigo-700 rounded-full text-sm font-bold"
-                
+
                 _ ->
                     "px-2 py-1 bg-indigo-100 text-indigo-700 rounded-full text-xs font-bold"
     in
     if count > 0 then
         div [ class badgeClass ]
             [ text ("Fleet: " ++ String.fromInt count) ]
+
     else
         text ""
 
@@ -253,6 +260,7 @@ viewStatusBadge isActive deviceType =
         statusClass =
             if isActive then
                 "px-2 py-1 text-xs rounded-full bg-green-100 text-green-800 font-medium"
+
             else
                 "px-2 py-1 text-xs rounded-full bg-gray-100 text-gray-600 font-medium"
     in
@@ -260,6 +268,7 @@ viewStatusBadge isActive deviceType =
         [ text
             (if isActive then
                 "Active"
+
              else
                 "Inactive"
             )
@@ -273,13 +282,13 @@ viewProductivityIndicator equipment deviceType =
     let
         cyclesPerHour =
             60.0 / equipment.cycleTime
-        
+
         excavatorEfficiencyFactor =
             0.85
-        
+
         ratePerHour =
             cyclesPerHour * equipment.bucketCapacity * excavatorEfficiencyFactor
-        
+
         formattedRate =
             String.fromFloat (toFloat (round (ratePerHour * 10)) / 10)
     in

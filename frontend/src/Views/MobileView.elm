@@ -9,13 +9,13 @@ of the same shared state used by desktop and tablet views.
 
 -}
 
+import Components.ProjectForm exposing (FormData)
 import Html exposing (Html, button, div, h1, input, span, text)
 import Html.Attributes exposing (class, placeholder, style, type_, value)
 import Html.Events exposing (onClick, onInput)
-import Components.ProjectForm exposing (FormData)
 import Styles.Theme as Theme
 import Types.DeviceType exposing (DeviceType(..))
-import Types.Fields exposing (ExcavatorField(..), TruckField(..), PondField(..), ProjectField(..))
+import Types.Fields exposing (ExcavatorField(..), PondField(..), ProjectField(..), TruckField(..))
 import Types.Messages exposing (Msg(..))
 import Utils.Calculations exposing (CalculationResult)
 import Utils.Config exposing (Config)
@@ -33,7 +33,7 @@ view maybeFormData maybeResult =
                 , viewInputSection formData
                 , viewClearButton
                 ]
-        
+
         Nothing ->
             div [ class "min-h-screen bg-gray-100 flex flex-col items-center justify-center" ]
                 [ div [ class "text-center text-gray-500" ]
@@ -57,7 +57,7 @@ viewResults maybeResult =
                 div [ class "text-center" ]
                     [ div [ class "mb-4" ]
                         [ div [ class "text-blue-700 text-sm font-medium mb-2" ] [ text "Project Timeline" ]
-                        , div [ class "text-4xl font-bold text-blue-900 mb-1" ] 
+                        , div [ class "text-4xl font-bold text-blue-900 mb-1" ]
                             [ text (String.fromInt result.timelineInDays) ]
                         , div [ class "text-lg text-blue-700" ] [ text "days" ]
                         ]
@@ -72,6 +72,7 @@ viewResults maybeResult =
                             ]
                         ]
                     ]
+
             Nothing ->
                 div [ class "text-center text-gray-500 py-8" ]
                     [ div [ class "text-lg" ] [ text "Enter values to calculate" ]
@@ -83,18 +84,18 @@ viewResults maybeResult =
 viewInputSection : FormData -> Html Msg
 viewInputSection formData =
     div [ class "flex-1 p-4 space-y-6 overflow-y-auto" ]
-        [ viewInputGroup "Pond Dimensions" 
+        [ viewInputGroup "Pond Dimensions"
             [ viewNumberInput "Pond Length" "ft" formData.pondLength (PondFieldChanged PondLength)
             , viewNumberInput "Pond Width" "ft" formData.pondWidth (PondFieldChanged PondWidth)
             , viewNumberInput "Pond Depth" "ft" formData.pondDepth (PondFieldChanged PondDepth)
             ]
-        , viewInputGroup "Equipment Specifications" 
+        , viewInputGroup "Equipment Specifications"
             [ viewNumberInput "Excavator Bucket Capacity" "yd³" formData.excavatorCapacity (ExcavatorFieldChanged BucketCapacity)
             , viewNumberInput "Excavator Cycle Time" "min" formData.excavatorCycleTime (ExcavatorFieldChanged CycleTime)
             , viewNumberInput "Truck Capacity" "yd³" formData.truckCapacity (TruckFieldChanged TruckCapacity)
             , viewNumberInput "Truck Round Trip Time" "min" formData.truckRoundTripTime (TruckFieldChanged RoundTripTime)
             ]
-        , viewInputGroup "Project Configuration" 
+        , viewInputGroup "Project Configuration"
             [ viewNumberInput "Work Hours per Day" "hrs" formData.workHoursPerDay (ProjectFieldChanged WorkHours)
             ]
         ]
@@ -103,7 +104,7 @@ viewInputSection formData =
 viewInputGroup : String -> List (Html Msg) -> Html Msg
 viewInputGroup title inputs =
     div [ class "bg-white shadow-md rounded-lg p-6 space-y-4" ]
-        [ div [ class "text-lg font-semibold text-gray-800 mb-4" ] 
+        [ div [ class "text-lg font-semibold text-gray-800 mb-4" ]
             [ text title ]
         , div [ class "space-y-4" ] inputs
         ]
@@ -125,7 +126,7 @@ viewNumberInput label unit currentValue onChange =
             , value currentValue
             , onInput onChange
             , class "w-full px-4 py-3 text-lg border border-gray-300 rounded-lg focus:border-blue-500 focus:ring-1 focus:ring-blue-500 focus:outline-none"
-            , style "min-height" "56px"  -- Ensure 44px+ touch target
+            , style "min-height" "56px" -- Ensure 44px+ touch target
             ]
             []
         ]

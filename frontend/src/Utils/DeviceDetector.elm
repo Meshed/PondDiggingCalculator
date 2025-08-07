@@ -17,7 +17,8 @@ detectDevice : () -> Cmd (Result Dom.Error { width : Int, height : Int })
 detectDevice _ =
     Task.attempt identity
         (Task.map (\viewport -> { width = round viewport.viewport.width, height = round viewport.viewport.height })
-            Dom.getViewport)
+            Dom.getViewport
+        )
 
 
 {-| Determine if advanced features should be shown based on device capabilities
@@ -50,8 +51,10 @@ Returns True for common mobile user agents
 isMobileUserAgent : String -> Bool
 isMobileUserAgent userAgent =
     let
-        lowerAgent = String.toLower userAgent
-        mobileKeywords = 
+        lowerAgent =
+            String.toLower userAgent
+
+        mobileKeywords =
             [ "android"
             , "webos"
             , "iphone"

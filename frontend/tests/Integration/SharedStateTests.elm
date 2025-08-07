@@ -9,24 +9,24 @@ shared state as desktop/tablet views, only with different presentation.
 
 -}
 
+import Components.ProjectForm as ProjectForm
 import Expect
 import Test exposing (Test, describe, test)
 import Types.DeviceType exposing (DeviceType(..))
-import Types.Model exposing (Model)
+import Types.Fields exposing (ExcavatorField(..), PondField(..), ProjectField(..), TruckField(..))
 import Types.Messages exposing (Msg(..))
-import Types.Fields exposing (ExcavatorField(..), TruckField(..), PondField(..), ProjectField(..))
-import Components.ProjectForm as ProjectForm
-import Utils.Calculations exposing (CalculationResult, Bottleneck(..), ConfidenceLevel(..))
+import Types.Model exposing (Model)
+import Utils.Calculations exposing (Bottleneck(..), CalculationResult, ConfidenceLevel(..))
 import Utils.Config as Config
-import Utils.Performance
 import Utils.Debounce
+import Utils.Performance
 
 
 suite : Test
 suite =
     describe "Shared State Architecture Tests"
         [ sharedStateTests
-        , deviceSwitchingTests  
+        , deviceSwitchingTests
         ]
 
 
@@ -38,11 +38,17 @@ sharedStateTests =
         [ test "all_device_types_use_same_formData_field" <|
             \_ ->
                 let
-                    testFormData = createTestFormData
-                    
-                    mobileModel = createModelWithFormData Mobile testFormData
-                    tabletModel = createModelWithFormData Tablet testFormData
-                    desktopModel = createModelWithFormData Desktop testFormData
+                    testFormData =
+                        createTestFormData
+
+                    mobileModel =
+                        createModelWithFormData Mobile testFormData
+
+                    tabletModel =
+                        createModelWithFormData Tablet testFormData
+
+                    desktopModel =
+                        createModelWithFormData Desktop testFormData
                 in
                 -- ALL device types should use the same formData field
                 Expect.all
@@ -51,15 +57,20 @@ sharedStateTests =
                     , \_ -> Expect.equal mobileModel.formData tabletModel.formData
                     ]
                     ()
-                    
         , test "all_device_types_use_same_calculationResult_field" <|
             \_ ->
                 let
-                    testResult = createTestCalculationResult
-                    
-                    mobileModel = createModelWithResult Mobile testResult
-                    tabletModel = createModelWithResult Tablet testResult
-                    desktopModel = createModelWithResult Desktop testResult
+                    testResult =
+                        createTestCalculationResult
+
+                    mobileModel =
+                        createModelWithResult Mobile testResult
+
+                    tabletModel =
+                        createModelWithResult Tablet testResult
+
+                    desktopModel =
+                        createModelWithResult Desktop testResult
                 in
                 -- ALL device types should use the same calculationResult field
                 Expect.all
@@ -68,13 +79,17 @@ sharedStateTests =
                     , \_ -> Expect.equal mobileModel.calculationResult tabletModel.calculationResult
                     ]
                     ()
-
         , test "all_device_types_use_same_config_field" <|
             \_ ->
                 let
-                    mobileModel = createTestModel Mobile
-                    tabletModel = createTestModel Tablet
-                    desktopModel = createTestModel Desktop
+                    mobileModel =
+                        createTestModel Mobile
+
+                    tabletModel =
+                        createTestModel Tablet
+
+                    desktopModel =
+                        createTestModel Desktop
                 in
                 -- ALL device types should use the same config
                 Expect.all
@@ -95,10 +110,12 @@ deviceSwitchingTests =
             \_ ->
                 let
                     -- Start with mobile model with form data
-                    mobileModel = createModelWithFormData Mobile createTestFormData
-                    
+                    mobileModel =
+                        createModelWithFormData Mobile createTestFormData
+
                     -- Switch to desktop (simulating browser resize)
-                    desktopModel = { mobileModel | deviceType = Desktop }
+                    desktopModel =
+                        { mobileModel | deviceType = Desktop }
                 in
                 case ( mobileModel.formData, desktopModel.formData ) of
                     ( Just mobileForm, Just desktopForm ) ->
@@ -112,18 +129,19 @@ deviceSwitchingTests =
                             , \_ -> Expect.equal mobileForm.workHoursPerDay desktopForm.workHoursPerDay
                             ]
                             ()
-                    
+
                     _ ->
                         Expect.fail "Form data should exist in both mobile and desktop models"
-                        
         , test "calculation_results_persist_when_switching_desktop_to_mobile" <|
             \_ ->
                 let
                     -- Start with desktop model with calculation results
-                    desktopModel = createModelWithResult Desktop createTestCalculationResult
-                    
+                    desktopModel =
+                        createModelWithResult Desktop createTestCalculationResult
+
                     -- Switch to mobile (simulating browser resize)
-                    mobileModel = { desktopModel | deviceType = Mobile }
+                    mobileModel =
+                        { desktopModel | deviceType = Mobile }
                 in
                 case ( desktopModel.calculationResult, mobileModel.calculationResult ) of
                     ( Just desktopResult, Just mobileResult ) ->
@@ -134,21 +152,28 @@ deviceSwitchingTests =
                             , \_ -> Expect.within (Expect.Absolute 0.001) desktopResult.excavationRate mobileResult.excavationRate
                             ]
                             ()
-                    
+
                     _ ->
                         Expect.fail "Calculation results should exist in both desktop and mobile models"
-
         , test "state_survives_multiple_device_type_changes" <|
             \_ ->
                 let
                     -- Start with specific test data
-                    originalModel = createModelWithFormData Mobile createTestFormData
-                    
+                    originalModel =
+                        createModelWithFormData Mobile createTestFormData
+
                     -- Switch device types multiple times
-                    step1 = { originalModel | deviceType = Tablet }
-                    step2 = { step1 | deviceType = Desktop }
-                    step3 = { step2 | deviceType = Mobile }
-                    finalModel = { step3 | deviceType = Tablet }
+                    step1 =
+                        { originalModel | deviceType = Tablet }
+
+                    step2 =
+                        { step1 | deviceType = Desktop }
+
+                    step3 =
+                        { step2 | deviceType = Mobile }
+
+                    finalModel =
+                        { step3 | deviceType = Tablet }
                 in
                 -- State should be identical after all switches
                 Expect.all
@@ -160,7 +185,9 @@ deviceSwitchingTests =
         ]
 
 
+
 -- TEST HELPERS
+
 
 createTestModel : DeviceType -> Model
 createTestModel deviceType =
@@ -180,7 +207,8 @@ createTestModel deviceType =
 createModelWithFormData : DeviceType -> ProjectForm.FormData -> Model
 createModelWithFormData deviceType formData =
     let
-        baseModel = createTestModel deviceType
+        baseModel =
+            createTestModel deviceType
     in
     { baseModel | formData = Just formData }
 
@@ -188,7 +216,8 @@ createModelWithFormData deviceType formData =
 createModelWithResult : DeviceType -> CalculationResult -> Model
 createModelWithResult deviceType result =
     let
-        baseModel = createTestModel deviceType
+        baseModel =
+            createTestModel deviceType
     in
     { baseModel | calculationResult = Just result }
 
@@ -218,6 +247,7 @@ createTestCalculationResult =
     , assumptions = []
     , warnings = []
     }
+
 
 
 -- These types are now imported from Utils.Calculations

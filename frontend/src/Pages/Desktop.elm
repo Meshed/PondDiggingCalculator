@@ -5,13 +5,13 @@ import Components.ProjectForm as ProjectForm
 import Components.ResultsPanel as ResultsPanel
 import Html exposing (..)
 import Html.Attributes exposing (..)
-import Svg exposing (svg, path)
-import Svg.Attributes
-import Types.Model exposing (Model)
-import Types.Messages exposing (Msg)
 import Styles.Responsive as Responsive
 import Styles.Theme as Theme
+import Svg exposing (path, svg)
+import Svg.Attributes
 import Types.DeviceType as DeviceType exposing (DeviceType(..))
+import Types.Messages exposing (Msg)
+import Types.Model exposing (Model)
 
 
 view : Model -> Html Msg
@@ -71,7 +71,7 @@ viewHeader deviceType =
     let
         typography =
             Theme.getTypographyScale deviceType
-        
+
         headingClass =
             typography.heading
 
@@ -102,7 +102,7 @@ viewExcavatorSection model deviceType =
 
         typography =
             Theme.getTypographyScale deviceType
-        
+
         headerClass =
             typography.subheading
     in
@@ -132,7 +132,7 @@ viewProjectSection model deviceType =
 
         typography =
             Theme.getTypographyScale deviceType
-        
+
         headerClass =
             typography.subheading
     in
@@ -141,12 +141,13 @@ viewProjectSection model deviceType =
             [ text "Project Configuration" ]
         , case model.formData of
             Just formData ->
-                ProjectForm.view deviceType formData 
+                ProjectForm.view deviceType
+                    formData
                     (\field value -> Types.Messages.ExcavatorFieldChanged field value)
                     (\field value -> Types.Messages.TruckFieldChanged field value)
                     (\field value -> Types.Messages.PondFieldChanged field value)
                     (\field value -> Types.Messages.ProjectFieldChanged field value)
-            
+
             Nothing ->
                 text "Loading form..."
         ]
@@ -168,7 +169,7 @@ viewTruckSection model deviceType =
 
         typography =
             Theme.getTypographyScale deviceType
-        
+
         headerClass =
             typography.subheading
     in
@@ -200,7 +201,7 @@ viewResultsSection model deviceType =
         [ case model.calculationResult of
             Just result ->
                 ResultsPanel.view model.deviceType result False
-            
+
             Nothing ->
                 text "No calculation results yet"
         ]
@@ -234,7 +235,7 @@ viewFleetIndicator fleetType count deviceType =
 
         typography =
             Theme.getTypographyScale deviceType
-        
+
         textClass =
             typography.body
     in
@@ -244,6 +245,7 @@ viewFleetIndicator fleetType count deviceType =
         , if count > 5 then
             span [ class (textClass ++ " text-gray-600 ml-2") ]
                 [ text ("+" ++ String.fromInt (count - 5) ++ " more") ]
+
           else
             text ""
         , span [ class (textClass ++ " text-gray-700 ml-auto") ]
@@ -257,12 +259,14 @@ viewEquipmentIcon equipmentType sizeClass =
         iconColor =
             if equipmentType == "Excavators" then
                 "text-yellow-600"
+
             else
                 "text-blue-600"
 
         iconPath =
             if equipmentType == "Excavators" then
                 "M4 7h16v10H4z M7 11h10 M2 7l2-3h16l2 3 M9 17v2 M15 17v2"
+
             else
                 "M3 9h14v8H3z M17 11h3v4h-3z M7 17v2 M13 17v2"
     in

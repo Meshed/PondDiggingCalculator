@@ -26,32 +26,32 @@ view deviceType result isStale =
             case deviceType of
                 Types.DeviceType.Desktop ->
                     Components.getResultsPanelClasses deviceType ++ " p-6"
-                
+
                 Types.DeviceType.Tablet ->
                     Components.getResultsPanelClasses deviceType ++ " p-5"
-                
+
                 _ ->
                     Components.getResultsPanelClasses deviceType ++ " p-4"
-        
+
         headingClass =
             case deviceType of
                 Types.DeviceType.Desktop ->
                     "text-4xl font-bold text-gray-900 mb-3"
-                
+
                 Types.DeviceType.Tablet ->
                     "text-3xl font-bold text-gray-900 mb-2"
-                
+
                 _ ->
                     "text-2xl font-bold text-gray-900 mb-2"
-        
+
         mainNumberClass =
             case deviceType of
                 Types.DeviceType.Desktop ->
                     "text-7xl font-bold text-indigo-600 mb-3"
-                
+
                 Types.DeviceType.Tablet ->
                     "text-6xl font-bold text-indigo-600 mb-2"
-                
+
                 _ ->
                     "text-5xl font-bold text-indigo-600 mb-2"
     in
@@ -65,9 +65,10 @@ view deviceType result isStale =
                         [ text "Showing last valid calculation while current inputs have validation errors" ]
                     ]
                 ]
+
           else
             text ""
-        
+
         -- Main Result with Enhanced Display
         , div [ class "text-center mb-8" ]
             [ h3 [ class headingClass ]
@@ -87,6 +88,7 @@ view deviceType result isStale =
                 [ text ("(" ++ formatHours result.totalHours ++ " total hours)") ]
             , if deviceType /= Types.DeviceType.Mobile then
                 viewAdditionalMetrics result
+
               else
                 text ""
             ]
@@ -103,6 +105,7 @@ view deviceType result isStale =
                     , bottleneckIndicator result.bottleneck
                     , if deviceType /= Types.DeviceType.Mobile then
                         viewEfficiencyBar result.excavationRate result.haulingRate
+
                       else
                         text ""
                     ]
@@ -116,6 +119,7 @@ view deviceType result isStale =
                     [ confidenceIndicator result.confidence
                     , if deviceType /= Types.DeviceType.Mobile then
                         viewProjectDetails result
+
                       else
                         text ""
                     , div [ class "text-sm text-gray-600" ]
@@ -271,10 +275,11 @@ viewAdditionalMetrics result =
     let
         totalVolume =
             result.totalHours * min result.excavationRate result.haulingRate
-        
+
         truckTrips =
             if result.haulingRate > 0 then
                 ceiling (totalVolume / 15.0)
+
             else
                 0
     in
@@ -306,25 +311,28 @@ formatVolume volume =
     let
         rounded =
             round volume
-        
+
         formatted =
             if rounded >= 1000 then
                 let
                     thousands =
                         rounded // 1000
-                    
+
                     remainder =
                         modBy 1000 rounded
-                    
+
                     remainderStr =
                         if remainder < 10 then
                             "00" ++ String.fromInt remainder
+
                         else if remainder < 100 then
                             "0" ++ String.fromInt remainder
+
                         else
                             String.fromInt remainder
                 in
                 String.fromInt thousands ++ "," ++ remainderStr
+
             else
                 String.fromInt rounded
     in
@@ -337,6 +345,7 @@ formatDailyProgress : Float -> Int -> String
 formatDailyProgress totalHours days =
     if days > 0 then
         String.fromFloat (toFloat (round ((totalHours / toFloat days) * 10)) / 10)
+
     else
         "0"
 
@@ -348,16 +357,18 @@ viewEfficiencyBar excavationRate haulingRate =
     let
         maxRate =
             max excavationRate haulingRate
-        
+
         excavationPercent =
             if maxRate > 0 then
                 (excavationRate / maxRate) * 100
+
             else
                 0
-        
+
         haulingPercent =
             if maxRate > 0 then
                 (haulingRate / maxRate) * 100
+
             else
                 0
     in
@@ -401,7 +412,7 @@ viewProjectDetails result =
         , div [ class "flex justify-between text-sm" ]
             [ span [ class "text-gray-600" ] [ text "Daily Output" ]
             , span [ class "font-medium text-gray-900" ]
-                [ text (formatRate ((min result.excavationRate result.haulingRate) * 8.0) ++ " cy/day") ]
+                [ text (formatRate (min result.excavationRate result.haulingRate * 8.0) ++ " cy/day") ]
             ]
         ]
 
@@ -413,9 +424,9 @@ getBreakdownGridClass deviceType =
     case deviceType of
         Types.DeviceType.Desktop ->
             "grid grid-cols-2 gap-6 mb-6"
-        
+
         Types.DeviceType.Tablet ->
             "grid grid-cols-2 gap-4 mb-6"
-        
+
         _ ->
             "grid grid-cols-1 gap-4 mb-6"
