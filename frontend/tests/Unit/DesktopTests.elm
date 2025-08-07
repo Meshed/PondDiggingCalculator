@@ -266,6 +266,7 @@ createTestModel deviceType =
     , formData = Just createTestFormData
     , calculationResult = Just createTestCalculationResult
     , lastValidResult = Nothing
+    , hasValidationErrors = False
     , deviceType = deviceType
     , calculationInProgress = False
     , performanceMetrics = Utils.Performance.initMetrics

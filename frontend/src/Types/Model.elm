@@ -24,6 +24,7 @@ type alias Model =
     , formData : Maybe FormData
     , calculationResult : Maybe CalculationResult
     , lastValidResult : Maybe CalculationResult -- Preserve during validation errors
+    , hasValidationErrors : Bool -- Track if current inputs have validation errors
     , deviceType : DeviceType
     , calculationInProgress : Bool -- Prevent race conditions
     , performanceMetrics : PerformanceMetrics -- Track calculation performance

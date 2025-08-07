@@ -46,6 +46,7 @@ init _ =
       , formData = Nothing
       , calculationResult = Nothing
       , lastValidResult = Nothing
+      , hasValidationErrors = False  -- Start with no validation errors
       , deviceType = Desktop  -- Default to Desktop until detection completes
       , calculationInProgress = False
       , performanceMetrics = Performance.initMetrics
@@ -105,6 +106,7 @@ update msg model =
                                     | formData = Just resetFormData
                                     , calculationResult = Nothing
                                     , lastValidResult = Nothing
+                                    , hasValidationErrors = False  -- Clear validation errors
                                     }
                             in
                             ( newModel, Cmd.none )
@@ -117,6 +119,7 @@ update msg model =
                                     | formData = Just fallbackFormData
                                     , calculationResult = Nothing
                                     , lastValidResult = Nothing
+                                    , hasValidationErrors = False  -- Clear validation errors
                                     }
                             in
                             ( newModel, Cmd.none )
@@ -332,6 +335,7 @@ calculateAndUpdate model =
                                     ( { model 
                                         | calculationResult = Just result
                                         , lastValidResult = Just result
+                                        , hasValidationErrors = False  -- Calculation succeeded
                                         , calculationInProgress = False
                                       }
                                     , performanceCmd
@@ -340,6 +344,7 @@ calculateAndUpdate model =
                                 Err _ ->
                                     ( { model 
                                         | calculationResult = model.lastValidResult
+                                        , hasValidationErrors = True  -- Calculation failed
                                         , calculationInProgress = False
                                       }
                                     , performanceCmd
@@ -349,6 +354,7 @@ calculateAndUpdate model =
                             -- Validation failed - keep last valid result
                             ( { model 
                                 | calculationResult = model.lastValidResult
+                                , hasValidationErrors = True  -- Validation failed
                                 , calculationInProgress = False
                               }
                             , Cmd.none 
@@ -358,6 +364,7 @@ calculateAndUpdate model =
                     -- Parse failed - keep last valid result
                     ( { model 
                         | calculationResult = model.lastValidResult
+                        , hasValidationErrors = True  -- Parse failed
                         , calculationInProgress = False
                       }
                     , Cmd.none 
@@ -459,14 +466,8 @@ view model =
                                   case model.calculationResult of
                                     Just result ->
                                         let
-                                            -- Show as stale if we have validation errors but showing last valid result
-                                            isStale = 
-                                                case ( model.lastValidResult, model.calculationResult ) of
-                                                    ( Just lastValid, Just current ) ->
-                                                        -- If current result is same as last valid, might be stale
-                                                        lastValid == current && model.calculationInProgress == False
-                                                    _ ->
-                                                        False
+                                            -- Show as stale if we have validation errors and showing last valid result
+                                            isStale = model.hasValidationErrors
                                         in
                                         ResultsPanel.view model.deviceType result isStale
 
