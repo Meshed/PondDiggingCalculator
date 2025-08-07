@@ -36,3 +36,4 @@ type Msg
     | PerformanceTracked Float -- milliseconds
     | DeviceDetected (Result Dom.Error { width : Int, height : Int })
     | WindowResized Int Int
+    -- REMOVED: MobileMsg - Mobile now uses same messages as desktop!

@@ -45,6 +45,7 @@ type FormMsg
     | UpdatePondLength String
     | UpdatePondWidth String
     | UpdatePondDepth String
+    | ClearForm
 
 
 
@@ -99,6 +100,11 @@ updateFormData msg formData =
 
         UpdatePondDepth value ->
             { formData | pondDepth = value }
+        
+        ClearForm ->
+            -- Reset to default config values - this should be handled at the Main level
+            -- For now, just return the same formData, actual reset will happen in Main
+            formData
 
 
 

@@ -1,8 +1,8 @@
-module Styles.Theme exposing (container, textCenter, button, card, input, errorText, getButtonClasses, getCardClasses, getInputClasses, getTypographyScale)
+module Styles.Theme exposing (container, textCenter, button, card, input, errorText, getButtonClasses, getCardClasses, getInputClasses, getTypographyScale, getMobileCalculatorClasses, getMobileTouchTarget, getMobileInputClasses, getMobileCardClasses, getMobileGridClasses)
 
 {-| Tailwind CSS class constants for type-safe styling
 
-@docs container, textCenter, button, card, input, errorText, getButtonClasses, getCardClasses, getInputClasses, getTypographyScale
+@docs container, textCenter, button, card, input, errorText, getButtonClasses, getCardClasses, getInputClasses, getTypographyScale, getMobileCalculatorClasses, getMobileTouchTarget
 
 -}
 
@@ -128,3 +128,42 @@ getTypographyScale deviceType =
             , subheading = "text-xl font-semibold"
             , body = "text-sm"
             }
+
+
+{-| Get mobile-specific calculator interface classes
+-}
+getMobileCalculatorClasses : { header : String, results : String, inputs : String, actions : String }
+getMobileCalculatorClasses =
+    { header = "mobile-header"
+    , results = "mobile-results"
+    , inputs = "mobile-inputs"
+    , actions = "mobile-actions"
+    }
+
+
+{-| Get minimum touch target size for mobile interfaces (44x44 pixels)
+-}
+getMobileTouchTarget : String
+getMobileTouchTarget =
+    "min-h-11 min-w-11"
+
+
+{-| Get mobile-specific calculator input styling classes
+-}
+getMobileInputClasses : String
+getMobileInputClasses =
+    "w-full text-center text-lg font-semibold bg-gray-50 border-2 border-gray-200 rounded-xl focus:border-blue-500 focus:bg-white transition-colors py-4 px-3 min-h-14"
+
+
+{-| Get mobile calculator card styling classes
+-}
+getMobileCardClasses : String
+getMobileCardClasses =
+    "bg-white rounded-xl shadow-lg mx-4 my-2 p-4"
+
+
+{-| Get mobile calculator grid classes for inputs
+-}
+getMobileGridClasses : String
+getMobileGridClasses =
+    "grid grid-cols-2 gap-3"

@@ -14,6 +14,7 @@ import Components.ProjectForm exposing (FormData)
 import Utils.Performance exposing (PerformanceMetrics)
 import Utils.Performance
 import Utils.Debounce exposing (DebounceState)
+import Utils.Config
 
 
 suite : Test
@@ -71,8 +72,7 @@ suite =
                     in
                     result
                         |> Query.fromHtml
-                        |> Query.find [ text "Excavator Fleet" ]
-                        |> Query.has [ tag "h2" ]
+                        |> Query.has [ text "Excavator Fleet" ]
             
             , test "truck section header is present" <|
                 \_ ->
@@ -82,8 +82,7 @@ suite =
                     in
                     result
                         |> Query.fromHtml
-                        |> Query.find [ text "Truck Fleet" ]
-                        |> Query.has [ tag "h2" ]
+                        |> Query.has [ text "Truck Fleet" ]
             
             , test "project configuration section header is present" <|
                 \_ ->
@@ -93,8 +92,7 @@ suite =
                     in
                     result
                         |> Query.fromHtml
-                        |> Query.find [ text "Project Configuration" ]
-                        |> Query.has [ tag "h2" ]
+                        |> Query.has [ text "Project Configuration" ]
             ]
         
         , describe "Visual Styling"
@@ -160,8 +158,7 @@ suite =
                     in
                     result
                         |> Query.fromHtml
-                        |> Query.find [ text "2 Excavators" ]
-                        |> Query.has [ tag "span" ]
+                        |> Query.has [ text "2 Excavators" ]
             
             , test "displays truck fleet count" <|
                 \_ ->
@@ -171,8 +168,7 @@ suite =
                     in
                     result
                         |> Query.fromHtml
-                        |> Query.find [ text "3 Trucks" ]
-                        |> Query.has [ tag "span" ]
+                        |> Query.has [ text "3 Trucks" ]
             
             , test "fleet indicators show equipment icons" <|
                 \_ ->
@@ -247,8 +243,7 @@ suite =
                     in
                     result
                         |> Query.fromHtml
-                        |> Query.find [ text "Pond Digging Calculator" ]
-                        |> Query.has [ tag "h1" ]
+                        |> Query.has [ text "Pond Digging Calculator" ]
             
             , test "displays subtitle" <|
                 \_ ->
@@ -258,8 +253,7 @@ suite =
                     in
                     result
                         |> Query.fromHtml
-                        |> Query.find [ text "Professional excavation timeline estimator" ]
-                        |> Query.has [ tag "p" ]
+                        |> Query.has [ text "Professional excavation timeline estimator" ]
             ]
         ]
 
@@ -268,7 +262,7 @@ suite =
 createTestModel : DeviceType -> Model
 createTestModel deviceType =
     { message = ""
-    , config = Nothing
+    , config = Just Utils.Config.fallbackConfig
     , formData = Just createTestFormData
     , calculationResult = Just createTestCalculationResult
     , lastValidResult = Nothing

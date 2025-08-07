@@ -28,6 +28,7 @@ type alias Model =
     , calculationInProgress : Bool -- Prevent race conditions
     , performanceMetrics : PerformanceMetrics -- Track calculation performance
     , debounceState : DebounceState -- For input debouncing
+    -- REMOVED: mobileModel - Mobile now uses same state as desktop!
     }
 
 

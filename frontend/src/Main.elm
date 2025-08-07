@@ -6,6 +6,7 @@ import Components.ProjectForm as ProjectForm
 import Components.ResultsPanel as ResultsPanel
 import Html exposing (Html, div, h1, h2, text)
 import Html.Attributes exposing (class)
+import Views.MobileView as MobileView
 import Process
 import Task
 import Types.DeviceType exposing (DeviceType(..))
@@ -92,20 +93,50 @@ update msg model =
             update CalculateTimeline modelWithData
 
         FormUpdated formMsg ->
-            case model.formData of
-                Just formData ->
-                    let
-                        updatedFormData =
-                            ProjectForm.updateFormData formMsg formData
+            case formMsg of
+                ProjectForm.ClearForm ->
+                    -- Reset form to config defaults
+                    case model.config of
+                        Just config ->
+                            let
+                                resetFormData = ProjectForm.initFormData config.defaults
+                                newModel = 
+                                    { model 
+                                    | formData = Just resetFormData
+                                    , calculationResult = Nothing
+                                    , lastValidResult = Nothing
+                                    }
+                            in
+                            ( newModel, Cmd.none )
+                        
+                        Nothing ->
+                            let
+                                fallbackFormData = ProjectForm.initFormData fallbackConfig.defaults
+                                newModel = 
+                                    { model 
+                                    | formData = Just fallbackFormData
+                                    , calculationResult = Nothing
+                                    , lastValidResult = Nothing
+                                    }
+                            in
+                            ( newModel, Cmd.none )
+                
+                _ ->
+                    -- Handle normal form updates
+                    case model.formData of
+                        Just formData ->
+                            let
+                                updatedFormData =
+                                    ProjectForm.updateFormData formMsg formData
 
-                        newModel =
-                            { model | formData = Just updatedFormData }
-                    in
-                    -- Trigger calculation when form changes
-                    update CalculateTimeline newModel
+                                newModel =
+                                    { model | formData = Just updatedFormData }
+                            in
+                            -- Trigger calculation when form changes
+                            update CalculateTimeline newModel
 
-                Nothing ->
-                    ( model, Cmd.none )
+                        Nothing ->
+                            ( model, Cmd.none )
 
         -- Real-time input handlers
         ExcavatorFieldChanged field value ->
@@ -263,6 +294,8 @@ update msg model =
             in
             ( { model | deviceType = deviceType }, Cmd.none )
 
+        -- REMOVED: MobileMsg handler - Mobile now uses same state as desktop!
+
 
 
 -- CALCULATION HELPERS
@@ -400,47 +433,54 @@ subscriptions _ =
 
 view : Model -> Html Msg
 view model =
-    div [ class "min-h-screen bg-gray-100 py-8" ]
-        [ div [ class "container mx-auto px-4" ]
-            [ -- Header
-              div [ class "text-center mb-8" ]
-                [ h1 [ class "text-4xl font-bold text-gray-900 mb-2" ]
-                    [ text "Pond Digging Calculator" ]
-                , h2 [ class "text-xl text-gray-600" ]
-                    [ text "Professional Timeline Estimation Tool" ]
-                ]
-            , -- Main Content
-              case ( model.formData, model.config ) of
-                ( Just formData, Just config ) ->
-                    div [ class "space-y-8" ]
-                        [ -- Input Form
-                          ProjectForm.view model.deviceType formData ExcavatorFieldChanged TruckFieldChanged PondFieldChanged ProjectFieldChanged
-                        , -- Results Panel
-                          case model.calculationResult of
-                            Just result ->
-                                let
-                                    -- Show as stale if we have validation errors but showing last valid result
-                                    isStale = 
-                                        case ( model.lastValidResult, model.calculationResult ) of
-                                            ( Just lastValid, Just current ) ->
-                                                -- If current result is same as last valid, might be stale
-                                                lastValid == current && model.calculationInProgress == False
-                                            _ ->
-                                                False
-                                in
-                                ResultsPanel.view model.deviceType result isStale
+    -- Route to mobile view for mobile devices (now using SHARED state!)
+    case model.deviceType of
+        Mobile ->
+            MobileView.view model.formData model.calculationResult
 
-                            Nothing ->
-                                div [ class "text-center text-gray-500" ]
-                                    [ text "Enter project parameters above to see timeline calculation" ]
+        _ ->
+            -- Desktop/Tablet view
+            div [ class "min-h-screen bg-gray-100 py-8" ]
+                [ div [ class "container mx-auto px-4" ]
+                    [ -- Header
+                      div [ class "text-center mb-8" ]
+                        [ h1 [ class "text-4xl font-bold text-gray-900 mb-2" ]
+                            [ text "Pond Digging Calculator" ]
+                        , h2 [ class "text-xl text-gray-600" ]
+                            [ text "Professional Timeline Estimation Tool" ]
                         ]
+                    , -- Main Content
+                      case ( model.formData, model.config ) of
+                        ( Just formData, Just config ) ->
+                            div [ class "space-y-8" ]
+                                [ -- Input Form
+                                  ProjectForm.view model.deviceType formData ExcavatorFieldChanged TruckFieldChanged PondFieldChanged ProjectFieldChanged
+                                , -- Results Panel
+                                  case model.calculationResult of
+                                    Just result ->
+                                        let
+                                            -- Show as stale if we have validation errors but showing last valid result
+                                            isStale = 
+                                                case ( model.lastValidResult, model.calculationResult ) of
+                                                    ( Just lastValid, Just current ) ->
+                                                        -- If current result is same as last valid, might be stale
+                                                        lastValid == current && model.calculationInProgress == False
+                                                    _ ->
+                                                        False
+                                        in
+                                        ResultsPanel.view model.deviceType result isStale
 
-                ( Nothing, Just _ ) ->
-                    div [ class "text-center text-gray-500" ]
-                        [ text "Initializing form..." ]
+                                    Nothing ->
+                                        div [ class "text-center text-gray-500" ]
+                                            [ text "Enter project parameters above to see timeline calculation" ]
+                                ]
 
-                ( _, Nothing ) ->
-                    div [ class "text-center text-gray-500" ]
-                        [ text "Loading configuration..." ]
-            ]
-        ]
+                        ( Nothing, Just _ ) ->
+                            div [ class "text-center text-gray-500" ]
+                                [ text "Initializing form..." ]
+
+                        ( _, Nothing ) ->
+                            div [ class "text-center text-gray-500" ]
+                                [ text "Loading configuration..." ]
+                    ]
+                ]

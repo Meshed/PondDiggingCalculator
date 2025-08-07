@@ -1,8 +1,8 @@
-module Utils.DeviceDetector exposing (detectDevice, shouldShowAdvancedFeatures, adaptComponentForDevice)
+module Utils.DeviceDetector exposing (detectDevice, shouldShowAdvancedFeatures, adaptComponentForDevice, isMobileUserAgent)
 
 {-| Device detection and responsive utilities
 
-@docs detectDevice, shouldShowAdvancedFeatures, adaptComponentForDevice
+@docs detectDevice, shouldShowAdvancedFeatures, adaptComponentForDevice, isMobileUserAgent
 
 -}
 
@@ -42,3 +42,25 @@ This is a placeholder for component-specific adaptations
 adaptComponentForDevice : DeviceType -> a -> a
 adaptComponentForDevice _ component =
     component
+
+
+{-| Check if user agent string indicates mobile device
+Returns True for common mobile user agents
+-}
+isMobileUserAgent : String -> Bool
+isMobileUserAgent userAgent =
+    let
+        lowerAgent = String.toLower userAgent
+        mobileKeywords = 
+            [ "android"
+            , "webos"
+            , "iphone"
+            , "ipad"
+            , "ipod"
+            , "blackberry"
+            , "windows phone"
+            , "mobile"
+            , "tablet"
+            ]
+    in
+    List.any (\keyword -> String.contains keyword lowerAgent) mobileKeywords
