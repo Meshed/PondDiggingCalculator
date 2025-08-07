@@ -1,0 +1,48 @@
+name: CI
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v3
+    
+    - name: Setup Node.js
+      uses: actions/setup-node@v3
+      with:
+        node-version: '18'
+        cache: 'npm'
+        cache-dependency-path: frontend/package-lock.json
+    
+    - name: Install dependencies
+      run: |
+        cd frontend
+        npm ci
+    
+    - name: Check Elm formatting
+      run: |
+        cd frontend
+        npx elm-format src/ tests/ --validate
+    
+    - name: Build project
+      run: |
+        cd frontend
+        npm run build
+    
+    - name: Run tests
+      run: |
+        cd frontend
+        npm test
+    
+    - name: Run E2E tests (if applicable)
+      run: |
+        cd frontend
+        # Skip E2E tests in CI for now since they require a running server
+        # npm run test:e2e
+        echo "E2E tests skipped in CI - run locally with 'npm run test:e2e'"
