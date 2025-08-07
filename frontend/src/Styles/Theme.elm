@@ -99,7 +99,7 @@ getInputClasses : DeviceType -> String
 getInputClasses deviceType =
     let
         baseClasses =
-            "shadow appearance-none border rounded w-full text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+            "shadow border rounded w-full text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
     in
     case deviceType of
         Mobile ->

@@ -329,18 +329,18 @@ inputFieldWithUnit deviceType config =
             , span [ class "ml-2 text-xs font-normal text-gray-500" ]
                 [ text ("(" ++ config.unit ++ ")") ]
             ]
-        , div [ class "relative" ]
+        , div [ class "input-with-unit" ]
             [ input
                 [ type_ "number"
                 , id config.id
                 , value config.value
                 , placeholder config.placeholder
                 , onInput config.onInput
-                , class (inputClasses deviceType config.error)
+                , class (inputClasses deviceType config.error ++ " no-spinners")
                 ]
                 []
-            , div [ class "absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none" ]
-                [ span [ class "text-gray-500 text-sm" ] [ text config.unit ]
+            , div [ class "unit-display" ]
+                [ span [] [ text config.unit ]
                 ]
             ]
         , if deviceType /= Types.DeviceType.Mobile then

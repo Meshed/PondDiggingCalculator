@@ -1,0 +1,56 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Custom layer for input spinner fixes */
+@layer base {
+  /* Hide number input spinners completely across all browsers */
+  input[type="number"]::-webkit-inner-spin-button,
+  input[type="number"]::-webkit-outer-spin-button {
+    @apply hidden;
+    -webkit-appearance: none;
+    margin: 0;
+  }
+  
+  /* Firefox */
+  input[type="number"] {
+    -moz-appearance: textfield;
+  }
+  
+  /* IE/Edge */
+  input[type="number"]::-ms-clear,
+  input[type="number"]::-ms-reveal {
+    @apply hidden;
+  }
+}
+
+@layer components {
+  /* Input with unit display component */
+  .input-with-unit {
+    @apply relative;
+  }
+  
+  .input-with-unit input[type="number"] {
+    @apply pr-16; /* More space for unit text */
+  }
+  
+  .input-with-unit .unit-display {
+    @apply absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 text-sm pointer-events-none;
+  }
+}
+
+@layer utilities {
+  /* Device-specific utilities */
+  .no-spinners {
+    -webkit-appearance: textfield;
+    -moz-appearance: textfield;
+    appearance: textfield;
+  }
+  
+  .no-spinners::-webkit-inner-spin-button,
+  .no-spinners::-webkit-outer-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+    display: none;
+  }
+}

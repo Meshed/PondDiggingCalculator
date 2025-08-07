@@ -3,8 +3,10 @@
   "version": "1.0.0",
   "description": "Frontend for Pond Digging Calculator - Elm application",
   "scripts": {
-    "dev": "parcel serve public/index.html",
-    "build": "parcel build public/index.html",
+    "dev": "npm run build:css && parcel serve public/index.html",
+    "build": "npm run build:css && parcel build public/index.html",
+    "build:css": "tailwindcss -i src/styles.css -o public/styles.css --watch=false",
+    "build:css:watch": "tailwindcss -i src/styles.css -o public/styles.css --watch",
     "test": "elm-test",
     "test:watch": "elm-test --watch",
     "test:e2e": "cypress run",
