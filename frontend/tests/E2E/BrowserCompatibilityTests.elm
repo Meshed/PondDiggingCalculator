@@ -459,10 +459,10 @@ coreCalculationFunctionalityTests =
                         Config.fallbackConfig
 
                     defaultExcavator =
-                        config.defaults.excavator.bucketCapacity
+                        List.head config.defaults.excavators |> Maybe.map .bucketCapacity |> Maybe.withDefault 0.0
 
                     defaultTruck =
-                        config.defaults.truck.capacity
+                        List.head config.defaults.trucks |> Maybe.map .capacity |> Maybe.withDefault 0.0
 
                     defaultWorkHours =
                         config.defaults.project.workHoursPerDay

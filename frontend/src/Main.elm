@@ -9,8 +9,9 @@ import Html.Attributes exposing (class)
 import Process
 import Task
 import Types.DeviceType exposing (DeviceType(..))
+import Types.Equipment exposing (EquipmentId, Excavator, Truck)
 import Types.Fields exposing (ExcavatorField(..), PondField(..), ProjectField(..), TruckField(..))
-import Types.Messages exposing (Msg(..))
+import Types.Messages exposing (ExcavatorUpdate(..), Msg(..), TruckUpdate(..))
 import Types.Model exposing (Flags, Model)
 import Utils.Calculations as Calculations
 import Utils.Config exposing (fallbackConfig, loadConfig)
@@ -51,6 +52,10 @@ init _ =
       , calculationInProgress = False
       , performanceMetrics = Performance.initMetrics
       , debounceState = Debounce.initDebounce
+      , excavators = [] -- Initialize empty fleet, will be populated from config
+      , trucks = [] -- Initialize empty fleet, will be populated from config
+      , nextExcavatorId = 1 -- Start ID counter at 1
+      , nextTruckId = 1 -- Start ID counter at 1
       }
     , Cmd.batch
         [ loadConfig ConfigLoaded
@@ -83,11 +88,22 @@ update msg model =
                 newFormData =
                     ProjectForm.initFormData config.defaults
 
-                -- Update model with form data and config
+                -- Initialize fleet from configuration defaults
+                initialExcavators =
+                    initExcavatorsFromConfig config.defaults.excavators model.nextExcavatorId
+
+                initialTrucks =
+                    initTrucksFromConfig config.defaults.trucks model.nextTruckId
+
+                -- Update model with form data, config, and fleet
                 modelWithData =
                     { model
                         | config = Just config
                         , formData = Just newFormData
+                        , excavators = initialExcavators
+                        , trucks = initialTrucks
+                        , nextExcavatorId = model.nextExcavatorId + List.length initialExcavators
+                        , nextTruckId = model.nextTruckId + List.length initialTrucks
                     }
             in
             -- Immediately trigger calculation with default values
@@ -267,17 +283,24 @@ update msg model =
             in
             ( { model | performanceMetrics = updatedMetrics }, Cmd.none )
 
-        EquipmentAdded _ ->
-            -- TODO: Implement in future story
-            ( model, Cmd.none )
+        -- Fleet Management Messages
+        AddExcavator ->
+            addExcavator model
 
-        EquipmentRemoved _ ->
-            -- TODO: Implement in future story
-            ( model, Cmd.none )
+        RemoveExcavator equipmentId ->
+            removeExcavator equipmentId model
 
-        EquipmentUpdated _ ->
-            -- TODO: Implement in future story
-            ( model, Cmd.none )
+        UpdateExcavator equipmentId excavatorUpdate ->
+            updateExcavator equipmentId excavatorUpdate model
+
+        AddTruck ->
+            addTruck model
+
+        RemoveTruck equipmentId ->
+            removeTruck equipmentId model
+
+        UpdateTruck equipmentId truckUpdate ->
+            updateTruck equipmentId truckUpdate model
 
         ValidationFailed _ ->
             -- TODO: Implement in future story
@@ -305,7 +328,226 @@ update msg model =
 
 
 
--- REMOVED: MobileMsg handler - Mobile now uses same state as desktop!
+-- FLEET MANAGEMENT HELPERS
+
+
+{-| Initialize excavators from configuration defaults with generated IDs
+-}
+initExcavatorsFromConfig : List Utils.Config.ExcavatorDefaults -> Int -> List Excavator
+initExcavatorsFromConfig excavatorDefaults startId =
+    List.indexedMap
+        (\index defaults ->
+            { id = "excavator-" ++ String.fromInt (startId + index)
+            , bucketCapacity = defaults.bucketCapacity
+            , cycleTime = defaults.cycleTime
+            , name = defaults.name
+            , isActive = True
+            }
+        )
+        excavatorDefaults
+
+
+{-| Initialize trucks from configuration defaults with generated IDs
+-}
+initTrucksFromConfig : List Utils.Config.TruckDefaults -> Int -> List Truck
+initTrucksFromConfig truckDefaults startId =
+    List.indexedMap
+        (\index defaults ->
+            { id = "truck-" ++ String.fromInt (startId + index)
+            , capacity = defaults.capacity
+            , roundTripTime = defaults.roundTripTime
+            , name = defaults.name
+            , isActive = True
+            }
+        )
+        truckDefaults
+
+
+{-| Add a new excavator to the fleet (immutable)
+-}
+addExcavator : Model -> ( Model, Cmd Msg )
+addExcavator model =
+    case model.config of
+        Just config ->
+            -- Check fleet size limits
+            if List.length model.excavators >= config.fleetLimits.maxExcavators then
+                ( model, Cmd.none )
+
+            else
+                let
+                    -- Use first excavator defaults as template
+                    defaults =
+                        List.head config.defaults.excavators
+                            |> Maybe.withDefault
+                                { bucketCapacity = 2.5
+                                , cycleTime = 2.0
+                                , name = "New Excavator"
+                                }
+
+                    newExcavator =
+                        { id = "excavator-" ++ String.fromInt model.nextExcavatorId
+                        , bucketCapacity = defaults.bucketCapacity
+                        , cycleTime = defaults.cycleTime
+                        , name = defaults.name ++ " " ++ String.fromInt model.nextExcavatorId
+                        , isActive = True
+                        }
+
+                    updatedModel =
+                        { model
+                            | excavators = model.excavators ++ [ newExcavator ]
+                            , nextExcavatorId = model.nextExcavatorId + 1
+                        }
+                in
+                update CalculateTimeline updatedModel
+
+        Nothing ->
+            ( model, Cmd.none )
+
+
+{-| Remove an excavator from the fleet (immutable)
+-}
+removeExcavator : EquipmentId -> Model -> ( Model, Cmd Msg )
+removeExcavator equipmentId model =
+    -- Enforce minimum one excavator rule
+    if List.length model.excavators <= 1 then
+        ( model, Cmd.none )
+
+    else
+        let
+            updatedExcavators =
+                List.filter (\excavator -> excavator.id /= equipmentId) model.excavators
+
+            updatedModel =
+                { model | excavators = updatedExcavators }
+        in
+        update CalculateTimeline updatedModel
+
+
+{-| Update an excavator in the fleet (immutable)
+-}
+updateExcavator : EquipmentId -> ExcavatorUpdate -> Model -> ( Model, Cmd Msg )
+updateExcavator equipmentId excavatorUpdate model =
+    let
+        updateExcavatorItem excavator =
+            if excavator.id == equipmentId then
+                case excavatorUpdate of
+                    UpdateExcavatorBucketCapacity capacity ->
+                        { excavator | bucketCapacity = capacity }
+
+                    UpdateExcavatorCycleTime cycleTime ->
+                        { excavator | cycleTime = cycleTime }
+
+                    UpdateExcavatorName name ->
+                        { excavator | name = name }
+
+                    UpdateExcavatorActive active ->
+                        { excavator | isActive = active }
+
+            else
+                excavator
+
+        updatedExcavators =
+            List.map updateExcavatorItem model.excavators
+
+        updatedModel =
+            { model | excavators = updatedExcavators }
+    in
+    update CalculateTimeline updatedModel
+
+
+{-| Add a new truck to the fleet (immutable)
+-}
+addTruck : Model -> ( Model, Cmd Msg )
+addTruck model =
+    case model.config of
+        Just config ->
+            -- Check fleet size limits
+            if List.length model.trucks >= config.fleetLimits.maxTrucks then
+                ( model, Cmd.none )
+
+            else
+                let
+                    -- Use first truck defaults as template
+                    defaults =
+                        List.head config.defaults.trucks
+                            |> Maybe.withDefault
+                                { capacity = 12.0
+                                , roundTripTime = 15.0
+                                , name = "New Truck"
+                                }
+
+                    newTruck =
+                        { id = "truck-" ++ String.fromInt model.nextTruckId
+                        , capacity = defaults.capacity
+                        , roundTripTime = defaults.roundTripTime
+                        , name = defaults.name ++ " " ++ String.fromInt model.nextTruckId
+                        , isActive = True
+                        }
+
+                    updatedModel =
+                        { model
+                            | trucks = model.trucks ++ [ newTruck ]
+                            , nextTruckId = model.nextTruckId + 1
+                        }
+                in
+                update CalculateTimeline updatedModel
+
+        Nothing ->
+            ( model, Cmd.none )
+
+
+{-| Remove a truck from the fleet (immutable)
+-}
+removeTruck : EquipmentId -> Model -> ( Model, Cmd Msg )
+removeTruck equipmentId model =
+    -- Enforce minimum one truck rule
+    if List.length model.trucks <= 1 then
+        ( model, Cmd.none )
+
+    else
+        let
+            updatedTrucks =
+                List.filter (\truck -> truck.id /= equipmentId) model.trucks
+
+            updatedModel =
+                { model | trucks = updatedTrucks }
+        in
+        update CalculateTimeline updatedModel
+
+
+{-| Update a truck in the fleet (immutable)
+-}
+updateTruck : EquipmentId -> TruckUpdate -> Model -> ( Model, Cmd Msg )
+updateTruck equipmentId truckUpdate model =
+    let
+        updateTruckItem truck =
+            if truck.id == equipmentId then
+                case truckUpdate of
+                    UpdateTruckCapacity capacity ->
+                        { truck | capacity = capacity }
+
+                    UpdateTruckRoundTripTime roundTripTime ->
+                        { truck | roundTripTime = roundTripTime }
+
+                    UpdateTruckName name ->
+                        { truck | name = name }
+
+                    UpdateTruckActive active ->
+                        { truck | isActive = active }
+
+            else
+                truck
+
+        updatedTrucks =
+            List.map updateTruckItem model.trucks
+
+        updatedModel =
+            { model | trucks = updatedTrucks }
+    in
+    update CalculateTimeline updatedModel
+
+
+
 -- CALCULATION HELPERS
 
 
@@ -324,11 +566,9 @@ calculateAndUpdate model =
                                     calculatePondVolume validInputs.pondLength validInputs.pondWidth validInputs.pondDepth
 
                                 calculationResult =
-                                    Calculations.calculateTimeline
-                                        validInputs.excavatorCapacity
-                                        validInputs.excavatorCycleTime
-                                        validInputs.truckCapacity
-                                        validInputs.truckRoundTripTime
+                                    Calculations.performCalculation
+                                        model.excavators
+                                        model.trucks
                                         pondVolume
                                         validInputs.workHoursPerDay
 

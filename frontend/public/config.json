@@ -1,22 +1,30 @@
 {
   "version": "1.0.0",
   "defaults": {
-    "excavator": {
-      "bucketCapacity": 2.5,
-      "cycleTime": 2.0,
-      "name": "Standard Excavator"
-    },
-    "truck": {
-      "capacity": 12.0,
-      "roundTripTime": 15.0,
-      "name": "15-yard Dump Truck"
-    },
+    "excavators": [
+      {
+        "bucketCapacity": 2.5,
+        "cycleTime": 2.0,
+        "name": "CAT 320 Excavator"
+      }
+    ],
+    "trucks": [
+      {
+        "capacity": 12.0,
+        "roundTripTime": 15.0,
+        "name": "Standard Dump Truck"
+      }
+    ],
     "project": {
       "workHoursPerDay": 8.0,
       "pondLength": 40.0,
       "pondWidth": 25.0,
       "pondDepth": 5.0
     }
+  },
+  "fleetLimits": {
+    "maxExcavators": 10,
+    "maxTrucks": 20
   },
   "validation": {
     "excavatorCapacity": { "min": 0.5, "max": 15.0 },

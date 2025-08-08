@@ -59,10 +59,20 @@ type FormMsg
 -}
 initFormData : Defaults -> FormData
 initFormData defaults =
-    { excavatorCapacity = String.fromFloat defaults.excavator.bucketCapacity
-    , excavatorCycleTime = String.fromFloat defaults.excavator.cycleTime
-    , truckCapacity = String.fromFloat defaults.truck.capacity
-    , truckRoundTripTime = String.fromFloat defaults.truck.roundTripTime
+    let
+        -- Use first excavator and truck from lists as default
+        defaultExcavator =
+            List.head defaults.excavators
+                |> Maybe.withDefault { bucketCapacity = 2.5, cycleTime = 2.0, name = "Default Excavator" }
+
+        defaultTruck =
+            List.head defaults.trucks
+                |> Maybe.withDefault { capacity = 12.0, roundTripTime = 15.0, name = "Default Truck" }
+    in
+    { excavatorCapacity = String.fromFloat defaultExcavator.bucketCapacity
+    , excavatorCycleTime = String.fromFloat defaultExcavator.cycleTime
+    , truckCapacity = String.fromFloat defaultTruck.capacity
+    , truckRoundTripTime = String.fromFloat defaultTruck.roundTripTime
     , workHoursPerDay = String.fromFloat defaults.project.workHoursPerDay
     , pondLength = String.fromFloat defaults.project.pondLength
     , pondWidth = String.fromFloat defaults.project.pondWidth

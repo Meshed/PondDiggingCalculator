@@ -1,8 +1,8 @@
-module Utils.Config exposing (Config, Defaults, ExcavatorDefaults, TruckDefaults, ProjectDefaults, ValidationRules, ValidationRange, loadConfig, configDecoder, fallbackConfig)
+module Utils.Config exposing (Config, Defaults, ExcavatorDefaults, TruckDefaults, ProjectDefaults, FleetLimits, ValidationRules, ValidationRange, loadConfig, configDecoder, fallbackConfig)
 
 {-| Configuration loading and JSON decoding utilities
 
-@docs Config, Defaults, ExcavatorDefaults, TruckDefaults, ProjectDefaults, ValidationRules, ValidationRange, loadConfig, configDecoder, fallbackConfig
+@docs Config, Defaults, ExcavatorDefaults, TruckDefaults, ProjectDefaults, FleetLimits, ValidationRules, ValidationRange, loadConfig, configDecoder, fallbackConfig
 
 -}
 
@@ -18,14 +18,21 @@ import Types.Validation exposing (ValidationError(..))
 type alias Config =
     { version : String
     , defaults : Defaults
+    , fleetLimits : FleetLimits
     , validation : ValidationRules
     }
 
 
 type alias Defaults =
-    { excavator : ExcavatorDefaults
-    , truck : TruckDefaults
+    { excavators : List ExcavatorDefaults
+    , trucks : List TruckDefaults
     , project : ProjectDefaults
+    }
+
+
+type alias FleetLimits =
+    { maxExcavators : Int
+    , maxTrucks : Int
     }
 
 
@@ -114,18 +121,26 @@ httpErrorToString error =
 
 configDecoder : Decoder Config
 configDecoder =
-    Decode.map3 Config
+    Decode.map4 Config
         (Decode.field "version" Decode.string)
         (Decode.field "defaults" defaultsDecoder)
+        (Decode.field "fleetLimits" fleetLimitsDecoder)
         (Decode.field "validation" validationRulesDecoder)
 
 
 defaultsDecoder : Decoder Defaults
 defaultsDecoder =
     Decode.map3 Defaults
-        (Decode.field "excavator" excavatorDefaultsDecoder)
-        (Decode.field "truck" truckDefaultsDecoder)
+        (Decode.field "excavators" (Decode.list excavatorDefaultsDecoder))
+        (Decode.field "trucks" (Decode.list truckDefaultsDecoder))
         (Decode.field "project" projectDefaultsDecoder)
+
+
+fleetLimitsDecoder : Decoder FleetLimits
+fleetLimitsDecoder =
+    Decode.map2 FleetLimits
+        (Decode.field "maxExcavators" Decode.int)
+        (Decode.field "maxTrucks" Decode.int)
 
 
 excavatorDefaultsDecoder : Decoder ExcavatorDefaults
@@ -181,28 +196,38 @@ fallbackConfig : Config
 fallbackConfig =
     { version = "1.0.0"
     , defaults = fallbackDefaults
+    , fleetLimits = fallbackFleetLimits
     , validation = fallbackValidationRules
     }
 
 
 fallbackDefaults : Defaults
 fallbackDefaults =
-    { excavator =
-        { bucketCapacity = 2.5
-        , cycleTime = 2.0
-        , name = "Standard Excavator"
-        }
-    , truck =
-        { capacity = 12.0
-        , roundTripTime = 15.0
-        , name = "15-yard Dump Truck"
-        }
+    { excavators =
+        [ { bucketCapacity = 2.5
+          , cycleTime = 2.0
+          , name = "CAT 320 Excavator"
+          }
+        ]
+    , trucks =
+        [ { capacity = 12.0
+          , roundTripTime = 15.0
+          , name = "Standard Dump Truck"
+          }
+        ]
     , project =
         { workHoursPerDay = 8.0
         , pondLength = 40.0
         , pondWidth = 25.0
         , pondDepth = 5.0
         }
+    }
+
+
+fallbackFleetLimits : FleetLimits
+fallbackFleetLimits =
+    { maxExcavators = 10
+    , maxTrucks = 20
     }
 
 

@@ -1,14 +1,14 @@
-module Types.Messages exposing (Msg(..))
+module Types.Messages exposing (Msg(..), ExcavatorUpdate(..), TruckUpdate(..))
 
 {-| Application messages for the Elm Architecture
 
-@docs Msg
+@docs Msg, ExcavatorUpdate, TruckUpdate
 
 -}
 
 import Browser.Dom as Dom
 import Components.ProjectForm exposing (FormMsg)
-import Types.Equipment exposing (Equipment)
+import Types.Equipment exposing (EquipmentId)
 import Types.Fields exposing (ExcavatorField, PondField, ProjectField, TruckField)
 import Types.Validation exposing (ValidationError)
 import Utils.Config exposing (Config)
@@ -18,12 +18,30 @@ import Utils.Config exposing (Config)
 -- APPLICATION MESSAGES
 
 
+type ExcavatorUpdate
+    = UpdateExcavatorBucketCapacity Float
+    | UpdateExcavatorCycleTime Float
+    | UpdateExcavatorName String
+    | UpdateExcavatorActive Bool
+
+
+type TruckUpdate
+    = UpdateTruckCapacity Float
+    | UpdateTruckRoundTripTime Float
+    | UpdateTruckName String
+    | UpdateTruckActive Bool
+
+
 type Msg
     = NoOp
     | ConfigLoaded (Result ValidationError Config)
-    | EquipmentAdded Equipment
-    | EquipmentRemoved String
-    | EquipmentUpdated Equipment
+      -- Fleet Management Messages
+    | AddExcavator
+    | RemoveExcavator EquipmentId
+    | UpdateExcavator EquipmentId ExcavatorUpdate
+    | AddTruck
+    | RemoveTruck EquipmentId
+    | UpdateTruck EquipmentId TruckUpdate
     | ValidationFailed ValidationError
     | FormUpdated FormMsg
       -- Real-time input change messages

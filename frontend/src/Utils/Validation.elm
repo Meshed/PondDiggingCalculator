@@ -2,6 +2,8 @@ module Utils.Validation exposing
     ( validateExcavatorCapacity, validateCycleTime, validateTruckCapacity
     , validateRoundTripTime, validateWorkHours, validatePondDimensions
     , validateAllInputs, ProjectInputs
+    , validateExcavatorFleet, validateTruckFleet
+    , ExcavatorField(..), TruckField(..)
     )
 
 {-| Input validation functions for pond digging calculator
@@ -9,16 +11,28 @@ module Utils.Validation exposing
 @docs validateExcavatorCapacity, validateCycleTime, validateTruckCapacity
 @docs validateRoundTripTime, validateWorkHours, validatePondDimensions
 @docs validateAllInputs, ProjectInputs
+@docs validateExcavatorFleet, validateTruckFleet
+@docs ExcavatorField, TruckField
 
 -}
 
-import Types.Equipment exposing (CubicYards, Minutes)
+import Types.Equipment exposing (CubicYards, EquipmentId, Excavator, Minutes, Truck)
 import Types.Validation exposing (ValidationError(..), ValidationResult)
 import Utils.Config exposing (ValidationRange, ValidationRules)
 
 
 
 -- TYPES
+
+
+type ExcavatorField
+    = ExcavatorBucketCapacity
+    | ExcavatorCycleTime
+
+
+type TruckField
+    = TruckFieldCapacity
+    | TruckFieldRoundTripTime
 
 
 type alias ProjectInputs =
@@ -120,6 +134,82 @@ validateAllInputs rules inputs =
                 validatePondDimensions rules.pondDimensions inputs.pondDepth
             )
         |> Result.map (\_ -> inputs)
+
+
+{-| Validate excavator fleet - each excavator independently
+Returns list of validation errors with equipment IDs
+-}
+validateExcavatorFleet : ValidationRules -> List Excavator -> List ( EquipmentId, ExcavatorField, ValidationError )
+validateExcavatorFleet rules excavators =
+    List.concatMap (validateSingleExcavator rules) excavators
+
+
+{-| Validate truck fleet - each truck independently
+Returns list of validation errors with equipment IDs
+-}
+validateTruckFleet : ValidationRules -> List Truck -> List ( EquipmentId, TruckField, ValidationError )
+validateTruckFleet rules trucks =
+    List.concatMap (validateSingleTruck rules) trucks
+
+
+{-| Validate a single excavator and return errors with ID and field
+-}
+validateSingleExcavator : ValidationRules -> Excavator -> List ( EquipmentId, ExcavatorField, ValidationError )
+validateSingleExcavator rules excavator =
+    let
+        bucketCapacityResult =
+            validateExcavatorCapacity rules.excavatorCapacity excavator.bucketCapacity
+
+        cycleTimeResult =
+            validateCycleTime rules.cycleTime excavator.cycleTime
+
+        bucketCapacityErrors =
+            case bucketCapacityResult of
+                Err error ->
+                    [ ( excavator.id, ExcavatorBucketCapacity, error ) ]
+
+                Ok _ ->
+                    []
+
+        cycleTimeErrors =
+            case cycleTimeResult of
+                Err error ->
+                    [ ( excavator.id, ExcavatorCycleTime, error ) ]
+
+                Ok _ ->
+                    []
+    in
+    bucketCapacityErrors ++ cycleTimeErrors
+
+
+{-| Validate a single truck and return errors with ID and field
+-}
+validateSingleTruck : ValidationRules -> Truck -> List ( EquipmentId, TruckField, ValidationError )
+validateSingleTruck rules truck =
+    let
+        capacityResult =
+            validateTruckCapacity rules.truckCapacity truck.capacity
+
+        roundTripTimeResult =
+            validateRoundTripTime rules.roundTripTime truck.roundTripTime
+
+        capacityErrors =
+            case capacityResult of
+                Err error ->
+                    [ ( truck.id, TruckFieldCapacity, error ) ]
+
+                Ok _ ->
+                    []
+
+        roundTripTimeErrors =
+            case roundTripTimeResult of
+                Err error ->
+                    [ ( truck.id, TruckFieldRoundTripTime, error ) ]
+
+                Ok _ ->
+                    []
+    in
+    capacityErrors ++ roundTripTimeErrors
 
 
 

@@ -1,6 +1,5 @@
 module Pages.Desktop exposing (view)
 
-import Components.EquipmentCard as EquipmentCard
 import Components.ProjectForm as ProjectForm
 import Components.ResultsPanel as ResultsPanel
 import Html exposing (..)

@@ -51,10 +51,11 @@ suite =
                         sampleConfig =
                             { version = "1.0.0"
                             , defaults =
-                                { excavator = { bucketCapacity = 2.5, cycleTime = 2.0, name = "Test Excavator" }
-                                , truck = { capacity = 12.0, roundTripTime = 15.0, name = "Test Truck" }
+                                { excavators = [ { bucketCapacity = 2.5, cycleTime = 2.0, name = "Test Excavator" } ]
+                                , trucks = [ { capacity = 12.0, roundTripTime = 15.0, name = "Test Truck" } ]
                                 , project = { workHoursPerDay = 8.0, pondLength = 50.0, pondWidth = 30.0, pondDepth = 6.0 }
                                 }
+                            , fleetLimits = { maxExcavators = 10, maxTrucks = 20 }
                             , validation =
                                 { excavatorCapacity = { min = 0.5, max = 15.0 }
                                 , cycleTime = { min = 0.5, max = 10.0 }

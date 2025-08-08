@@ -45,10 +45,10 @@ init =
         defaults =
             Config.fallbackConfig.defaults
     in
-    ( { excavatorCapacity = String.fromFloat defaults.excavator.bucketCapacity
-      , excavatorCycleTime = String.fromFloat defaults.excavator.cycleTime
-      , truckCapacity = String.fromFloat defaults.truck.capacity
-      , truckRoundTripTime = String.fromFloat defaults.truck.roundTripTime
+    ( { excavatorCapacity = String.fromFloat (List.head defaults.excavators |> Maybe.map .bucketCapacity |> Maybe.withDefault 2.5)
+      , excavatorCycleTime = String.fromFloat (List.head defaults.excavators |> Maybe.map .cycleTime |> Maybe.withDefault 2.0)
+      , truckCapacity = String.fromFloat (List.head defaults.trucks |> Maybe.map .capacity |> Maybe.withDefault 12.0)
+      , truckRoundTripTime = String.fromFloat (List.head defaults.trucks |> Maybe.map .roundTripTime |> Maybe.withDefault 15.0)
       , pondLength = String.fromFloat defaults.project.pondLength
       , pondWidth = String.fromFloat defaults.project.pondWidth
       , pondDepth = String.fromFloat defaults.project.pondDepth
@@ -131,10 +131,10 @@ update msg model =
                             Config.fallbackConfig.defaults
             in
             ( { model
-                | excavatorCapacity = String.fromFloat defaults.excavator.bucketCapacity
-                , excavatorCycleTime = String.fromFloat defaults.excavator.cycleTime
-                , truckCapacity = String.fromFloat defaults.truck.capacity
-                , truckRoundTripTime = String.fromFloat defaults.truck.roundTripTime
+                | excavatorCapacity = String.fromFloat (List.head defaults.excavators |> Maybe.map .bucketCapacity |> Maybe.withDefault 2.5)
+                , excavatorCycleTime = String.fromFloat (List.head defaults.excavators |> Maybe.map .cycleTime |> Maybe.withDefault 2.0)
+                , truckCapacity = String.fromFloat (List.head defaults.trucks |> Maybe.map .capacity |> Maybe.withDefault 12.0)
+                , truckRoundTripTime = String.fromFloat (List.head defaults.trucks |> Maybe.map .roundTripTime |> Maybe.withDefault 15.0)
                 , pondLength = String.fromFloat defaults.project.pondLength
                 , pondWidth = String.fromFloat defaults.project.pondWidth
                 , pondDepth = String.fromFloat defaults.project.pondDepth
@@ -151,10 +151,10 @@ update msg model =
                         newModel =
                             { model
                                 | config = Just config
-                                , excavatorCapacity = String.fromFloat config.defaults.excavator.bucketCapacity
-                                , excavatorCycleTime = String.fromFloat config.defaults.excavator.cycleTime
-                                , truckCapacity = String.fromFloat config.defaults.truck.capacity
-                                , truckRoundTripTime = String.fromFloat config.defaults.truck.roundTripTime
+                                , excavatorCapacity = String.fromFloat (List.head config.defaults.excavators |> Maybe.map .bucketCapacity |> Maybe.withDefault 2.5)
+                                , excavatorCycleTime = String.fromFloat (List.head config.defaults.excavators |> Maybe.map .cycleTime |> Maybe.withDefault 2.0)
+                                , truckCapacity = String.fromFloat (List.head config.defaults.trucks |> Maybe.map .capacity |> Maybe.withDefault 12.0)
+                                , truckRoundTripTime = String.fromFloat (List.head config.defaults.trucks |> Maybe.map .roundTripTime |> Maybe.withDefault 15.0)
                                 , pondLength = String.fromFloat config.defaults.project.pondLength
                                 , pondWidth = String.fromFloat config.defaults.project.pondWidth
                                 , pondDepth = String.fromFloat config.defaults.project.pondDepth
@@ -171,10 +171,10 @@ update msg model =
                         newModel =
                             { model
                                 | config = Just Config.fallbackConfig
-                                , excavatorCapacity = String.fromFloat fallbackDefaults.excavator.bucketCapacity
-                                , excavatorCycleTime = String.fromFloat fallbackDefaults.excavator.cycleTime
-                                , truckCapacity = String.fromFloat fallbackDefaults.truck.capacity
-                                , truckRoundTripTime = String.fromFloat fallbackDefaults.truck.roundTripTime
+                                , excavatorCapacity = String.fromFloat (List.head fallbackDefaults.excavators |> Maybe.map .bucketCapacity |> Maybe.withDefault 2.5)
+                                , excavatorCycleTime = String.fromFloat (List.head fallbackDefaults.excavators |> Maybe.map .cycleTime |> Maybe.withDefault 2.0)
+                                , truckCapacity = String.fromFloat (List.head fallbackDefaults.trucks |> Maybe.map .capacity |> Maybe.withDefault 12.0)
+                                , truckRoundTripTime = String.fromFloat (List.head fallbackDefaults.trucks |> Maybe.map .roundTripTime |> Maybe.withDefault 15.0)
                                 , pondLength = String.fromFloat fallbackDefaults.project.pondLength
                                 , pondWidth = String.fromFloat fallbackDefaults.project.pondWidth
                                 , pondDepth = String.fromFloat fallbackDefaults.project.pondDepth

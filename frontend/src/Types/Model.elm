@@ -8,6 +8,7 @@ module Types.Model exposing (Model, Flags)
 
 import Components.ProjectForm exposing (FormData)
 import Types.DeviceType exposing (DeviceType)
+import Types.Equipment exposing (Excavator, Truck)
 import Utils.Calculations exposing (CalculationResult)
 import Utils.Config exposing (Config)
 import Utils.Debounce exposing (DebounceState)
@@ -29,6 +30,10 @@ type alias Model =
     , calculationInProgress : Bool -- Prevent race conditions
     , performanceMetrics : PerformanceMetrics -- Track calculation performance
     , debounceState : DebounceState -- For input debouncing
+    , excavators : List Excavator -- Fleet of excavators
+    , trucks : List Truck -- Fleet of trucks
+    , nextExcavatorId : Int -- ID generator for excavators
+    , nextTruckId : Int -- ID generator for trucks
 
     -- REMOVED: mobileModel - Mobile now uses same state as desktop!
     }

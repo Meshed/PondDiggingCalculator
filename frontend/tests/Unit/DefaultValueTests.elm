@@ -163,22 +163,22 @@ suite =
                     Expect.all
                         [ \_ ->
                             Expect.all
-                                [ \v -> Expect.atLeast validation.excavatorCapacity.min defaults.excavator.bucketCapacity
-                                , \v -> Expect.atMost validation.excavatorCapacity.max defaults.excavator.bucketCapacity
+                                [ \v -> Expect.atLeast validation.excavatorCapacity.min (List.head defaults.excavators |> Maybe.map .bucketCapacity |> Maybe.withDefault 2.5)
+                                , \v -> Expect.atMost validation.excavatorCapacity.max (List.head defaults.excavators |> Maybe.map .bucketCapacity |> Maybe.withDefault 2.5)
                                 ]
-                                defaults.excavator.bucketCapacity
+                                (List.head defaults.excavators |> Maybe.map .bucketCapacity |> Maybe.withDefault 2.5)
                         , \_ ->
                             Expect.all
-                                [ \v -> Expect.atLeast validation.cycleTime.min defaults.excavator.cycleTime
-                                , \v -> Expect.atMost validation.cycleTime.max defaults.excavator.cycleTime
+                                [ \v -> Expect.atLeast validation.cycleTime.min (List.head defaults.excavators |> Maybe.map .cycleTime |> Maybe.withDefault 2.0)
+                                , \v -> Expect.atMost validation.cycleTime.max (List.head defaults.excavators |> Maybe.map .cycleTime |> Maybe.withDefault 2.0)
                                 ]
-                                defaults.excavator.cycleTime
+                                (List.head defaults.excavators |> Maybe.map .cycleTime |> Maybe.withDefault 2.0)
                         , \_ ->
                             Expect.all
-                                [ \v -> Expect.atLeast validation.truckCapacity.min defaults.truck.capacity
-                                , \v -> Expect.atMost validation.truckCapacity.max defaults.truck.capacity
+                                [ \v -> Expect.atLeast validation.truckCapacity.min (List.head defaults.trucks |> Maybe.map .capacity |> Maybe.withDefault 12.0)
+                                , \v -> Expect.atMost validation.truckCapacity.max (List.head defaults.trucks |> Maybe.map .capacity |> Maybe.withDefault 12.0)
                                 ]
-                                defaults.truck.capacity
+                                (List.head defaults.trucks |> Maybe.map .capacity |> Maybe.withDefault 12.0)
                         ]
                         ()
             , test "should_have_meaningful_equipment_names_in_defaults" <|
@@ -188,8 +188,8 @@ suite =
                             fallbackConfig.defaults
                     in
                     Expect.all
-                        [ \d -> Expect.equal d.excavator.name "Standard Excavator"
-                        , \d -> Expect.equal d.truck.name "15-yard Dump Truck"
+                        [ \d -> Expect.equal (List.head d.excavators |> Maybe.map .name |> Maybe.withDefault "") "CAT 320 Excavator"
+                        , \d -> Expect.equal (List.head d.trucks |> Maybe.map .name |> Maybe.withDefault "") "Standard Dump Truck"
                         ]
                         defaults
             ]
@@ -389,10 +389,10 @@ suite =
                     Expect.all
                         [ \_ -> Expect.equal mobileConfig.version tabletConfig.version
                         , \_ -> Expect.equal tabletConfig.version desktopConfig.version
-                        , \_ -> Expect.within (Expect.Absolute 0.001) mobileConfig.defaults.excavator.bucketCapacity tabletConfig.defaults.excavator.bucketCapacity
-                        , \_ -> Expect.within (Expect.Absolute 0.001) tabletConfig.defaults.excavator.bucketCapacity desktopConfig.defaults.excavator.bucketCapacity
-                        , \_ -> Expect.within (Expect.Absolute 0.001) mobileConfig.defaults.truck.capacity tabletConfig.defaults.truck.capacity
-                        , \_ -> Expect.within (Expect.Absolute 0.001) tabletConfig.defaults.truck.capacity desktopConfig.defaults.truck.capacity
+                        , \_ -> Expect.within (Expect.Absolute 0.001) (List.head mobileConfig.defaults.excavators |> Maybe.map .bucketCapacity |> Maybe.withDefault 0.0) (List.head tabletConfig.defaults.excavators |> Maybe.map .bucketCapacity |> Maybe.withDefault 0.0)
+                        , \_ -> Expect.within (Expect.Absolute 0.001) (List.head tabletConfig.defaults.excavators |> Maybe.map .bucketCapacity |> Maybe.withDefault 0.0) (List.head desktopConfig.defaults.excavators |> Maybe.map .bucketCapacity |> Maybe.withDefault 0.0)
+                        , \_ -> Expect.within (Expect.Absolute 0.001) (List.head mobileConfig.defaults.trucks |> Maybe.map .capacity |> Maybe.withDefault 0.0) (List.head tabletConfig.defaults.trucks |> Maybe.map .capacity |> Maybe.withDefault 0.0)
+                        , \_ -> Expect.within (Expect.Absolute 0.001) (List.head tabletConfig.defaults.trucks |> Maybe.map .capacity |> Maybe.withDefault 0.0) (List.head desktopConfig.defaults.trucks |> Maybe.map .capacity |> Maybe.withDefault 0.0)
                         ]
                         ()
             , test "should_maintain_validation_consistency_with_defaults_across_devices" <|
@@ -420,10 +420,10 @@ suite =
                         , \_ -> Expect.within (Expect.Absolute 0.001) tabletValidation.excavatorCapacity.min desktopValidation.excavatorCapacity.min
                         , \_ -> Expect.within (Expect.Absolute 0.001) mobileValidation.excavatorCapacity.max tabletValidation.excavatorCapacity.max
                         , \_ -> Expect.within (Expect.Absolute 0.001) tabletValidation.excavatorCapacity.max desktopValidation.excavatorCapacity.max
-                        , \_ -> Expect.atLeast mobileValidation.excavatorCapacity.min defaults.excavator.bucketCapacity
-                        , \_ -> Expect.atMost mobileValidation.excavatorCapacity.max defaults.excavator.bucketCapacity
-                        , \_ -> Expect.atLeast tabletValidation.truckCapacity.min defaults.truck.capacity
-                        , \_ -> Expect.atMost tabletValidation.truckCapacity.max defaults.truck.capacity
+                        , \_ -> Expect.atLeast mobileValidation.excavatorCapacity.min (List.head defaults.excavators |> Maybe.map .bucketCapacity |> Maybe.withDefault 0.0)
+                        , \_ -> Expect.atMost mobileValidation.excavatorCapacity.max (List.head defaults.excavators |> Maybe.map .bucketCapacity |> Maybe.withDefault 0.0)
+                        , \_ -> Expect.atLeast tabletValidation.truckCapacity.min (List.head defaults.trucks |> Maybe.map .capacity |> Maybe.withDefault 0.0)
+                        , \_ -> Expect.atMost tabletValidation.truckCapacity.max (List.head defaults.trucks |> Maybe.map .capacity |> Maybe.withDefault 0.0)
                         ]
                         ()
             , test "should_populate_equipment_names_identically_across_devices" <|
@@ -437,16 +437,16 @@ suite =
 
                         -- Equipment names from config should be identical across devices
                         expectedExcavatorName =
-                            "Standard Excavator"
+                            "CAT 320 Excavator"
 
                         expectedTruckName =
-                            "15-yard Dump Truck"
+                            "Standard Dump Truck"
                     in
                     Expect.all
-                        [ \_ -> Expect.equal expectedExcavatorName defaults.excavator.name
-                        , \_ -> Expect.equal expectedTruckName defaults.truck.name
-                        , \_ -> String.length defaults.excavator.name |> Expect.greaterThan 0
-                        , \_ -> String.length defaults.truck.name |> Expect.greaterThan 0
+                        [ \_ -> Expect.equal expectedExcavatorName (List.head defaults.excavators |> Maybe.map .name |> Maybe.withDefault "")
+                        , \_ -> Expect.equal expectedTruckName (List.head defaults.trucks |> Maybe.map .name |> Maybe.withDefault "")
+                        , \_ -> String.length (List.head defaults.excavators |> Maybe.map .name |> Maybe.withDefault "") |> Expect.greaterThan 0
+                        , \_ -> String.length (List.head defaults.trucks |> Maybe.map .name |> Maybe.withDefault "") |> Expect.greaterThan 0
                         ]
                         ()
             , test "should_ensure_string_conversion_consistency_across_devices" <|

@@ -320,6 +320,10 @@ createTestModel deviceType =
     , calculationInProgress = False
     , performanceMetrics = Utils.Performance.initMetrics
     , debounceState = Utils.Debounce.initDebounce
+    , excavators = []
+    , trucks = []
+    , nextExcavatorId = 1
+    , nextTruckId = 1
     }
 
 

@@ -22,10 +22,10 @@ suite =
                             Config.fallbackConfig.defaults
                     in
                     Expect.all
-                        [ \m -> Expect.equal (String.fromFloat defaults.excavator.bucketCapacity) m.excavatorCapacity
-                        , \m -> Expect.equal (String.fromFloat defaults.excavator.cycleTime) m.excavatorCycleTime
-                        , \m -> Expect.equal (String.fromFloat defaults.truck.capacity) m.truckCapacity
-                        , \m -> Expect.equal (String.fromFloat defaults.truck.roundTripTime) m.truckRoundTripTime
+                        [ \m -> Expect.equal (String.fromFloat (List.head defaults.excavators |> Maybe.map .bucketCapacity |> Maybe.withDefault 0.0)) m.excavatorCapacity
+                        , \m -> Expect.equal (String.fromFloat (List.head defaults.excavators |> Maybe.map .cycleTime |> Maybe.withDefault 0.0)) m.excavatorCycleTime
+                        , \m -> Expect.equal (String.fromFloat (List.head defaults.trucks |> Maybe.map .capacity |> Maybe.withDefault 0.0)) m.truckCapacity
+                        , \m -> Expect.equal (String.fromFloat (List.head defaults.trucks |> Maybe.map .roundTripTime |> Maybe.withDefault 0.0)) m.truckRoundTripTime
                         , \m -> Expect.equal (String.fromFloat defaults.project.pondLength) m.pondLength
                         , \m -> Expect.equal (String.fromFloat defaults.project.pondWidth) m.pondWidth
                         , \m -> Expect.equal (String.fromFloat defaults.project.pondDepth) m.pondDepth
@@ -103,10 +103,10 @@ suite =
                             Mobile.update Mobile.ClearAll modelWithValues
                     in
                     Expect.all
-                        [ \m -> Expect.equal (String.fromFloat defaults.excavator.bucketCapacity) m.excavatorCapacity
-                        , \m -> Expect.equal (String.fromFloat defaults.excavator.cycleTime) m.excavatorCycleTime
-                        , \m -> Expect.equal (String.fromFloat defaults.truck.capacity) m.truckCapacity
-                        , \m -> Expect.equal (String.fromFloat defaults.truck.roundTripTime) m.truckRoundTripTime
+                        [ \m -> Expect.equal (String.fromFloat (List.head defaults.excavators |> Maybe.map .bucketCapacity |> Maybe.withDefault 0.0)) m.excavatorCapacity
+                        , \m -> Expect.equal (String.fromFloat (List.head defaults.excavators |> Maybe.map .cycleTime |> Maybe.withDefault 0.0)) m.excavatorCycleTime
+                        , \m -> Expect.equal (String.fromFloat (List.head defaults.trucks |> Maybe.map .capacity |> Maybe.withDefault 0.0)) m.truckCapacity
+                        , \m -> Expect.equal (String.fromFloat (List.head defaults.trucks |> Maybe.map .roundTripTime |> Maybe.withDefault 0.0)) m.truckRoundTripTime
                         , \m -> Expect.equal (String.fromFloat defaults.project.pondLength) m.pondLength
                         , \m -> Expect.equal (String.fromFloat defaults.project.pondWidth) m.pondWidth
                         , \m -> Expect.equal (String.fromFloat defaults.project.pondDepth) m.pondDepth
@@ -159,10 +159,10 @@ suite =
                             Mobile.update (Mobile.ConfigLoaded (Ok config)) initialModel
                     in
                     Expect.all
-                        [ \m -> Expect.equal (String.fromFloat config.defaults.excavator.bucketCapacity) m.excavatorCapacity
-                        , \m -> Expect.equal (String.fromFloat config.defaults.excavator.cycleTime) m.excavatorCycleTime
-                        , \m -> Expect.equal (String.fromFloat config.defaults.truck.capacity) m.truckCapacity
-                        , \m -> Expect.equal (String.fromFloat config.defaults.truck.roundTripTime) m.truckRoundTripTime
+                        [ \m -> Expect.equal (String.fromFloat (List.head config.defaults.excavators |> Maybe.map .bucketCapacity |> Maybe.withDefault 0.0)) m.excavatorCapacity
+                        , \m -> Expect.equal (String.fromFloat (List.head config.defaults.excavators |> Maybe.map .cycleTime |> Maybe.withDefault 0.0)) m.excavatorCycleTime
+                        , \m -> Expect.equal (String.fromFloat (List.head config.defaults.trucks |> Maybe.map .capacity |> Maybe.withDefault 0.0)) m.truckCapacity
+                        , \m -> Expect.equal (String.fromFloat (List.head config.defaults.trucks |> Maybe.map .roundTripTime |> Maybe.withDefault 0.0)) m.truckRoundTripTime
                         , \m -> Expect.equal (String.fromFloat config.defaults.project.workHoursPerDay) m.workHours
                         ]
                         updatedModel

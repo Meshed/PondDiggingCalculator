@@ -1,8 +1,8 @@
-module Types.Equipment exposing (Equipment, EquipmentType(..), EquipmentId, CubicYards, Minutes)
+module Types.Equipment exposing (Excavator, Truck, EquipmentId, CubicYards, Minutes)
 
 {-| Equipment domain types for pond digging calculations
 
-@docs Equipment, EquipmentType, EquipmentId, CubicYards, Minutes
+@docs Excavator, Truck, EquipmentId, CubicYards, Minutes
 
 -}
 
@@ -21,16 +21,19 @@ type alias Minutes =
     Float
 
 
-type EquipmentType
-    = Excavator
-    | Truck
-
-
-type alias Equipment =
+type alias Excavator =
     { id : EquipmentId
-    , equipmentType : EquipmentType
-    , name : String
     , bucketCapacity : CubicYards
     , cycleTime : Minutes
+    , name : String
+    , isActive : Bool
+    }
+
+
+type alias Truck =
+    { id : EquipmentId
+    , capacity : CubicYards
+    , roundTripTime : Minutes
+    , name : String
     , isActive : Bool
     }
