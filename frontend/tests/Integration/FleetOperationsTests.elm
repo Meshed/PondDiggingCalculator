@@ -476,6 +476,7 @@ createIntegrationModel excavators trucks =
     , trucks = trucks
     , nextExcavatorId = List.length excavators + 1
     , nextTruckId = List.length trucks + 1
+    , infoBannerDismissed = False
     }
 
 

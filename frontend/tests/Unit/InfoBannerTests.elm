@@ -3,10 +3,11 @@ module Unit.InfoBannerTests exposing (suite)
 {-| Unit tests for Info Banner functionality
 
 Tests the dismissible info banner feature to ensure:
-- Banner shows by default
-- Banner can be dismissed
-- Banner state is managed correctly
-- Messages are handled properly
+
+  - Banner shows by default
+  - Banner can be dismissed
+  - Banner state is managed correctly
+  - Messages are handled properly
 
 @docs suite
 

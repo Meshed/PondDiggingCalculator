@@ -60,10 +60,10 @@ suite =
                     let
                         -- Different thousands separator formats
                         numbersWithSeparators =
-                            [ ( "1,000", 1000.0 )     -- US format
-                            , ( "1.000", 1000.0 )     -- European format  
-                            , ( "10,000", 10000.0 )   -- US format
-                            , ( "10.000", 10000.0 )   -- European format
+                            [ ( "1,000", 1000.0 ) -- US format
+                            , ( "1.000", 1000.0 ) -- European format
+                            , ( "10,000", 10000.0 ) -- US format
+                            , ( "10.000", 10000.0 ) -- European format
                             ]
 
                         testThousandsSeparator ( input, expected ) =
@@ -183,8 +183,9 @@ suite =
                 \_ ->
                     let
                         whitespaceChars =
-                            [ " ", "\t", "\n", "\r\n", "\u00A0" ]  -- Various whitespace types
+                            [ " ", "\t", "\n", "\u{000D}\n", "\u{00A0}" ]
 
+                        -- Various whitespace types
                         testWhitespaceHandling ws =
                             let
                                 testString =
@@ -209,12 +210,12 @@ suite =
                     let
                         -- Test various decimal representations from different locales
                         decimalVariations =
-                            [ ( "2.5", 2.5 )    -- US/UK format
-                            , ( "2,5", 2.5 )    -- European format (converted)
-                            , ( "2.50", 2.5 )   -- Explicit precision
-                            , ( "2,50", 2.5 )   -- European explicit precision
-                            , ( ".5", 0.5 )     -- Leading decimal point
-                            , ( ",5", 0.5 )     -- European leading decimal
+                            [ ( "2.5", 2.5 ) -- US/UK format
+                            , ( "2,5", 2.5 ) -- European format (converted)
+                            , ( "2.50", 2.5 ) -- Explicit precision
+                            , ( "2,50", 2.5 ) -- European explicit precision
+                            , ( ".5", 0.5 ) -- Leading decimal point
+                            , ( ",5", 0.5 ) -- European leading decimal
                             ]
 
                         normalizeDecimal input =
@@ -259,7 +260,7 @@ suite =
                     let
                         -- Test that calculations remain accurate regardless of input format
                         testCalculations =
-                            [ ( 2.5, 1000.0, 30.0, 2500.0 )  -- excavator, pond length, width, expected volume portion
+                            [ ( 2.5, 1000.0, 30.0, 2500.0 ) -- excavator, pond length, width, expected volume portion
                             , ( 3.0, 500.0, 25.0, 1250.0 )
                             , ( 1.5, 750.0, 40.0, 3000.0 )
                             ]
@@ -284,8 +285,9 @@ suite =
                 \_ ->
                     let
                         rtlTexts =
-                            [ "العربية", "עברית" ]  -- Arabic, Hebrew
+                            [ "العربية", "עברית" ]
 
+                        -- Arabic, Hebrew
                         testRTLHandling text =
                             -- Test that RTL text doesn't break layout calculations
                             let
@@ -392,9 +394,12 @@ suite =
 
                                         -- Pond dimensions should be reasonable (feet/meters)
                                         pondDimensionsReasonable =
-                                            defaults.project.pondLength > 0
-                                                && defaults.project.pondWidth > 0
-                                                && defaults.project.pondDepth > 0
+                                            defaults.project.pondLength
+                                                > 0
+                                                && defaults.project.pondWidth
+                                                > 0
+                                                && defaults.project.pondDepth
+                                                > 0
                                     in
                                     capacityReasonable && truckCapacityReasonable && pondDimensionsReasonable
 
@@ -407,8 +412,8 @@ suite =
                     let
                         -- Test basic unit conversion concepts (even if not implemented)
                         testValues =
-                            [ ( 1.0, 1.0 )  -- 1:1 conversion
-                            , ( 2.5, 2.5 )  -- Identity conversion
+                            [ ( 1.0, 1.0 ) -- 1:1 conversion
+                            , ( 2.5, 2.5 ) -- Identity conversion
                             , ( 10.0, 10.0 ) -- Larger values
                             ]
 
@@ -416,7 +421,9 @@ suite =
                             -- Identity conversion for testing framework
                             let
                                 result =
-                                    input * 1.0  -- Identity operation
+                                    input * 1.0
+
+                                -- Identity operation
                             in
                             Expect.within (Expect.Absolute 0.001) expected result
                     in
@@ -433,9 +440,12 @@ suite =
 
                         -- Test that configuration values are locale-independent
                         configIntegrity =
-                            config.version /= ""
-                                && List.length config.defaults.excavators > 0
-                                && List.length config.defaults.trucks > 0
+                            config.version
+                                /= ""
+                                && List.length config.defaults.excavators
+                                > 0
+                                && List.length config.defaults.trucks
+                                > 0
                     in
                     Expect.true "Configuration should be locale-independent" configIntegrity
             , test "should handle locale-specific validation rules consistently" <|
@@ -446,12 +456,18 @@ suite =
 
                         -- Test that validation ranges are reasonable across locales
                         rangeConsistency =
-                            validation.excavatorCapacity.min < validation.excavatorCapacity.max
-                                && validation.cycleTime.min < validation.cycleTime.max
-                                && validation.truckCapacity.min < validation.truckCapacity.max
-                                && validation.roundTripTime.min < validation.roundTripTime.max
-                                && validation.workHours.min < validation.workHours.max
-                                && validation.pondDimensions.min < validation.pondDimensions.max
+                            validation.excavatorCapacity.min
+                                < validation.excavatorCapacity.max
+                                && validation.cycleTime.min
+                                < validation.cycleTime.max
+                                && validation.truckCapacity.min
+                                < validation.truckCapacity.max
+                                && validation.roundTripTime.min
+                                < validation.roundTripTime.max
+                                && validation.workHours.min
+                                < validation.workHours.max
+                                && validation.pondDimensions.min
+                                < validation.pondDimensions.max
                     in
                     Expect.true "Validation ranges should be consistent across locales" rangeConsistency
             , test "should support international construction industry standards" <|

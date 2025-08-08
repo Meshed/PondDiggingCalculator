@@ -144,7 +144,8 @@ view deviceType formData excavatorMsg truckMsg pondMsg projectMsg =
                     , placeholder = "e.g., 15 (typical range: 10-30)"
                     }
                 ]
-              -- Project Section
+
+            -- Project Section
             , div [ class "space-y-4" ]
                 [ div [ class "text-lg font-semibold text-gray-800 mb-4" ]
                     [ text "Project Parameters" ]
@@ -229,45 +230,46 @@ inputFieldWithUnit deviceType config =
 
 To use this version (simplest implementation):
 
-1. Replace the import in Main.elm:
-   ```elm
-   import Components.ProjectForm-Option4-Removed as ProjectForm
-   ```
+1.  Replace the import in Main.elm:
 
-2. Update the view call in Main.elm to the original signature:
-   ```elm
-   ProjectForm.view model.deviceType formData ExcavatorFieldChanged TruckFieldChanged PondFieldChanged ProjectFieldChanged
-   ```
+        import Components.ProjectForm-Option4-Removed as ProjectForm
 
-3. Remove from Model:
-   - `infoBannerDismissed : Bool` field
+2.  Update the view call in Main.elm to the original signature:
 
-4. Remove from Messages:
-   - `DismissInfoBanner` message and its handler
+        ProjectForm.view model.deviceType formData ExcavatorFieldChanged TruckFieldChanged PondFieldChanged ProjectFieldChanged
 
-5. Clean up any related imports and unused code
+3.  Remove from Model:
+      - `infoBannerDismissed : Bool` field
+
+4.  Remove from Messages:
+      - `DismissInfoBanner` message and its handler
+
+5.  Clean up any related imports and unused code
 
 Benefits:
-- Simplest implementation - no extra state or logic
-- Cleanest visual interface
-- Fastest loading - no banner HTML
-- Self-explanatory form with enhanced placeholders
-- Users can infer defaults from pre-filled values
-- No cognitive load from dismissing banners
+
+  - Simplest implementation - no extra state or logic
+  - Cleanest visual interface
+  - Fastest loading - no banner HTML
+  - Self-explanatory form with enhanced placeholders
+  - Users can infer defaults from pre-filled values
+  - No cognitive load from dismissing banners
 
 Considerations:
-- New users might not immediately understand defaults are provided
-- Less explicit about the tool's capabilities
-- Relies on good placeholder text and help text for guidance
+
+  - New users might not immediately understand defaults are provided
+  - Less explicit about the tool's capabilities
+  - Relies on good placeholder text and help text for guidance
 
 This approach works best when:
-- Your users are experienced with similar tools
-- The interface is intuitive enough without explanatory text
-- You prefer minimal, clean design over instructional UI
-- The form itself clearly communicates its purpose
 
-Enhancement: Instead of a banner, consider adding a subtle "Using default values" 
-indicator near the section headers or a small info icon with tooltip for 
+  - Your users are experienced with similar tools
+  - The interface is intuitive enough without explanatory text
+  - You prefer minimal, clean design over instructional UI
+  - The form itself clearly communicates its purpose
+
+Enhancement: Instead of a banner, consider adding a subtle "Using default values"
+indicator near the section headers or a small info icon with tooltip for
 users who need more context.
 
 -}

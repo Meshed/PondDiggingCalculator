@@ -2,20 +2,25 @@ module Unit.BannerRegressionTests exposing (suite)
 
 {-| Unit-level regression tests for banner functionality
 
-These tests focus on preventing regressions in the banner system at the 
+These tests focus on preventing regressions in the banner system at the
 model and message level, complementing the E2E regression tests.
 
 @docs suite
 
 -}
 
+import Components.ProjectForm
 import Expect
 import Fuzz
 import Test exposing (Test, describe, fuzz, test)
 import Types.DeviceType as DeviceType exposing (DeviceType(..))
+import Types.Equipment
 import Types.Fields exposing (ExcavatorField(..), PondField(..), ProjectField(..), TruckField(..))
 import Types.Messages exposing (Msg(..))
 import Types.Model exposing (Model)
+import Utils.Config
+import Utils.Debounce
+import Utils.Performance
 
 
 suite : Test
@@ -228,8 +233,11 @@ suite =
             [ fuzz deviceTypeFuzzer "banner state should persist across all device types" <|
                 \deviceType ->
                     let
+                        baseModel =
+                            createTestModel False
+
                         initialModel =
-                            { createTestModel False | deviceType = deviceType }
+                            { baseModel | deviceType = deviceType }
 
                         dismissedModel =
                             simulateUpdate DismissInfoBanner initialModel
@@ -294,7 +302,7 @@ suite =
                         ()
             , test "banner field position in model should not affect functionality" <|
                 \_ ->
-                    -- Test that banner works regardless of where infoBannerDismissed 
+                    -- Test that banner works regardless of where infoBannerDismissed
                     -- appears in the Model type definition
                     let
                         model1 =

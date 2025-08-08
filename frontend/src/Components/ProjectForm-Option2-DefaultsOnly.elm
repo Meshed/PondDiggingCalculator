@@ -94,14 +94,22 @@ updateFormData msg formData =
 -}
 hasDefaultValues : FormData -> Bool
 hasDefaultValues formData =
-    formData.excavatorCapacity == "2.5"
-        && formData.excavatorCycleTime == "2"
-        && formData.truckCapacity == "12"
-        && formData.truckRoundTripTime == "15"
-        && formData.workHoursPerDay == "8"
-        && formData.pondLength == "40"
-        && formData.pondWidth == "25"
-        && formData.pondDepth == "5"
+    formData.excavatorCapacity
+        == "2.5"
+        && formData.excavatorCycleTime
+        == "2"
+        && formData.truckCapacity
+        == "12"
+        && formData.truckRoundTripTime
+        == "15"
+        && formData.workHoursPerDay
+        == "8"
+        && formData.pondLength
+        == "40"
+        && formData.pondWidth
+        == "25"
+        && formData.pondDepth
+        == "5"
 
 
 {-| Render the project input form with validation
@@ -122,6 +130,7 @@ view deviceType formData excavatorMsg truckMsg pondMsg projectMsg =
                         [ text "(This message will disappear when you modify any value)" ]
                     ]
                 ]
+
           else
             text ""
         , div [ class (Responsive.getGridClasses deviceType) ]
@@ -166,7 +175,8 @@ view deviceType formData excavatorMsg truckMsg pondMsg projectMsg =
                     , testId = "truck-roundtrip-input"
                     }
                 ]
-              -- Project Section
+
+            -- Project Section
             , div [ class "space-y-4" ]
                 [ div [ class "text-lg font-semibold text-gray-800 mb-4" ]
                     [ text "Project Parameters" ]
@@ -246,26 +256,25 @@ inputFieldWithUnit deviceType config =
 
 To use this version instead of the dismissible version:
 
-1. Replace the import in Main.elm:
-   ```elm
-   import Components.ProjectForm as ProjectForm
-   ```
-   With:
-   ```elm
-   import Components.ProjectForm-Option2-DefaultsOnly as ProjectForm
-   ```
+1.  Replace the import in Main.elm:
 
-2. Update the view call in Main.elm to remove the banner-related parameters:
-   ```elm
-   ProjectForm.view model.deviceType formData ExcavatorFieldChanged TruckFieldChanged PondFieldChanged ProjectFieldChanged
-   ```
+        import Components.ProjectForm as ProjectForm
 
-3. Remove the infoBannerDismissed field from the Model and DismissInfoBanner message.
+    With:
+
+        import Components.ProjectForm-Option2-DefaultsOnly as ProjectForm
+
+2.  Update the view call in Main.elm to remove the banner-related parameters:
+
+        ProjectForm.view model.deviceType formData ExcavatorFieldChanged TruckFieldChanged PondFieldChanged ProjectFieldChanged
+
+3.  Remove the infoBannerDismissed field from the Model and DismissInfoBanner message.
 
 Benefits:
-- Automatically hides the message once users start customizing
-- No additional state management required
-- Progressive disclosure that adapts to user behavior
-- Clean user experience for return users
+
+  - Automatically hides the message once users start customizing
+  - No additional state management required
+  - Progressive disclosure that adapts to user behavior
+  - Clean user experience for return users
 
 -}

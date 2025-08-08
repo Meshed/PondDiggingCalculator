@@ -81,7 +81,7 @@ Unit + Integration testing approach using Elm's built-in testing framework for c
 - **Language Choice:** Elm frontend selected for type safety, reliability, and zero runtime exceptions critical for professional construction tool credibility
 - **Functional Programming Patterns:** Pure functions for all calculations, immutable data structures throughout, and functional composition for complex equipment fleet calculations
 - **Static Hosting:** Client-side architecture enables deployment via GitHub Pages, Netlify, or similar static hosting services, eliminating server infrastructure costs for MVP
-- **Configuration Management:** Easily updateable configuration file system for default equipment values, allowing post-deployment updates without code changes
+- **Build-Time Configuration:** Equipment defaults compiled statically at build time from /config/equipment-defaults.json, eliminating HTTP dependencies and enabling offline-first operation. Configuration changes require rebuild and redeploy for consistency and reliability.
 - **Browser Compatibility:** Target modern browsers (Chrome 90+, Firefox 88+, Safari 14+, Edge 90+) without polyfills, leveraging native ES6+ features through Elm compilation
 - **Performance Optimization:** Sub-second calculation updates through efficient functional algorithms and minimal DOM manipulation via Elm Architecture
 - **Future F# Integration:** Backend architecture planned for F# when data persistence, analytics, or API integrations are needed in post-MVP phases
@@ -323,17 +323,17 @@ so that I can rely on it for important project work without frustration.
 
 Implement configuration management system and production deployment pipeline that enables reliable hosting, easy maintenance, and sustainable operations for the Pond Digging Calculator while supporting future updates and enhancements.
 
-### Story 5.1: Configuration Management System
+### Story 5.1: Configuration Management Documentation
 As a developer maintaining the application,
-I want easily updateable configuration files for default values,
-so that I can adjust equipment specifications and settings without code changes or redeployment.
+I want comprehensive documentation for the build-time configuration system,
+so that I can modify equipment specifications efficiently through the established build process.
 
 #### Acceptance Criteria
-1. Default equipment values stored in separate JSON configuration file
-2. Configuration file loading implemented with error handling and fallback values
-3. Default values easily modifiable through configuration without touching application code
-4. Configuration changes take effect on application reload without build process
-5. Configuration file structure documented for future maintenance
+1. Default equipment values stored in /config/equipment-defaults.json with build-time integration
+2. Configuration file loading implemented with static compilation and fallback values
+3. Default values modifiable through configuration with documented build process
+4. Configuration change procedures documented with build-time requirements
+5. Configuration file structure and build process documented for future maintenance
 
 ### Story 5.2: GitHub Pages Deployment Setup
 As a developer,

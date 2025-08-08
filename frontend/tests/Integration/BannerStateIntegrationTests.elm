@@ -3,11 +3,12 @@ module Integration.BannerStateIntegrationTests exposing (suite)
 {-| Integration tests for Info Banner state management
 
 Tests the interaction between banner state and other application components:
-- Banner state during form interactions
-- Banner state during calculations
-- Banner state across device type changes
-- Banner state with validation errors
-- Banner state during complex workflows
+
+  - Banner state during form interactions
+  - Banner state during calculations
+  - Banner state across device type changes
+  - Banner state with validation errors
+  - Banner state during complex workflows
 
 @docs suite
 
@@ -212,11 +213,17 @@ suite =
 
                         testDeviceType deviceType =
                             let
+                                baseModelWithBanner =
+                                    createIntegrationModel False
+
                                 modelWithBanner =
-                                    { createIntegrationModel False | deviceType = deviceType }
+                                    { baseModelWithBanner | deviceType = deviceType }
+
+                                baseModelWithoutBanner =
+                                    createIntegrationModel True
 
                                 modelWithoutBanner =
-                                    { createIntegrationModel True | deviceType = deviceType }
+                                    { baseModelWithoutBanner | deviceType = deviceType }
 
                                 shouldShowWithBanner =
                                     not modelWithBanner.infoBannerDismissed
@@ -370,6 +377,7 @@ suite =
                         restoredModel =
                             { originalModel
                                 | message = "Restored model"
+
                                 -- All other fields including infoBannerDismissed should persist
                             }
                     in
@@ -428,7 +436,11 @@ createIntegrationModel dismissed =
 -}
 createIntegrationModelWithFormData : Bool -> Model
 createIntegrationModelWithFormData dismissed =
-    { createIntegrationModel dismissed
+    let
+        baseModel =
+            createIntegrationModel dismissed
+    in
+    { baseModel
         | formData = Just createMockFormData
     }
 
@@ -437,7 +449,11 @@ createIntegrationModelWithFormData dismissed =
 -}
 createIntegrationModelWithFleet : Bool -> Model
 createIntegrationModelWithFleet dismissed =
-    { createIntegrationModelWithFormData dismissed
+    let
+        baseModel =
+            createIntegrationModelWithFormData dismissed
+    in
+    { baseModel
         | excavators = [ createMockExcavator ]
         , trucks = [ createMockTruck ]
         , nextExcavatorId = 2

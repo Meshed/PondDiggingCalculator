@@ -97,7 +97,7 @@ graph TB
 - **Static Site Generation:** Pre-built assets served from CDN without server computation - _Rationale:_ Zero infrastructure costs and global availability with excellent performance
 - **Progressive Enhancement:** Core functionality works immediately, advanced features load as needed - _Rationale:_ Ensures fast initial load and immediate utility for users
 - **Device-Adaptive Complexity:** Different feature sets for mobile vs desktop/tablet - _Rationale:_ Optimizes user experience for different work contexts (field vs office)
-- **Configuration as Code:** JSON configuration files for defaults and validation rules - _Rationale:_ Enables post-deployment updates without recompilation
+- **Build-Time Configuration:** JSON configuration compiled statically into application bundle - _Rationale:_ Eliminates HTTP dependencies, enables offline-first operation, and ensures configuration consistency
 - **Immutable Data Structures:** All state changes create new objects rather than mutations - _Rationale:_ Prevents bugs from shared mutable state and enables time-travel debugging
 
 ## Tech Stack
@@ -301,11 +301,16 @@ type alias Model =
 
 **No REST/GraphQL API in MVP Phase** - The application operates entirely client-side with no server communication for core functionality.
 
-### Configuration API (JSON Loading)
+### Configuration API (Static Loading)
 
-**Configuration File Structure:**
+**Static Configuration Structure:**
 ```elm
--- Elm decoder for config.json
+-- Build-time configuration from Utils.ConfigGenerated.elm
+getConfig : Config
+getConfig = 
+    Utils.ConfigGenerated.staticConfig
+
+-- No HTTP dependencies, embedded in application bundle
 type alias ConfigFile =
     { version : String
     , defaults : DefaultValues
@@ -782,9 +787,12 @@ PondDiggingCalculator/
 │   │       ├── Theme.elm             # Tailwind class definitions
 │   │       ├── Components.elm        # Component-specific styles
 │   │       └── Responsive.elm        # Device-specific styling
+├── config/
+│   ├── equipment-defaults.json       # Build-time configuration source
+│   └── equipment-defaults.schema.json # Configuration validation schema
 │   ├── public/
 │   │   ├── index.html                # Main HTML template
-│   │   ├── config.json               # Application configuration
+│   │   ├── config.json               # DEPRECATED - replaced by build-time config
 │   │   ├── favicon.ico               # Site favicon
 │   │   └── manifest.json             # PWA manifest (future)
 │   ├── tests/
@@ -1188,7 +1196,7 @@ describe('Basic Calculation Flow', () => {
 
 - **Type Safety First:** Always use Elm's type system to prevent runtime errors - define custom types instead of primitive types where domain meaning exists (e.g., `EquipmentId` instead of `String`)
 - **Pure Function Calculations:** All calculation logic must be pure functions with no side effects - makes testing reliable and enables confident refactoring
-- **Configuration Over Code:** Equipment defaults, validation rules, and UI settings must be in JSON config files, never hardcoded - enables post-deployment updates
+- **Build-Time Configuration:** Equipment defaults, validation rules, and UI settings compiled from /config/equipment-defaults.json at build time - ensures consistency and eliminates HTTP dependencies
 - **Validation at Boundaries:** Validate all user inputs immediately and display errors inline - never allow invalid data to reach calculation engine
 - **Device-Responsive Logic:** Components must check device type and adapt functionality, not just styling - mobile gets simplified features, desktop gets full capabilities
 - **Error Result Types:** Use Elm's `Result` type for all operations that can fail - never use `Maybe` when specific error information is needed

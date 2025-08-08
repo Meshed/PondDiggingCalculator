@@ -147,6 +147,7 @@ view deviceType formData infoBannerDismissed dismissMsg excavatorMsg truckMsg po
                         ]
                     ]
                 ]
+
           else
             text ""
         , div [ class (Responsive.getGridClasses deviceType) ]

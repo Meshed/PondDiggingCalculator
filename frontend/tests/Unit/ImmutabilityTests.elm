@@ -378,4 +378,5 @@ createTestModel excavators trucks =
     , trucks = trucks
     , nextExcavatorId = 1
     , nextTruckId = 1
+    , infoBannerDismissed = False
     }

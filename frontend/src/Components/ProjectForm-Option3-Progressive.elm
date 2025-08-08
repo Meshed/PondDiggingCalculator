@@ -107,6 +107,7 @@ view deviceType formData checkingStorage infoBannerSeen markSeenMsg excavatorMsg
                         [ div [ class "h-4 bg-gray-300 rounded w-3/4" ] [] ]
                     ]
                 ]
+
           else if not infoBannerSeen then
             -- Show banner for first-time users
             div [ class "mb-6 p-4 bg-blue-50 border border-blue-200 rounded-md" ]
@@ -129,6 +130,7 @@ view deviceType formData checkingStorage infoBannerSeen markSeenMsg excavatorMsg
                         ]
                     ]
                 ]
+
           else
             -- Hide banner for returning users
             text ""
@@ -174,7 +176,8 @@ view deviceType formData checkingStorage infoBannerSeen markSeenMsg excavatorMsg
                     , testId = "truck-roundtrip-input"
                     }
                 ]
-              -- Project Section
+
+            -- Project Section
             , div [ class "space-y-4" ]
                 [ div [ class "text-lg font-semibold text-gray-800 mb-4" ]
                     [ text "Project Parameters" ]
@@ -254,14 +257,18 @@ inputFieldWithUnit deviceType config =
 
 To implement this version, you need to add localStorage support:
 
-1. Add ports to Main.elm:
+1.  Add ports to Main.elm:
+
 ```elm
-port setLocalStorage : (String, String) -> Cmd msg
+port setLocalStorage : ( String, String ) -> Cmd msg
+
 port getLocalStorage : String -> Cmd msg
+
 port gotLocalStorage : (String -> msg) -> Sub msg
 ```
 
-2. Add JavaScript to index.html:
+1.  Add JavaScript to index.html:
+
 ```javascript
 app.ports.setLocalStorage.subscribe(function([key, value]) {
     try {
@@ -282,7 +289,8 @@ app.ports.getLocalStorage.subscribe(function(key) {
 });
 ```
 
-3. Update Model:
+1.  Update Model:
+
 ```elm
 type alias Model =
     { -- existing fields
@@ -291,7 +299,8 @@ type alias Model =
     }
 ```
 
-4. Add Messages:
+1.  Add Messages:
+
 ```elm
 type Msg
     = -- existing messages
@@ -300,13 +309,14 @@ type Msg
     | MarkInfoBannerSeen
 ```
 
-5. Update init and update functions as shown in the Storage module guide.
+1.  Update init and update functions as shown in the Storage module guide.
 
 Benefits:
-- Professional user experience
-- Respects user preferences across sessions
-- Reduces cognitive load for return users
-- Graceful degradation if localStorage unavailable
+
+  - Professional user experience
+  - Respects user preferences across sessions
+  - Reduces cognitive load for return users
+  - Graceful degradation if localStorage unavailable
 
 This provides the best long-term user experience for a production application.
 
