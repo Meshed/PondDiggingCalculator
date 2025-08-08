@@ -1,0 +1,180 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Pond Digging Calculator Equipment Configuration Schema",
+  "description": "JSON Schema for validating equipment defaults, project settings, and validation rules for the Pond Digging Calculator",
+  "type": "object",
+  "required": ["version", "defaults", "fleetLimits", "validation"],
+  "additionalProperties": true,
+  "properties": {
+    "version": {
+      "type": "string",
+      "pattern": "^\\d+\\.\\d+\\.\\d+$",
+      "description": "Semantic version number for the configuration file"
+    },
+    "defaults": {
+      "type": "object",
+      "required": ["excavators", "trucks", "project"],
+      "additionalProperties": true,
+      "properties": {
+        "excavators": {
+          "type": "array",
+          "minItems": 1,
+          "description": "Array of default excavator specifications",
+          "items": {
+            "type": "object",
+            "required": ["bucketCapacity", "cycleTime", "name"],
+            "additionalProperties": true,
+            "properties": {
+              "bucketCapacity": {
+                "type": "number",
+                "minimum": 0.5,
+                "maximum": 15.0,
+                "description": "Bucket capacity in cubic yards"
+              },
+              "cycleTime": {
+                "type": "number",
+                "minimum": 0.5,
+                "maximum": 10.0,
+                "description": "Complete dig-and-dump cycle time in minutes"
+              },
+              "name": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 100,
+                "description": "Human-readable excavator name/model"
+              }
+            }
+          }
+        },
+        "trucks": {
+          "type": "array",
+          "minItems": 1,
+          "description": "Array of default truck specifications",
+          "items": {
+            "type": "object",
+            "required": ["capacity", "roundTripTime", "name"],
+            "additionalProperties": true,
+            "properties": {
+              "capacity": {
+                "type": "number",
+                "minimum": 5.0,
+                "maximum": 30.0,
+                "description": "Truck bed capacity in cubic yards"
+              },
+              "roundTripTime": {
+                "type": "number",
+                "minimum": 5.0,
+                "maximum": 60.0,
+                "description": "Complete round trip time in minutes"
+              },
+              "name": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 100,
+                "description": "Human-readable truck name/model"
+              }
+            }
+          }
+        },
+        "project": {
+          "type": "object",
+          "required": ["workHoursPerDay", "pondLength", "pondWidth", "pondDepth"],
+          "additionalProperties": true,
+          "properties": {
+            "workHoursPerDay": {
+              "type": "number",
+              "minimum": 1.0,
+              "maximum": 16.0,
+              "description": "Standard working hours per day"
+            },
+            "pondLength": {
+              "type": "number",
+              "minimum": 1.0,
+              "maximum": 1000.0,
+              "description": "Default pond length in feet"
+            },
+            "pondWidth": {
+              "type": "number",
+              "minimum": 1.0,
+              "maximum": 1000.0,
+              "description": "Default pond width in feet"
+            },
+            "pondDepth": {
+              "type": "number",
+              "minimum": 1.0,
+              "maximum": 1000.0,
+              "description": "Default pond depth in feet"
+            }
+          }
+        }
+      }
+    },
+    "fleetLimits": {
+      "type": "object",
+      "required": ["maxExcavators", "maxTrucks"],
+      "additionalProperties": true,
+      "properties": {
+        "maxExcavators": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 50,
+          "description": "Maximum number of excavators allowed in calculations"
+        },
+        "maxTrucks": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 100,
+          "description": "Maximum number of trucks allowed in calculations"
+        }
+      }
+    },
+    "validation": {
+      "type": "object",
+      "required": ["excavatorCapacity", "cycleTime", "truckCapacity", "roundTripTime", "workHours", "pondDimensions"],
+      "additionalProperties": true,
+      "properties": {
+        "excavatorCapacity": {
+          "$ref": "#/definitions/range",
+          "description": "Validation range for excavator bucket capacity"
+        },
+        "cycleTime": {
+          "$ref": "#/definitions/range",
+          "description": "Validation range for excavator cycle time"
+        },
+        "truckCapacity": {
+          "$ref": "#/definitions/range",
+          "description": "Validation range for truck capacity"
+        },
+        "roundTripTime": {
+          "$ref": "#/definitions/range",
+          "description": "Validation range for truck round trip time"
+        },
+        "workHours": {
+          "$ref": "#/definitions/range",
+          "description": "Validation range for work hours per day"
+        },
+        "pondDimensions": {
+          "$ref": "#/definitions/range",
+          "description": "Validation range for pond dimensions"
+        }
+      }
+    }
+  },
+  "definitions": {
+    "range": {
+      "type": "object",
+      "required": ["min", "max"],
+      "additionalProperties": true,
+      "properties": {
+        "min": {
+          "type": "number",
+          "description": "Minimum allowed value"
+        },
+        "max": {
+          "type": "number",
+          "description": "Maximum allowed value"
+        }
+      }
+    }
+  }
+}

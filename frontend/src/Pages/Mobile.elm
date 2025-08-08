@@ -41,23 +41,27 @@ type Msg
 init : ( Model, Cmd Msg )
 init =
     let
-        -- Use fallback config defaults to ensure consistency with desktop
+        -- Load configuration at build time (no HTTP request needed)
+        config =
+            Config.getConfig
+
         defaults =
-            Config.fallbackConfig.defaults
+            config.defaults
+
+        model =
+            { excavatorCapacity = String.fromFloat (List.head defaults.excavators |> Maybe.map .bucketCapacity |> Maybe.withDefault 2.5)
+            , excavatorCycleTime = String.fromFloat (List.head defaults.excavators |> Maybe.map .cycleTime |> Maybe.withDefault 2.0)
+            , truckCapacity = String.fromFloat (List.head defaults.trucks |> Maybe.map .capacity |> Maybe.withDefault 12.0)
+            , truckRoundTripTime = String.fromFloat (List.head defaults.trucks |> Maybe.map .roundTripTime |> Maybe.withDefault 15.0)
+            , pondLength = String.fromFloat defaults.project.pondLength
+            , pondWidth = String.fromFloat defaults.project.pondWidth
+            , pondDepth = String.fromFloat defaults.project.pondDepth
+            , workHours = String.fromFloat defaults.project.workHoursPerDay
+            , result = Nothing
+            , config = Just config
+            }
     in
-    ( { excavatorCapacity = String.fromFloat (List.head defaults.excavators |> Maybe.map .bucketCapacity |> Maybe.withDefault 2.5)
-      , excavatorCycleTime = String.fromFloat (List.head defaults.excavators |> Maybe.map .cycleTime |> Maybe.withDefault 2.0)
-      , truckCapacity = String.fromFloat (List.head defaults.trucks |> Maybe.map .capacity |> Maybe.withDefault 12.0)
-      , truckRoundTripTime = String.fromFloat (List.head defaults.trucks |> Maybe.map .roundTripTime |> Maybe.withDefault 15.0)
-      , pondLength = String.fromFloat defaults.project.pondLength
-      , pondWidth = String.fromFloat defaults.project.pondWidth
-      , pondDepth = String.fromFloat defaults.project.pondDepth
-      , workHours = String.fromFloat defaults.project.workHoursPerDay
-      , result = Nothing
-      , config = Nothing
-      }
-    , Config.loadConfig ConfigLoaded
-    )
+    ( calculateResult model, Cmd.none )
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
@@ -144,44 +148,10 @@ update msg model =
             , Cmd.none
             )
 
-        ConfigLoaded result ->
-            case result of
-                Ok config ->
-                    let
-                        newModel =
-                            { model
-                                | config = Just config
-                                , excavatorCapacity = String.fromFloat (List.head config.defaults.excavators |> Maybe.map .bucketCapacity |> Maybe.withDefault 2.5)
-                                , excavatorCycleTime = String.fromFloat (List.head config.defaults.excavators |> Maybe.map .cycleTime |> Maybe.withDefault 2.0)
-                                , truckCapacity = String.fromFloat (List.head config.defaults.trucks |> Maybe.map .capacity |> Maybe.withDefault 12.0)
-                                , truckRoundTripTime = String.fromFloat (List.head config.defaults.trucks |> Maybe.map .roundTripTime |> Maybe.withDefault 15.0)
-                                , pondLength = String.fromFloat config.defaults.project.pondLength
-                                , pondWidth = String.fromFloat config.defaults.project.pondWidth
-                                , pondDepth = String.fromFloat config.defaults.project.pondDepth
-                                , workHours = String.fromFloat config.defaults.project.workHoursPerDay
-                            }
-                    in
-                    ( calculateResult newModel, Cmd.none )
-
-                Err _ ->
-                    let
-                        fallbackDefaults =
-                            Config.fallbackConfig.defaults
-
-                        newModel =
-                            { model
-                                | config = Just Config.fallbackConfig
-                                , excavatorCapacity = String.fromFloat (List.head fallbackDefaults.excavators |> Maybe.map .bucketCapacity |> Maybe.withDefault 2.5)
-                                , excavatorCycleTime = String.fromFloat (List.head fallbackDefaults.excavators |> Maybe.map .cycleTime |> Maybe.withDefault 2.0)
-                                , truckCapacity = String.fromFloat (List.head fallbackDefaults.trucks |> Maybe.map .capacity |> Maybe.withDefault 12.0)
-                                , truckRoundTripTime = String.fromFloat (List.head fallbackDefaults.trucks |> Maybe.map .roundTripTime |> Maybe.withDefault 15.0)
-                                , pondLength = String.fromFloat fallbackDefaults.project.pondLength
-                                , pondWidth = String.fromFloat fallbackDefaults.project.pondWidth
-                                , pondDepth = String.fromFloat fallbackDefaults.project.pondDepth
-                                , workHours = String.fromFloat fallbackDefaults.project.workHoursPerDay
-                            }
-                    in
-                    ( calculateResult newModel, Cmd.none )
+        ConfigLoaded _ ->
+            -- Configuration is now loaded at build time, this message is obsolete
+            -- Keeping for backward compatibility
+            ( model, Cmd.none )
 
 
 calculateResult : Model -> Model

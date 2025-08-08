@@ -136,14 +136,11 @@ suite =
                         ( initialModel, _ ) =
                             Mobile.init
 
-                        modelWithConfig =
-                            { initialModel | config = Just Config.fallbackConfig }
-
                         ( updatedModel, _ ) =
-                            Mobile.update (Mobile.PondDepthChanged "-5") modelWithConfig
+                            Mobile.update (Mobile.PondDepthChanged "-5") initialModel
                     in
-                    -- Should not calculate with negative values
-                    Expect.equal Nothing updatedModel.result
+                    -- Should preserve previous valid result when invalid input is entered
+                    Expect.equal initialModel.result updatedModel.result
             ]
         , describe "config loading"
             [ test "loads default values from config when available" <|

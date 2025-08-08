@@ -1,0 +1,98 @@
+{
+  "_comment_header": "=== POND DIGGING CALCULATOR EQUIPMENT CONFIGURATION ===",
+  "_comment_purpose": "This file contains default equipment specifications, project settings, and validation rules used by the Pond Digging Calculator application.",
+  "_comment_usage": "IMPORTANT: Changes to this file require rebuilding and redeploying the application. This file is integrated at build time, not loaded at runtime.",
+  "_comment_editing": "When editing values, ensure they fall within the validation ranges defined at the bottom of this file.",
+
+  "version": "1.0.0",
+
+  "_comment_defaults_section": "=== DEFAULT EQUIPMENT AND PROJECT SETTINGS ===",
+  "defaults": {
+    
+    "_comment_excavators": "Default excavator specifications. Add multiple entries to provide equipment options to users.",
+    "excavators": [
+      {
+        "bucketCapacity": 2.5,
+        "_comment_bucketCapacity": "Bucket capacity in cubic yards - affects how much material can be moved per scoop",
+        "cycleTime": 2.0,
+        "_comment_cycleTime": "Complete dig-and-dump cycle time in minutes - includes digging, swinging, and dumping",
+        "name": "CAT 320 Excavator"
+      }
+    ],
+
+    "_comment_trucks": "Default truck specifications. Add multiple entries to provide hauling equipment options to users.",
+    "trucks": [
+      {
+        "capacity": 12.0,
+        "_comment_capacity": "Truck bed capacity in cubic yards - how much excavated material the truck can carry",
+        "roundTripTime": 15.0,
+        "_comment_roundTripTime": "Complete round trip time in minutes - includes loading, travel to dump site, dumping, and return",
+        "name": "Standard Dump Truck"
+      }
+    ],
+
+    "_comment_project": "Default project settings that appear when users first load the calculator",
+    "project": {
+      "workHoursPerDay": 8.0,
+      "_comment_workHoursPerDay": "Standard working hours per day (typically 8-10 hours for construction projects)",
+      "pondLength": 40.0,
+      "_comment_pondLength": "Default pond length in feet - users can modify this based on their specific project",
+      "pondWidth": 25.0,
+      "_comment_pondWidth": "Default pond width in feet - users can modify this based on their specific project", 
+      "pondDepth": 5.0,
+      "_comment_pondDepth": "Default pond depth in feet - users can modify this based on their specific project"
+    }
+  },
+
+  "_comment_fleet_limits": "=== EQUIPMENT FLEET LIMITATIONS ===",
+  "_comment_fleet_purpose": "These limits prevent users from entering unrealistic equipment quantities that could cause performance issues or unrealistic calculations",
+  "fleetLimits": {
+    "maxExcavators": 10,
+    "_comment_maxExcavators": "Maximum number of excavators that can be used simultaneously in calculations",
+    "maxTrucks": 20,
+    "_comment_maxTrucks": "Maximum number of trucks that can be used simultaneously in calculations"
+  },
+
+  "_comment_validation_section": "=== INPUT VALIDATION RULES ===",
+  "_comment_validation_purpose": "These rules define acceptable ranges for user inputs. Values outside these ranges will trigger validation errors.",
+  "_comment_validation_units": "All measurements: feet for dimensions, cubic yards for capacity, minutes for time, hours for work duration",
+  "validation": {
+    "excavatorCapacity": { 
+      "min": 0.5, 
+      "max": 15.0,
+      "_comment": "Bucket capacity range in cubic yards (small mini-excavator to large excavator)"
+    },
+    "cycleTime": { 
+      "min": 0.5, 
+      "max": 10.0,
+      "_comment": "Cycle time range in minutes (very efficient to slow/difficult conditions)"
+    },
+    "truckCapacity": { 
+      "min": 5.0, 
+      "max": 30.0,
+      "_comment": "Truck capacity range in cubic yards (small dump truck to large commercial hauler)"
+    },
+    "roundTripTime": { 
+      "min": 5.0, 
+      "max": 60.0,
+      "_comment": "Round trip time range in minutes (very close dump site to distant location)"
+    },
+    "workHours": { 
+      "min": 1.0, 
+      "max": 16.0,
+      "_comment": "Work hours per day range (minimum shift to extended workday)"
+    },
+    "pondDimensions": { 
+      "min": 1.0, 
+      "max": 1000.0,
+      "_comment": "Pond dimension range in feet (small garden pond to large commercial pond)"
+    }
+  },
+
+  "_comment_footer": "=== CONFIGURATION MODIFICATION GUIDE ===",
+  "_comment_add_equipment": "To add new equipment: Copy an existing equipment entry and modify the values while keeping the same structure",
+  "_comment_modify_defaults": "To change default values: Update the numbers in the 'defaults' section, ensuring they fall within validation ranges",
+  "_comment_adjust_limits": "To change fleet limits: Modify maxExcavators and maxTrucks based on your application's performance requirements",
+  "_comment_update_validation": "To change validation rules: Update min/max values, but ensure defaults still fall within the new ranges",
+  "_comment_deployment": "Remember: After any changes, run 'npm run build' and redeploy the application for changes to take effect"
+}

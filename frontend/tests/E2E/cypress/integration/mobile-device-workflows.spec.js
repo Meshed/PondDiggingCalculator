@@ -3,7 +3,7 @@
 describe('Mobile Device Workflow Tests', () => {
   beforeEach(() => {
     cy.visit('/');
-    cy.wait(1000); // Allow config to load
+    // Configuration is now loaded at build-time (static) - no HTTP wait needed
   });
 
   context('Field Worker Quick Calculations', () => {

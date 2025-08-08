@@ -1,14 +1,14 @@
-module Utils.Config exposing (Config, Defaults, ExcavatorDefaults, TruckDefaults, ProjectDefaults, FleetLimits, ValidationRules, ValidationRange, loadConfig, configDecoder, fallbackConfig)
+module Utils.Config exposing (Config, Defaults, ExcavatorDefaults, TruckDefaults, ProjectDefaults, FleetLimits, ValidationRules, ValidationRange, getConfig, configDecoder, fallbackConfig)
 
-{-| Configuration loading and JSON decoding utilities
+{-| Configuration utilities with build-time static configuration
 
-@docs Config, Defaults, ExcavatorDefaults, TruckDefaults, ProjectDefaults, FleetLimits, ValidationRules, ValidationRange, loadConfig, configDecoder, fallbackConfig
+@docs Config, Defaults, ExcavatorDefaults, TruckDefaults, ProjectDefaults, FleetLimits, ValidationRules, ValidationRange, getConfig, configDecoder, fallbackConfig
 
 -}
 
-import Http
 import Json.Decode as Decode exposing (Decoder)
 import Types.Validation exposing (ValidationError(..))
+import Utils.ConfigGenerated exposing (staticConfig)
 
 
 
@@ -78,41 +78,13 @@ type alias ValidationRange =
 -- CONFIG LOADING
 
 
-loadConfig : (Result ValidationError Config -> msg) -> Cmd msg
-loadConfig toMsg =
-    Http.get
-        { url = "/config.json"
-        , expect = Http.expectJson (resultToValidationError >> toMsg) configDecoder
-        }
-
-
-resultToValidationError : Result Http.Error Config -> Result ValidationError Config
-resultToValidationError result =
-    case result of
-        Ok config ->
-            Ok config
-
-        Err httpError ->
-            Err (ConfigurationError (httpErrorToString httpError))
-
-
-httpErrorToString : Http.Error -> String
-httpErrorToString error =
-    case error of
-        Http.BadUrl url ->
-            "Invalid URL: " ++ url
-
-        Http.Timeout ->
-            "Request timeout"
-
-        Http.NetworkError ->
-            "Network error"
-
-        Http.BadStatus status ->
-            "HTTP error: " ++ String.fromInt status
-
-        Http.BadBody message ->
-            "Invalid JSON: " ++ message
+{-| Get configuration from build-time static data
+Returns the configuration that was embedded at build time from /config/equipment-defaults.json
+This eliminates HTTP requests and enables true offline-first behavior
+-}
+getConfig : Config
+getConfig =
+    staticConfig
 
 
 

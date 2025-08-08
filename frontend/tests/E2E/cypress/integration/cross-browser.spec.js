@@ -14,7 +14,7 @@ describe('Cross-Browser Functionality Validation', () => {
 
   beforeEach(() => {
     cy.visit('/');
-    cy.wait(1000); // Allow config to load
+    // Configuration is now loaded at build-time (static) - no HTTP wait needed
   });
 
   context('Desktop Browser Compatibility (Chrome 90+, Firefox 88+, Safari 14+)', () => {

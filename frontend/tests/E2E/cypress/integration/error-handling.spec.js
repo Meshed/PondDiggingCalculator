@@ -3,68 +3,76 @@
 describe('Error Handling and Edge Cases', () => {
   beforeEach(() => {
     cy.visit('/');
-    cy.wait(1000); // Allow config to load
+    // Configuration is now loaded at build-time (static) - no HTTP wait needed
   });
 
-  context('Network Failure Scenarios', () => {
-    it('should handle config loading failures gracefully', () => {
-      // Simulate network failure during config load
-      cy.intercept('GET', '/config.json', { forceNetworkError: true }).as('configFailure');
+  context('Build-Time Configuration Reliability', () => {
+    it('should work completely offline without network requests', () => {
+      // Block all network requests to verify true offline operation
+      cy.intercept('**', { forceNetworkError: true }).as('networkBlocked');
       
-      // Visit page with failed config
+      // Visit page with no network access
       cy.visit('/');
       
-      // Should fall back to hardcoded defaults
-      cy.get('[data-testid="excavator-capacity-input"]', { timeout: 5000 })
-        .should('be.visible');
+      // Should load with build-time configuration (no HTTP needed)
+      cy.get('[data-testid="excavator-capacity-input"]')
+        .should('be.visible')
+        .and('have.value', '2.5'); // Static config default
         
-      // Fallback values should still work
-      cy.get('[data-testid="excavator-capacity-input"]').should('have.value');
-      cy.get('[data-testid="truck-capacity-input"]').should('have.value');
+      cy.get('[data-testid="truck-capacity-input"]')
+        .should('have.value', '12'); // Static config default
       
-      // Application should still function
+      // Application should function normally offline
       cy.get('[data-testid="pond-length-input"]').clear().type('40');
       cy.wait(400);
       
-      // Should still calculate even with fallback config
+      // Should calculate without any network dependency
       cy.get('[data-testid="timeline-result"]').should('be.visible');
+      cy.get('[data-testid="timeline-days"]').should('be.visible');
     });
 
-    it('should handle corrupted config data gracefully', () => {
-      // Simulate corrupted JSON config
-      cy.intercept('GET', '/config.json', { 
-        statusCode: 200, 
-        body: '{ invalid json ;;; }' 
-      }).as('corruptedConfig');
-      
+    it('should maintain configuration consistency across page reloads', () => {
+      // Verify configuration is embedded in bundle and consistent
       cy.visit('/');
       
-      // Should fall back to defaults despite corrupted config
-      cy.get('[data-testid="excavator-capacity-input"]', { timeout: 5000 })
-        .should('be.visible');
-        
-      // Application should remain functional
-      cy.get('[data-testid="pond-length-input"]').clear().type('50');
+      // Capture initial config values
+      cy.get('[data-testid="excavator-capacity-input"]').should('have.value', '2.5');
+      cy.get('[data-testid="truck-capacity-input"]').should('have.value', '12');
+      
+      // Reload page - should maintain same values
+      cy.reload();
+      
+      // Values should be identical (from static config)
+      cy.get('[data-testid="excavator-capacity-input"]').should('have.value', '2.5');
+      cy.get('[data-testid="truck-capacity-input"]').should('have.value', '12');
+      
+      // Application should function identically
+      cy.get('[data-testid="pond-length-input"]').clear().type('35');
       cy.wait(400);
       cy.get('[data-testid="timeline-result"]').should('be.visible');
     });
 
-    it('should handle slow network conditions', () => {
-      // Simulate slow config loading
-      cy.intercept('GET', '/config.json', { 
-        delay: 3000,
-        fixture: 'config.json' 
-      }).as('slowConfig');
+    it('should load instantly without network latency', () => {
+      // Measure load performance with build-time config
+      const startTime = performance.now();
       
       cy.visit('/');
       
-      // Should show loading state or defaults during slow load
-      cy.get('[data-testid="excavator-capacity-input"]', { timeout: 5000 })
-        .should('be.visible');
+      // Should load immediately with static configuration
+      cy.get('[data-testid="excavator-capacity-input"]')
+        .should('be.visible')
+        .and('have.value', '2.5')
+        .then(() => {
+          const loadTime = performance.now() - startTime;
+          
+          // Build-time config should eliminate network delay
+          expect(loadTime).to.be.lessThan(500); // Much faster than HTTP loading
+        });
         
-      // Should eventually load properly
-      cy.wait('@slowConfig');
-      cy.get('[data-testid="excavator-capacity-input"]').should('have.value', '2.5');
+      // Should be immediately functional
+      cy.get('[data-testid="pond-length-input"]').clear().type('30');
+      cy.wait(400);
+      cy.get('[data-testid="timeline-result"]').should('be.visible');
     });
   });
 

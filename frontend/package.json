@@ -3,8 +3,10 @@
   "version": "1.0.0",
   "description": "Frontend for Pond Digging Calculator - Elm application",
   "scripts": {
-    "dev": "npm run build:css && parcel serve public/index.html",
-    "build": "npm run build:css && parcel build public/index.html",
+    "dev": "npm run generate:config && npm run build:css && parcel serve public/index.html",
+    "validate:config": "node ../config/validate-config.js",
+    "generate:config": "node ../config/generate-elm-config.js",
+    "build": "npm run validate:config && npm run generate:config && npm run format && npm run build:css && parcel build public/index.html",
     "build:css:timeout": "powershell -Command \"& { $job = Start-Job { tailwindcss -i src/styles.css -o public/styles.css --watch=false }; Wait-Job $job -Timeout 10; Stop-Job $job; Remove-Job $job }\"",
     "build:css": "npm run build:css:timeout || tailwindcss -i src/styles.css -o public/styles.css --watch=false",
     "build:css:watch": "tailwindcss -i src/styles.css -o public/styles.css --watch",
@@ -25,7 +27,7 @@
     "format:check": "npx elm-format src/ tests/ --validate",
     "lint": "npm run format:check",
     "pretest": "npm run format:check",
-    "validate": "npm run format:check && npm run build && npm test",
+    "validate": "npm run build && npm run test",
     "validate:full": "npm run validate && npm run test:e2e:comprehensive"
   },
   "keywords": [
@@ -38,6 +40,7 @@
   "license": "MIT",
   "devDependencies": {
     "@parcel/transformer-elm": "^2.0.0",
+    "ajv": "^8.17.1",
     "cypress": "^13.0.0",
     "cypress-axe": "^1.5.0",
     "cypress-mochawesome-reporter": "^3.8.2",

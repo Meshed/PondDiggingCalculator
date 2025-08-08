@@ -14,7 +14,7 @@ import Types.Fields exposing (ExcavatorField(..), PondField(..), ProjectField(..
 import Types.Messages exposing (ExcavatorUpdate(..), Msg(..), TruckUpdate(..))
 import Types.Model exposing (Flags, Model)
 import Utils.Calculations as Calculations
-import Utils.Config exposing (fallbackConfig, loadConfig)
+import Utils.Config exposing (fallbackConfig, getConfig)
 import Utils.Debounce as Debounce
 import Utils.DeviceDetector as DeviceDetector
 import Utils.Performance as Performance
@@ -42,26 +42,41 @@ main =
 
 init : Flags -> ( Model, Cmd Msg )
 init _ =
-    ( { message = "Pond Digging Calculator - Core Calculation Engine"
-      , config = Nothing
-      , formData = Nothing
-      , calculationResult = Nothing
-      , lastValidResult = Nothing
-      , hasValidationErrors = False -- Start with no validation errors
-      , deviceType = Desktop -- Default to Desktop until detection completes
-      , calculationInProgress = False
-      , performanceMetrics = Performance.initMetrics
-      , debounceState = Debounce.initDebounce
-      , excavators = [] -- Initialize empty fleet, will be populated from config
-      , trucks = [] -- Initialize empty fleet, will be populated from config
-      , nextExcavatorId = 1 -- Start ID counter at 1
-      , nextTruckId = 1 -- Start ID counter at 1
-      }
-    , Cmd.batch
-        [ loadConfig ConfigLoaded
-        , DeviceDetector.detectDevice () |> Cmd.map DeviceDetected
-        ]
-    )
+    let
+        -- Load configuration at build time (no HTTP request needed)
+        config =
+            getConfig
+
+        newFormData =
+            ProjectForm.initFormData config.defaults
+
+        -- Initialize fleet from configuration defaults
+        initialExcavators =
+            initExcavatorsFromConfig config.defaults.excavators 1
+
+        initialTrucks =
+            initTrucksFromConfig config.defaults.trucks 1
+
+        modelWithData =
+            { message = "Pond Digging Calculator - Core Calculation Engine"
+            , config = Just config
+            , formData = Just newFormData
+            , calculationResult = Nothing
+            , lastValidResult = Nothing
+            , hasValidationErrors = False -- Start with no validation errors
+            , deviceType = Desktop -- Default to Desktop until detection completes
+            , calculationInProgress = False
+            , performanceMetrics = Performance.initMetrics
+            , debounceState = Debounce.initDebounce
+            , excavators = initialExcavators
+            , trucks = initialTrucks
+            , nextExcavatorId = 1 + List.length initialExcavators -- Start ID counter after initial fleet
+            , nextTruckId = 1 + List.length initialTrucks -- Start ID counter after initial fleet
+            }
+    in
+    -- Initialize with data and immediately trigger calculation with default values
+    update CalculateTimeline modelWithData
+        |> Tuple.mapSecond (\cmd -> Cmd.batch [ cmd, DeviceDetector.detectDevice () |> Cmd.map DeviceDetected ])
 
 
 
@@ -74,40 +89,10 @@ update msg model =
         NoOp ->
             ( model, Cmd.none )
 
-        ConfigLoaded result ->
-            let
-                -- Use loaded config or fallback if loading fails
-                config =
-                    case result of
-                        Ok loadedConfig ->
-                            loadedConfig
-
-                        Err _ ->
-                            fallbackConfig
-
-                newFormData =
-                    ProjectForm.initFormData config.defaults
-
-                -- Initialize fleet from configuration defaults
-                initialExcavators =
-                    initExcavatorsFromConfig config.defaults.excavators model.nextExcavatorId
-
-                initialTrucks =
-                    initTrucksFromConfig config.defaults.trucks model.nextTruckId
-
-                -- Update model with form data, config, and fleet
-                modelWithData =
-                    { model
-                        | config = Just config
-                        , formData = Just newFormData
-                        , excavators = initialExcavators
-                        , trucks = initialTrucks
-                        , nextExcavatorId = model.nextExcavatorId + List.length initialExcavators
-                        , nextTruckId = model.nextTruckId + List.length initialTrucks
-                    }
-            in
-            -- Immediately trigger calculation with default values
-            update CalculateTimeline modelWithData
+        ConfigLoaded _ ->
+            -- Configuration is now loaded at build time, this message is obsolete
+            -- Keeping for backward compatibility with Mobile.elm
+            ( model, Cmd.none )
 
         FormUpdated formMsg ->
             case formMsg of
