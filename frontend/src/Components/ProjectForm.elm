@@ -9,9 +9,9 @@ module Components.ProjectForm exposing
 
 -}
 
-import Html exposing (Html, div, input, label, span, text)
-import Html.Attributes exposing (class, id, placeholder, type_, value)
-import Html.Events exposing (onInput)
+import Html exposing (Html, button, div, input, label, span, text)
+import Html.Attributes exposing (class, id, placeholder, title, type_, value)
+import Html.Events exposing (onClick, onInput)
 import Styles.Components as Components
 import Styles.Responsive as Responsive
 import Styles.Theme as Theme
@@ -126,18 +126,29 @@ updateFormData msg formData =
 
 {-| Render the project input form with validation
 -}
-view : DeviceType -> FormData -> (ExcavatorField -> String -> msg) -> (TruckField -> String -> msg) -> (PondField -> String -> msg) -> (ProjectField -> String -> msg) -> Html msg
-view deviceType formData excavatorMsg truckMsg pondMsg projectMsg =
+view : DeviceType -> FormData -> Bool -> msg -> (ExcavatorField -> String -> msg) -> (TruckField -> String -> msg) -> (PondField -> String -> msg) -> (ProjectField -> String -> msg) -> Html msg
+view deviceType formData infoBannerDismissed dismissMsg excavatorMsg truckMsg pondMsg projectMsg =
     div [ class (Components.getFormClasses deviceType) ]
-        [ -- Info banner about defaults
-          div [ class "mb-6 p-4 bg-blue-50 border border-blue-200 rounded-md" ]
-            [ div [ class "flex" ]
-                [ div [ class "flex-shrink-0" ]
-                    [ span [ class "text-blue-400" ] [ text "ℹ️" ] ]
-                , div [ class "ml-3" ]
-                    [ text "Default values for common equipment are pre-loaded. Adjust any values to match your specific project requirements." ]
+        [ -- Info banner about defaults (dismissible)
+          if not infoBannerDismissed then
+            div [ class "mb-6 p-4 bg-blue-50 border border-blue-200 rounded-md" ]
+                [ div [ class "flex items-start" ]
+                    [ div [ class "flex-shrink-0" ]
+                        [ span [ class "text-blue-400" ] [ text "ℹ️" ] ]
+                    , div [ class "ml-3 flex-1" ]
+                        [ text "Default values for common equipment are pre-loaded. Adjust any values to match your specific project requirements." ]
+                    , div [ class "ml-3 flex-shrink-0" ]
+                        [ button
+                            [ onClick dismissMsg
+                            , class "text-blue-400 hover:text-blue-600 font-bold text-lg leading-none"
+                            , title "Dismiss this message"
+                            ]
+                            [ text "×" ]
+                        ]
+                    ]
                 ]
-            ]
+          else
+            text ""
         , div [ class (Responsive.getGridClasses deviceType) ]
             [ -- Equipment Section
               div [ class "space-y-4" ]

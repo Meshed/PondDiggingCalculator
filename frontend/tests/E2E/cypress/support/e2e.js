@@ -1,6 +1,10 @@
 // Cypress E2E Support File
 // Custom commands and global configurations
 
+// Import new test utilities
+import './accessibility-commands.js';
+import './memory-testing.js';
+
 // Custom command for tabbing through elements
 Cypress.Commands.add('tab', { prevSubject: 'optional' }, (subject, options) => {
   const tabKey = options?.shift ? '{shift}{tab}' : '{tab}';

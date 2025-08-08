@@ -72,6 +72,7 @@ init _ =
             , trucks = initialTrucks
             , nextExcavatorId = 1 + List.length initialExcavators -- Start ID counter after initial fleet
             , nextTruckId = 1 + List.length initialTrucks -- Start ID counter after initial fleet
+            , infoBannerDismissed = False -- Show info banner initially
             }
     in
     -- Initialize with data and immediately trigger calculation with default values
@@ -93,6 +94,9 @@ update msg model =
             -- Configuration is now loaded at build time, this message is obsolete
             -- Keeping for backward compatibility with Mobile.elm
             ( model, Cmd.none )
+
+        DismissInfoBanner ->
+            ( { model | infoBannerDismissed = True }, Cmd.none )
 
         FormUpdated formMsg ->
             case formMsg of
@@ -692,7 +696,7 @@ view model =
                         ( Just formData, Just config ) ->
                             div [ class "space-y-8" ]
                                 [ -- Input Form
-                                  ProjectForm.view model.deviceType formData ExcavatorFieldChanged TruckFieldChanged PondFieldChanged ProjectFieldChanged
+                                  ProjectForm.view model.deviceType formData model.infoBannerDismissed DismissInfoBanner ExcavatorFieldChanged TruckFieldChanged PondFieldChanged ProjectFieldChanged
                                 , -- Results Panel
                                   case model.calculationResult of
                                     Just result ->
