@@ -33,8 +33,12 @@ viewExcavatorFleet deviceType excavators nextId showHelpMsg hideHelpMsg activeTo
             DeviceDetector.shouldShowAdvancedFeatures deviceType
     in
     div [ class "space-y-4" ]
-        [ -- DEBUG: Always show button to test styling
-          viewAddExcavatorButton deviceType
+        [ -- Add button shown only when under fleet limit
+          if canAddMore then
+            viewAddExcavatorButton deviceType
+
+          else
+            text ""
         , div [ class "space-y-3" ]
             (List.indexedMap (viewExcavatorItem deviceType (List.length excavators > 1) showHelpMsg hideHelpMsg activeTooltipId) excavators)
         ]

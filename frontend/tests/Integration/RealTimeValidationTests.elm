@@ -70,10 +70,10 @@ suite =
 
                         testCases =
                             [ ( "8.0", True ) -- Valid
-                            , ( "24.0", True ) -- Valid (boundary)
+                            , ( "16.0", True ) -- Valid (boundary)
                             , ( "1.0", True ) -- Valid (boundary)
                             , ( "0.5", False ) -- Below minimum
-                            , ( "25.0", False ) -- Above maximum
+                            , ( "17.0", False ) -- Above maximum
                             , ( "", False ) -- Empty
                             ]
 

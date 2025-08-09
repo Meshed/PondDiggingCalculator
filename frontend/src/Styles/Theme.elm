@@ -1,6 +1,6 @@
 module Styles.Theme exposing
     ( container, textCenter, button, card, input, errorText, getButtonClasses, getCardClasses, getInputClasses, getTypographyScale, getMobileCalculatorClasses, getMobileTouchTarget
-    , errorBorderClass, errorIconClass, errorInputClass, getErrorInputClasses, getErrorMessageClasses, getHelpIconClasses, getMobileCardClasses, getMobileGridClasses, getMobileInputClasses, getTooltipClasses
+    , errorBorderClass, errorIconClass, errorInputClass, getErrorInputClasses, getErrorMessageClasses, getHelpIconClasses, getMobileCardClasses, getMobileGridClasses, getMobileInputClasses, getProfessionalBodyTextClass, getProfessionalHeadingClass, getProfessionalNumberDisplayClass, getProfessionalResultSpacing, getProfessionalSubheadingClass, getTooltipClasses, professionalAccentColor, professionalElementSpacing, professionalNeutralColor, professionalPrimaryColor, professionalSecondaryColor, professionalSectionSpacing
     )
 
 {-| Tailwind CSS class constants for type-safe styling
@@ -246,3 +246,116 @@ getErrorMessageClasses deviceType =
 
         Desktop ->
             "text-red-600 text-sm mt-1 flex items-start"
+
+
+
+-- PROFESSIONAL DISPLAY STYLING
+
+
+{-| Get professional heading typography classes by device
+-}
+getProfessionalHeadingClass : DeviceType -> String
+getProfessionalHeadingClass deviceType =
+    case deviceType of
+        Mobile ->
+            "text-3xl font-bold text-gray-900 tracking-tight"
+
+        Tablet ->
+            "text-4xl font-bold text-gray-900 tracking-tight"
+
+        Desktop ->
+            "text-5xl font-bold text-gray-900 tracking-tight"
+
+
+{-| Get professional subheading typography classes by device
+-}
+getProfessionalSubheadingClass : DeviceType -> String
+getProfessionalSubheadingClass deviceType =
+    case deviceType of
+        Mobile ->
+            "text-lg font-semibold text-gray-700"
+
+        Tablet ->
+            "text-xl font-semibold text-gray-700"
+
+        Desktop ->
+            "text-2xl font-semibold text-gray-700"
+
+
+{-| Professional body text styling
+-}
+getProfessionalBodyTextClass : String
+getProfessionalBodyTextClass =
+    "text-gray-600 leading-relaxed"
+
+
+{-| Get professional number display classes by device
+-}
+getProfessionalNumberDisplayClass : DeviceType -> String
+getProfessionalNumberDisplayClass deviceType =
+    case deviceType of
+        Mobile ->
+            "text-6xl font-bold text-indigo-600 tracking-tight"
+
+        Tablet ->
+            "text-7xl font-bold text-indigo-600 tracking-tight"
+
+        Desktop ->
+            "text-8xl font-bold text-indigo-600 tracking-tight"
+
+
+{-| Professional primary color for main elements
+-}
+professionalPrimaryColor : String
+professionalPrimaryColor =
+    "text-indigo-600"
+
+
+{-| Professional secondary color for supporting text
+-}
+professionalSecondaryColor : String
+professionalSecondaryColor =
+    "text-gray-700"
+
+
+{-| Professional accent color for highlights
+-}
+professionalAccentColor : String
+professionalAccentColor =
+    "text-amber-600"
+
+
+{-| Professional neutral color for metadata
+-}
+professionalNeutralColor : String
+professionalNeutralColor =
+    "text-gray-500"
+
+
+{-| Professional section spacing
+-}
+professionalSectionSpacing : String
+professionalSectionSpacing =
+    "mb-8 space-y-6"
+
+
+{-| Professional element spacing
+-}
+professionalElementSpacing : String
+professionalElementSpacing =
+    "mb-4 space-y-3"
+
+
+{-| Get professional result emphasis spacing by device
+-}
+getProfessionalResultSpacing : DeviceType -> String
+getProfessionalResultSpacing deviceType =
+    case deviceType of
+        Mobile ->
+            "mb-6 p-6 bg-gradient-to-br from-indigo-50 to-blue-50 rounded-xl border border-indigo-100"
+
+        Tablet ->
+            "mb-8 p-8 bg-gradient-to-br from-indigo-50 to-blue-50 rounded-2xl border border-indigo-100 shadow-sm"
+
+        Desktop ->
+            "mb-10 p-10 bg-gradient-to-br from-indigo-50 to-blue-50 rounded-2xl border border-indigo-100 shadow-lg"

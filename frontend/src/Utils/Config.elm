@@ -205,10 +205,10 @@ fallbackFleetLimits =
 
 fallbackValidationRules : ValidationRules
 fallbackValidationRules =
-    { excavatorCapacity = { min = 0.1, max = 15.0 }
+    { excavatorCapacity = { min = 0.5, max = 15.0 }
     , cycleTime = { min = 0.5, max = 10.0 }
-    , truckCapacity = { min = 5.0, max = 50.0 }
-    , roundTripTime = { min = 5.0, max = 120.0 }
-    , workHours = { min = 1.0, max = 24.0 }
+    , truckCapacity = { min = 5.0, max = 30.0 }
+    , roundTripTime = { min = 5.0, max = 60.0 }
+    , workHours = { min = 1.0, max = 16.0 }
     , pondDimensions = { min = 1.0, max = 1000.0 }
     }

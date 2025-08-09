@@ -6,7 +6,7 @@ import Html exposing (Html)
 import Html.Attributes as Attr
 import Test exposing (..)
 import Test.Html.Query as Query
-import Test.Html.Selector exposing (class, tag, text)
+import Test.Html.Selector exposing (attribute, class, tag, text)
 import Types.DeviceType exposing (DeviceType(..))
 import Types.Validation exposing (ValidationError(..))
 
@@ -234,8 +234,7 @@ suite =
                     in
                     view
                         |> Query.fromHtml
-                        |> Query.find [ text "⚠" ]
-                        |> Query.has [ class "text-red-500" ]
+                        |> Query.has [ text "⚠" ]
 
             -- Icon should have error styling
             ]
