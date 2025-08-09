@@ -11,13 +11,14 @@ import Html.Attributes exposing (class, style, title, type_)
 import Html.Events exposing (onClick, onMouseEnter, onMouseLeave)
 import Styles.Theme exposing (getHelpIconClasses, getTooltipClasses)
 import Types.DeviceType exposing (DeviceType(..))
+import Utils.Config exposing (ValidationRules)
 import Utils.HelpContent exposing (HelpContent, getHelpContent)
 
 
 {-| Renders the help icon with tooltip container
 -}
-helpIcon : DeviceType -> String -> (String -> msg) -> (String -> msg) -> Maybe String -> Html msg
-helpIcon deviceType fieldId onShow onHide activeTooltipId =
+helpIcon : ValidationRules -> DeviceType -> String -> (String -> msg) -> (String -> msg) -> Maybe String -> Html msg
+helpIcon validationRules deviceType fieldId onShow onHide activeTooltipId =
     case deviceType of
         Mobile ->
             -- No help icons on mobile - help is provided through enhanced labels
@@ -35,7 +36,7 @@ helpIcon deviceType fieldId onShow onHide activeTooltipId =
                     ]
                     [ text "?" ]
                 , if activeTooltipId == Just fieldId then
-                    case getHelpContent fieldId of
+                    case getHelpContent validationRules fieldId of
                         Just content ->
                             viewTooltipContent content
 

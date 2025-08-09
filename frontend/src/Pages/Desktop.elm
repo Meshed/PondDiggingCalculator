@@ -14,6 +14,7 @@ import Svg.Attributes
 import Types.DeviceType as DeviceType exposing (DeviceType(..))
 import Types.Messages exposing (Msg)
 import Types.Model exposing (Model)
+import Utils.Config exposing (ValidationRules, fallbackConfig)
 import Utils.HelpContent exposing (getHelpContent)
 
 
@@ -22,6 +23,11 @@ view model =
     let
         deviceType =
             model.deviceType
+
+        validationRules =
+            model.config
+                |> Maybe.map .validation
+                |> Maybe.withDefault fallbackConfig.validation
 
         containerClass =
             case deviceType of
@@ -63,9 +69,9 @@ view model =
         [ div [ class maxWidthClass ]
             [ viewHeader deviceType
             , div [ class layoutClass ]
-                [ viewExcavatorSection model deviceType
-                , viewProjectSection model deviceType
-                , viewTruckSection model deviceType
+                [ viewExcavatorSection validationRules model deviceType
+                , viewProjectSection validationRules model deviceType
+                , viewTruckSection validationRules model deviceType
                 ]
             , viewResultsSection model deviceType
             ]
@@ -92,8 +98,8 @@ viewHeader deviceType =
         ]
 
 
-viewExcavatorSection : Model -> DeviceType -> Html Msg
-viewExcavatorSection model deviceType =
+viewExcavatorSection : ValidationRules -> Model -> DeviceType -> Html Msg
+viewExcavatorSection validationRules model deviceType =
     let
         sectionClass =
             case deviceType of
@@ -115,12 +121,12 @@ viewExcavatorSection model deviceType =
     div [ class sectionClass ]
         [ h2 [ class (headerClass ++ " mb-4 text-gray-800 border-b pb-2") ]
             [ text "Excavator Fleet" ]
-        , EquipmentList.viewExcavatorFleet deviceType model.excavators model.nextExcavatorId Types.Messages.ShowHelpTooltip Types.Messages.HideHelpTooltip model.helpTooltipState
+        , EquipmentList.viewExcavatorFleet validationRules deviceType model.excavators model.nextExcavatorId Types.Messages.ShowHelpTooltip Types.Messages.HideHelpTooltip model.helpTooltipState
         ]
 
 
-viewProjectSection : Model -> DeviceType -> Html Msg
-viewProjectSection model deviceType =
+viewProjectSection : ValidationRules -> Model -> DeviceType -> Html Msg
+viewProjectSection validationRules model deviceType =
     let
         sectionClass =
             case deviceType of
@@ -144,7 +150,8 @@ viewProjectSection model deviceType =
             [ text "Project Configuration" ]
         , case model.formData of
             Just formData ->
-                ProjectForm.view deviceType
+                ProjectForm.view validationRules
+                    deviceType
                     formData
                     (\field value -> Types.Messages.PondFieldChanged field value)
                     (\field value -> Types.Messages.ProjectFieldChanged field value)
@@ -157,8 +164,8 @@ viewProjectSection model deviceType =
         ]
 
 
-viewTruckSection : Model -> DeviceType -> Html Msg
-viewTruckSection model deviceType =
+viewTruckSection : ValidationRules -> Model -> DeviceType -> Html Msg
+viewTruckSection validationRules model deviceType =
     let
         sectionClass =
             case deviceType of
@@ -180,7 +187,7 @@ viewTruckSection model deviceType =
     div [ class sectionClass ]
         [ h2 [ class (headerClass ++ " mb-4 text-gray-800 border-b pb-2") ]
             [ text "Truck Fleet" ]
-        , EquipmentList.viewTruckFleet deviceType model.trucks model.nextTruckId Types.Messages.ShowHelpTooltip Types.Messages.HideHelpTooltip model.helpTooltipState
+        , EquipmentList.viewTruckFleet validationRules deviceType model.trucks model.nextTruckId Types.Messages.ShowHelpTooltip Types.Messages.HideHelpTooltip model.helpTooltipState
         ]
 
 

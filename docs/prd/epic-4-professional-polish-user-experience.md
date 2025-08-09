@@ -37,15 +37,3 @@ so that I can confidently share the tool's output in business contexts.
 3. Results section includes brief explanation of calculation methodology
 4. Visual emphasis on final timeline result without cluttering the interface
 5. Results maintain professional appearance across all device sizes
-
-## Story 4.4: Performance Optimization & Error Handling
-As a user working with complex equipment configurations,
-I want the tool to remain responsive and handle unexpected situations gracefully,
-so that I can rely on it for important project work without frustration.
-
-### Acceptance Criteria
-1. Complex mixed fleet calculations complete within performance requirements (<100ms)
-2. Application handles browser compatibility issues gracefully across target browsers
-3. Graceful degradation when JavaScript features unavailable or fail
-4. Memory usage remains stable during extended use with multiple equipment changes
-5. Clear error recovery paths when calculation failures occur

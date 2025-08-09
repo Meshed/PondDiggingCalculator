@@ -76,3 +76,86 @@ Build-time configuration loading provides several advantages:
 - **Development**: Configuration is regenerated on each build for testing
 - **Production**: Configuration changes require full rebuild and redeploy
 - **Fallback**: A hardcoded fallback configuration remains in the code for emergency scenarios
+
+## Troubleshooting
+
+### Build-Time Configuration Issues
+
+**Problem**: Build fails with "Configuration validation error"
+```
+❌ Error generating Elm configuration:
+SyntaxError: Unexpected token...
+```
+
+**Solution**: Check `equipment-defaults.json` for JSON syntax errors:
+- Ensure all brackets and braces are properly closed
+- Check for trailing commas (not allowed in JSON)
+- Verify all string values are properly quoted
+- Run `npm run validate:config` for detailed error information
+
+---
+
+**Problem**: Build succeeds but application shows unexpected values
+
+**Solution**: Verify configuration generation:
+1. Check that `frontend/src/Utils/ConfigGenerated.elm` was updated
+2. Ensure you ran `npm run build` (not just `npm run dev`)
+3. Clear browser cache or do a hard refresh
+4. Confirm configuration changes are within validation ranges
+
+---
+
+**Problem**: Application crashes on startup after configuration changes
+
+**Solution**: Check for invalid configuration values:
+1. Ensure all numeric values are positive and within expected ranges
+2. Verify equipment arrays are not empty
+3. Check that validation min values are less than max values
+4. Revert to last known good configuration and test changes incrementally
+
+---
+
+**Problem**: Help tooltips show incorrect ranges after configuration update
+
+**Solution**: Help content uses configuration validation rules:
+1. Verify validation ranges are correctly set in configuration
+2. Check that `npm run build` completed successfully
+3. Confirm `Utils.ConfigGenerated` contains updated validation rules
+4. Clear application cache and refresh
+
+---
+
+**Problem**: "Configuration file not found" error during build
+
+**Solution**: Verify file locations:
+1. Ensure `config/equipment-defaults.json` exists and is readable
+2. Check that build scripts are run from correct directory
+3. Verify file permissions allow reading the configuration file
+
+### Development Workflow Issues
+
+**Problem**: Configuration changes don't appear during development
+
+**Solution**: 
+1. Kill the dev server (`Ctrl+C`)
+2. Run `npm run dev` to restart with configuration regeneration
+3. Alternatively, run `npm run generate:config` manually
+
+---
+
+**Problem**: Tests fail after adding configuration validation rules
+
+**Solution**: 
+1. Update test fixtures to use valid configuration values
+2. Mock configuration in tests using `Utils.Config.fallbackConfig`
+3. Ensure test values fall within new validation ranges
+
+### Schema Validation Issues
+
+**Problem**: Custom configuration values fail validation
+
+**Solution**: 
+1. Check `config/equipment-defaults.schema.json` for allowed values
+2. Ensure numeric ranges in schema match business requirements  
+3. Update schema if adding new configuration properties
+4. Test schema changes with `npm run validate:config`

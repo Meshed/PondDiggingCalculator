@@ -15,7 +15,7 @@ import Styles.Theme as Theme
 import Types.DeviceType exposing (DeviceType)
 import Types.Fields exposing (PondField(..), ProjectField(..))
 import Types.Validation exposing (ValidationError)
-import Utils.Config exposing (Config, Defaults)
+import Utils.Config exposing (Config, Defaults, ValidationRules)
 import Utils.HelpContent exposing (getHelpContent)
 import Utils.Validation as Validation
 
@@ -90,8 +90,8 @@ updateFormData msg formData =
 
 {-| Render the project input form with validation
 -}
-view : DeviceType -> FormData -> (PondField -> String -> msg) -> (ProjectField -> String -> msg) -> (String -> msg) -> (String -> msg) -> Maybe String -> Html msg
-view deviceType formData pondMsg projectMsg showHelpMsg hideHelpMsg activeTooltipId =
+view : ValidationRules -> DeviceType -> FormData -> (PondField -> String -> msg) -> (ProjectField -> String -> msg) -> (String -> msg) -> (String -> msg) -> Maybe String -> Html msg
+view validationRules deviceType formData pondMsg projectMsg showHelpMsg hideHelpMsg activeTooltipId =
     let
         typography =
             Theme.getTypographyScale deviceType
@@ -101,7 +101,7 @@ view deviceType formData pondMsg projectMsg showHelpMsg hideHelpMsg activeToolti
             [ div []
                 [ label [ class (typography.body ++ " block text-gray-700 mb-1 flex items-center") ]
                     [ text "Work Hours per Day"
-                    , HelpTooltip.helpIcon deviceType "workHours" showHelpMsg hideHelpMsg activeTooltipId
+                    , HelpTooltip.helpIcon validationRules deviceType "workHours" showHelpMsg hideHelpMsg activeTooltipId
                     ]
                 , input
                     [ type_ "number"
@@ -119,7 +119,7 @@ view deviceType formData pondMsg projectMsg showHelpMsg hideHelpMsg activeToolti
             , div []
                 [ label [ class (typography.body ++ " block text-gray-700 mb-1 flex items-center") ]
                     [ text "Pond Length (feet)"
-                    , HelpTooltip.helpIcon deviceType "pondLength" showHelpMsg hideHelpMsg activeTooltipId
+                    , HelpTooltip.helpIcon validationRules deviceType "pondLength" showHelpMsg hideHelpMsg activeTooltipId
                     ]
                 , input
                     [ type_ "number"
@@ -139,7 +139,7 @@ view deviceType formData pondMsg projectMsg showHelpMsg hideHelpMsg activeToolti
             [ div []
                 [ label [ class (typography.body ++ " block text-gray-700 mb-1 flex items-center") ]
                     [ text "Pond Width (feet)"
-                    , HelpTooltip.helpIcon deviceType "pondWidth" showHelpMsg hideHelpMsg activeTooltipId
+                    , HelpTooltip.helpIcon validationRules deviceType "pondWidth" showHelpMsg hideHelpMsg activeTooltipId
                     ]
                 , input
                     [ type_ "number"
@@ -157,7 +157,7 @@ view deviceType formData pondMsg projectMsg showHelpMsg hideHelpMsg activeToolti
             , div []
                 [ label [ class (typography.body ++ " block text-gray-700 mb-1 flex items-center") ]
                     [ text "Pond Depth (feet)"
-                    , HelpTooltip.helpIcon deviceType "pondDepth" showHelpMsg hideHelpMsg activeTooltipId
+                    , HelpTooltip.helpIcon validationRules deviceType "pondDepth" showHelpMsg hideHelpMsg activeTooltipId
                     ]
                 , input
                     [ type_ "number"

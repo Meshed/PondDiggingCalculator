@@ -14,6 +14,7 @@ import Styles.Theme as Theme
 import Types.DeviceType exposing (DeviceType(..))
 import Types.Equipment exposing (EquipmentId, Excavator, Truck)
 import Types.Messages exposing (ExcavatorUpdate(..), Msg(..), TruckUpdate(..))
+import Utils.Config exposing (ValidationRules)
 import Utils.DeviceDetector as DeviceDetector
 import Utils.HelpContent exposing (getHelpContent)
 
@@ -22,8 +23,8 @@ import Utils.HelpContent exposing (getHelpContent)
 -- EXCAVATOR FLEET VIEW
 
 
-viewExcavatorFleet : DeviceType -> List Excavator -> Int -> (String -> Msg) -> (String -> Msg) -> Maybe String -> Html Msg
-viewExcavatorFleet deviceType excavators nextId showHelpMsg hideHelpMsg activeTooltipId =
+viewExcavatorFleet : ValidationRules -> DeviceType -> List Excavator -> Int -> (String -> Msg) -> (String -> Msg) -> Maybe String -> Html Msg
+viewExcavatorFleet validationRules deviceType excavators nextId showHelpMsg hideHelpMsg activeTooltipId =
     let
         canAddMore =
             List.length excavators < 10
@@ -40,7 +41,7 @@ viewExcavatorFleet deviceType excavators nextId showHelpMsg hideHelpMsg activeTo
           else
             text ""
         , div [ class "space-y-3" ]
-            (List.indexedMap (viewExcavatorItem deviceType (List.length excavators > 1) showHelpMsg hideHelpMsg activeTooltipId) excavators)
+            (List.indexedMap (viewExcavatorItem validationRules deviceType (List.length excavators > 1) showHelpMsg hideHelpMsg activeTooltipId) excavators)
         ]
 
 
@@ -70,8 +71,8 @@ viewAddExcavatorButton deviceType =
         ]
 
 
-viewExcavatorItem : DeviceType -> Bool -> (String -> Msg) -> (String -> Msg) -> Maybe String -> Int -> Excavator -> Html Msg
-viewExcavatorItem deviceType canRemove showHelpMsg hideHelpMsg activeTooltipId index excavator =
+viewExcavatorItem : ValidationRules -> DeviceType -> Bool -> (String -> Msg) -> (String -> Msg) -> Maybe String -> Int -> Excavator -> Html Msg
+viewExcavatorItem validationRules deviceType canRemove showHelpMsg hideHelpMsg activeTooltipId index excavator =
     let
         itemClass =
             case deviceType of
@@ -117,7 +118,7 @@ viewExcavatorItem deviceType canRemove showHelpMsg hideHelpMsg activeTooltipId i
             [ div []
                 [ label [ class (labelClass ++ " block text-gray-700 mb-1 flex items-center") ]
                     [ text "Bucket Capacity (yd³)"
-                    , HelpTooltip.helpIcon deviceType "excavatorBucketCapacity" showHelpMsg hideHelpMsg activeTooltipId
+                    , HelpTooltip.helpIcon validationRules deviceType "excavatorBucketCapacity" showHelpMsg hideHelpMsg activeTooltipId
                     ]
                 , input
                     [ type_ "number"
@@ -140,7 +141,7 @@ viewExcavatorItem deviceType canRemove showHelpMsg hideHelpMsg activeTooltipId i
             , div []
                 [ label [ class (labelClass ++ " block text-gray-700 mb-1 flex items-center") ]
                     [ text "Cycle Time (min)"
-                    , HelpTooltip.helpIcon deviceType "excavatorCycleTime" showHelpMsg hideHelpMsg activeTooltipId
+                    , HelpTooltip.helpIcon validationRules deviceType "excavatorCycleTime" showHelpMsg hideHelpMsg activeTooltipId
                     ]
                 , input
                     [ type_ "number"
@@ -191,8 +192,8 @@ viewExcavatorItem deviceType canRemove showHelpMsg hideHelpMsg activeTooltipId i
 -- TRUCK FLEET VIEW
 
 
-viewTruckFleet : DeviceType -> List Truck -> Int -> (String -> Msg) -> (String -> Msg) -> Maybe String -> Html Msg
-viewTruckFleet deviceType trucks nextId showHelpMsg hideHelpMsg activeTooltipId =
+viewTruckFleet : ValidationRules -> DeviceType -> List Truck -> Int -> (String -> Msg) -> (String -> Msg) -> Maybe String -> Html Msg
+viewTruckFleet validationRules deviceType trucks nextId showHelpMsg hideHelpMsg activeTooltipId =
     let
         canAddMore =
             List.length trucks < 20
@@ -208,7 +209,7 @@ viewTruckFleet deviceType trucks nextId showHelpMsg hideHelpMsg activeTooltipId 
           else
             text ""
         , div [ class "space-y-3" ]
-            (List.indexedMap (viewTruckItem deviceType (List.length trucks > 1) showHelpMsg hideHelpMsg activeTooltipId) trucks)
+            (List.indexedMap (viewTruckItem validationRules deviceType (List.length trucks > 1) showHelpMsg hideHelpMsg activeTooltipId) trucks)
         ]
 
 
@@ -238,8 +239,8 @@ viewAddTruckButton deviceType =
         ]
 
 
-viewTruckItem : DeviceType -> Bool -> (String -> Msg) -> (String -> Msg) -> Maybe String -> Int -> Truck -> Html Msg
-viewTruckItem deviceType canRemove showHelpMsg hideHelpMsg activeTooltipId index truck =
+viewTruckItem : ValidationRules -> DeviceType -> Bool -> (String -> Msg) -> (String -> Msg) -> Maybe String -> Int -> Truck -> Html Msg
+viewTruckItem validationRules deviceType canRemove showHelpMsg hideHelpMsg activeTooltipId index truck =
     let
         itemClass =
             case deviceType of
@@ -285,7 +286,7 @@ viewTruckItem deviceType canRemove showHelpMsg hideHelpMsg activeTooltipId index
             [ div []
                 [ label [ class (labelClass ++ " block text-gray-700 mb-1 flex items-center") ]
                     [ text "Capacity (yd³)"
-                    , HelpTooltip.helpIcon deviceType "truckCapacity" showHelpMsg hideHelpMsg activeTooltipId
+                    , HelpTooltip.helpIcon validationRules deviceType "truckCapacity" showHelpMsg hideHelpMsg activeTooltipId
                     ]
                 , input
                     [ type_ "number"
@@ -308,7 +309,7 @@ viewTruckItem deviceType canRemove showHelpMsg hideHelpMsg activeTooltipId index
             , div []
                 [ label [ class (labelClass ++ " block text-gray-700 mb-1 flex items-center") ]
                     [ text "Round Trip Time (min)"
-                    , HelpTooltip.helpIcon deviceType "truckRoundTripTime" showHelpMsg hideHelpMsg activeTooltipId
+                    , HelpTooltip.helpIcon validationRules deviceType "truckRoundTripTime" showHelpMsg hideHelpMsg activeTooltipId
                     ]
                 , input
                     [ type_ "number"

@@ -7,6 +7,7 @@ module Utils.HelpContent exposing (HelpContent, getHelpContent)
 -}
 
 import Dict exposing (Dict)
+import Utils.Config exposing (ValidationRules)
 
 
 
@@ -26,22 +27,27 @@ type alias HelpContent =
 -- HELP CONTENT STORAGE
 
 
-{-| Get help content for a specific field ID
+{-| Get help content for a specific field ID using validation rules from configuration
 -}
-getHelpContent : String -> Maybe HelpContent
-getHelpContent fieldId =
-    Dict.get fieldId helpContentDict
+getHelpContent : ValidationRules -> String -> Maybe HelpContent
+getHelpContent validationRules fieldId =
+    Dict.get fieldId (helpContentDict validationRules)
 
 
-{-| Static help content dictionary
+{-| Help content dictionary using validation rules from configuration
 -}
-helpContentDict : Dict String HelpContent
-helpContentDict =
+helpContentDict : ValidationRules -> Dict String HelpContent
+helpContentDict validationRules =
+    let
+        formatRange : { min : Float, max : Float } -> String -> String
+        formatRange range unit =
+            String.fromFloat range.min ++ " to " ++ String.fromFloat range.max ++ " " ++ unit
+    in
     Dict.fromList
         [ ( "excavatorBucketCapacity"
           , { title = "Excavator Bucket Capacity"
             , description = "The amount of dirt the excavator bucket can hold in one scoop, measured in cubic yards."
-            , typicalRange = "0.5 to 15.0 cubic yards"
+            , typicalRange = formatRange validationRules.excavatorCapacity "cubic yards"
             , examples =
                 [ "Small excavator (CAT 305): 0.7 cubic yards"
                 , "Mid-size excavator (CAT 320): 1.4 cubic yards"
@@ -53,7 +59,7 @@ helpContentDict =
         , ( "excavatorCycleTime"
           , { title = "Excavator Cycle Time"
             , description = "The time it takes for one complete excavator cycle: dig, swing, dump, and return to digging position."
-            , typicalRange = "0.5 to 10.0 minutes"
+            , typicalRange = formatRange validationRules.cycleTime "minutes"
             , examples =
                 [ "Ideal conditions with skilled operator: 0.5-1.5 minutes"
                 , "Average job site conditions: 2-4 minutes"
@@ -65,7 +71,7 @@ helpContentDict =
         , ( "truckCapacity"
           , { title = "Truck Capacity"
             , description = "The amount of dirt the truck can carry in one load, measured in cubic yards."
-            , typicalRange = "5 to 50 cubic yards"
+            , typicalRange = formatRange validationRules.truckCapacity "cubic yards"
             , examples =
                 [ "Small dump truck: 5-10 cubic yards"
                 , "Standard dump truck: 10-16 cubic yards"
@@ -78,7 +84,7 @@ helpContentDict =
         , ( "truckRoundTripTime"
           , { title = "Truck Round-Trip Time"
             , description = "Total time for truck to travel from job site to dump location and back, including loading and dumping time."
-            , typicalRange = "5 to 60 minutes"
+            , typicalRange = formatRange validationRules.roundTripTime "minutes"
             , examples =
                 [ "On-site stockpile: 5-10 minutes"
                 , "Local dump site (1-2 miles): 15-25 minutes"
@@ -90,7 +96,7 @@ helpContentDict =
         , ( "pondLength"
           , { title = "Pond Length"
             , description = "The longest measurement of your pond from one end to the other, measured in feet."
-            , typicalRange = "10 to 500+ feet"
+            , typicalRange = formatRange validationRules.pondDimensions "feet"
             , examples =
                 [ "Small decorative pond: 10-20 feet"
                 , "Residential pond: 20-50 feet"
@@ -103,7 +109,7 @@ helpContentDict =
         , ( "pondWidth"
           , { title = "Pond Width"
             , description = "The measurement across your pond at its widest point, measured in feet."
-            , typicalRange = "10 to 300+ feet"
+            , typicalRange = formatRange validationRules.pondDimensions "feet"
             , examples =
                 [ "Small decorative pond: 8-15 feet"
                 , "Residential pond: 15-40 feet"
@@ -116,7 +122,7 @@ helpContentDict =
         , ( "pondDepth"
           , { title = "Pond Depth"
             , description = "How deep you want to dig the pond, measured in feet from ground level to the bottom."
-            , typicalRange = "3 to 25+ feet"
+            , typicalRange = formatRange validationRules.pondDimensions "feet"
             , examples =
                 [ "Decorative/fish pond: 3-6 feet"
                 , "Swimming pond: 6-10 feet"
@@ -129,7 +135,7 @@ helpContentDict =
         , ( "workHours"
           , { title = "Work Hours Per Day"
             , description = "Number of productive hours equipment will operate each day on the job site."
-            , typicalRange = "6 to 12 hours"
+            , typicalRange = formatRange validationRules.workHours "hours"
             , examples =
                 [ "Half day operation: 6-8 hours"
                 , "Standard work day: 8-10 hours"
