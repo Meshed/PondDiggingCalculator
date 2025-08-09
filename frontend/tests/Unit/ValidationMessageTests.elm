@@ -235,7 +235,9 @@ suite =
                     view
                         |> Query.fromHtml
                         |> Query.find [ text "⚠" ]
-                        |> Query.has [ tag "span" ]
+                        |> Query.has [ class "text-red-500" ]
+
+            -- Icon should have error styling
             ]
         , describe "Error message content validation"
             [ test "should_contain_actual_values_in_range_errors" <|

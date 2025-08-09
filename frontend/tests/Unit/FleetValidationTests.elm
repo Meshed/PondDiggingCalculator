@@ -115,10 +115,10 @@ suite =
                             fallbackConfig.validation
 
                         fleetWithOutOfRangeValues =
-                            [ { id = "exc1", bucketCapacity = 0.1, cycleTime = 2.0, name = "Too Small Capacity", isActive = True } -- Below min
-                            , { id = "exc2", bucketCapacity = 20.0, cycleTime = 1.8, name = "Too Large Capacity", isActive = True } -- Above max
-                            , { id = "exc3", bucketCapacity = 2.5, cycleTime = 0.1, name = "Too Fast Cycle", isActive = True } -- Below min
-                            , { id = "exc4", bucketCapacity = 3.0, cycleTime = 15.0, name = "Too Slow Cycle", isActive = True } -- Above max
+                            [ { id = "exc1", bucketCapacity = 0.05, cycleTime = 2.0, name = "Too Small Capacity", isActive = True } -- Below min (0.1)
+                            , { id = "exc2", bucketCapacity = 20.0, cycleTime = 1.8, name = "Too Large Capacity", isActive = True } -- Above max (15.0)
+                            , { id = "exc3", bucketCapacity = 2.5, cycleTime = 0.1, name = "Too Fast Cycle", isActive = True } -- Below min (0.5)
+                            , { id = "exc4", bucketCapacity = 3.0, cycleTime = 15.0, name = "Too Slow Cycle", isActive = True } -- Above max (10.0)
                             ]
 
                         validationErrors =
@@ -255,10 +255,10 @@ suite =
                             fallbackConfig.validation
 
                         fleetWithOutOfRangeValues =
-                            [ { id = "truck1", capacity = 2.0, roundTripTime = 15.0, name = "Too Small Capacity", isActive = True } -- Below min
-                            , { id = "truck2", capacity = 35.0, roundTripTime = 12.0, name = "Too Large Capacity", isActive = True } -- Above max
-                            , { id = "truck3", capacity = 15.0, roundTripTime = 2.0, name = "Too Fast Round Trip", isActive = True } -- Below min
-                            , { id = "truck4", capacity = 12.0, roundTripTime = 70.0, name = "Too Slow Round Trip", isActive = True } -- Above max
+                            [ { id = "truck1", capacity = 2.0, roundTripTime = 15.0, name = "Too Small Capacity", isActive = True } -- Below min (5.0)
+                            , { id = "truck2", capacity = 60.0, roundTripTime = 12.0, name = "Too Large Capacity", isActive = True } -- Above max (50.0)
+                            , { id = "truck3", capacity = 15.0, roundTripTime = 2.0, name = "Too Fast Round Trip", isActive = True } -- Below min (5.0)
+                            , { id = "truck4", capacity = 12.0, roundTripTime = 150.0, name = "Too Slow Round Trip", isActive = True } -- Above max (120.0)
                             ]
 
                         validationErrors =
@@ -311,7 +311,7 @@ suite =
 
                         problematicTruckFleet =
                             [ { id = "truck1", capacity = -12.0, roundTripTime = -15.0, name = "Double Invalid", isActive = True }
-                            , { id = "truck2", capacity = 50.0, roundTripTime = 100.0, name = "Double Out of Range", isActive = True }
+                            , { id = "truck2", capacity = 60.0, roundTripTime = 150.0, name = "Double Out of Range", isActive = True } -- Above max (50.0, 120.0)
                             , { id = "truck3", capacity = 12.0, roundTripTime = 15.0, name = "Valid", isActive = True }
                             ]
 
