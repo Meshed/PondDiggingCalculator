@@ -6,6 +6,7 @@ import Components.ProjectForm as ProjectForm
 import Components.ResultsPanel as ResultsPanel
 import Html exposing (Html, div, h1, h2, text)
 import Html.Attributes exposing (class)
+import Json.Decode as Decode
 import Pages.Desktop as Desktop
 import Process
 import Task
@@ -74,6 +75,7 @@ init _ =
             , nextExcavatorId = 1 + List.length initialExcavators -- Start ID counter after initial fleet
             , nextTruckId = 1 + List.length initialTrucks -- Start ID counter after initial fleet
             , infoBannerDismissed = False -- Show info banner initially
+            , helpTooltipState = Nothing -- No active tooltip initially
             }
     in
     -- Initialize with data and immediately trigger calculation with default values
@@ -277,6 +279,20 @@ update msg model =
                     Types.DeviceType.fromWindowSize { width = width, height = height }
             in
             ( { model | deviceType = deviceType }, Cmd.none )
+
+        ShowHelpTooltip fieldId ->
+            ( { model | helpTooltipState = Just fieldId }, Cmd.none )
+
+        HideHelpTooltip fieldId ->
+            ( { model | helpTooltipState = Nothing }, Cmd.none )
+
+        KeyPressed key ->
+            case key of
+                "Escape" ->
+                    ( { model | helpTooltipState = Nothing }, Cmd.none )
+
+                _ ->
+                    ( model, Cmd.none )
 
 
 
@@ -637,8 +653,22 @@ parseModelData model =
 
 
 subscriptions : Model -> Sub Msg
-subscriptions _ =
-    Browser.Events.onResize WindowResized
+subscriptions model =
+    Sub.batch
+        [ Browser.Events.onResize WindowResized
+        , if model.helpTooltipState /= Nothing then
+            Browser.Events.onKeyDown keyDecoder
+
+          else
+            Sub.none
+        ]
+
+
+{-| Decode keyboard events
+-}
+keyDecoder : Decode.Decoder Msg
+keyDecoder =
+    Decode.map KeyPressed (Decode.field "key" Decode.string)
 
 
 

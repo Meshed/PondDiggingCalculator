@@ -212,7 +212,7 @@ suite =
                     in
                     result
                         |> Query.fromHtml
-                        |> Query.findAll [ containing [ text "🚛" ] ]
+                        |> Query.findAll [ containing [ text "🏗️" ] ]
                         |> Query.count (Expect.atLeast 1)
             ]
         , describe "Responsive Behavior"
@@ -327,6 +327,7 @@ createTestModel deviceType =
     , nextExcavatorId = 1
     , nextTruckId = 1
     , infoBannerDismissed = False
+    , helpTooltipState = Nothing
     }
 
 

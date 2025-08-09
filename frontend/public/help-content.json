@@ -1,0 +1,100 @@
+{
+  "equipmentHelp": {
+    "excavatorBucketCapacity": {
+      "title": "Excavator Bucket Capacity",
+      "description": "The amount of dirt the excavator bucket can hold in one scoop, measured in cubic yards.",
+      "typicalRange": "0.5 to 15.0 cubic yards",
+      "examples": [
+        "Small excavator (CAT 305): 0.7 cubic yards",
+        "Mid-size excavator (CAT 320): 1.4 cubic yards", 
+        "Large excavator (CAT 374): 4.2 cubic yards"
+      ],
+      "tips": "Larger buckets move more dirt per cycle but take longer to fill and dump. Choose based on your excavator size."
+    },
+    "excavatorCycleTime": {
+      "title": "Excavator Cycle Time",
+      "description": "The time it takes for one complete excavator cycle: dig, swing, dump, and return to digging position.",
+      "typicalRange": "0.5 to 10.0 minutes",
+      "examples": [
+        "Ideal conditions with skilled operator: 0.5-1.5 minutes",
+        "Average job site conditions: 2-4 minutes",
+        "Difficult conditions or tight spaces: 5-10 minutes"
+      ],
+      "tips": "Factor in soil type, operator skill, and working space. Hard-packed soil and tight areas increase cycle time."
+    },
+    "truckCapacity": {
+      "title": "Truck Capacity",
+      "description": "The amount of dirt the truck can carry in one load, measured in cubic yards.",
+      "typicalRange": "5 to 50 cubic yards",
+      "examples": [
+        "Small dump truck: 5-10 cubic yards",
+        "Standard dump truck: 10-16 cubic yards",
+        "Large tri-axle truck: 20-25 cubic yards",
+        "Off-road haul truck: 30-50 cubic yards"
+      ],
+      "tips": "Match truck size to excavator bucket size. Typically, a truck should hold 4-6 excavator buckets for efficiency."
+    },
+    "truckRoundTripTime": {
+      "title": "Truck Round-Trip Time", 
+      "description": "Total time for truck to travel from job site to dump location and back, including loading and dumping time.",
+      "typicalRange": "5 to 60 minutes",
+      "examples": [
+        "On-site stockpile: 5-10 minutes",
+        "Local dump site (1-2 miles): 15-25 minutes", 
+        "Distant dump site (5+ miles): 30-60 minutes"
+      ],
+      "tips": "Include time for loading, travel both ways, dumping, and any wait times at the dump site."
+    }
+  },
+  "pondHelp": {
+    "pondLength": {
+      "title": "Pond Length",
+      "description": "The longest measurement of your pond from one end to the other, measured in feet.",
+      "typicalRange": "10 to 500+ feet",
+      "examples": [
+        "Small decorative pond: 10-20 feet",
+        "Residential pond: 20-50 feet",
+        "Farm pond: 50-200 feet",
+        "Commercial pond: 200-500+ feet"
+      ],
+      "tips": "Measure at the waterline level, not the bottom. Use a long tape measure or pacing for large ponds."
+    },
+    "pondWidth": {
+      "title": "Pond Width", 
+      "description": "The measurement across your pond at its widest point, measured in feet.",
+      "typicalRange": "10 to 300+ feet",
+      "examples": [
+        "Small decorative pond: 8-15 feet",
+        "Residential pond: 15-40 feet", 
+        "Farm pond: 40-150 feet",
+        "Commercial pond: 150-300+ feet"
+      ],
+      "tips": "For irregular shapes, use the widest point. Consider access routes for equipment when planning width."
+    },
+    "pondDepth": {
+      "title": "Pond Depth",
+      "description": "How deep you want to dig the pond, measured in feet from ground level to the bottom.",
+      "typicalRange": "3 to 25+ feet", 
+      "examples": [
+        "Decorative/fish pond: 3-6 feet",
+        "Swimming pond: 6-10 feet",
+        "Irrigation pond: 8-15 feet", 
+        "Large farm pond: 15-25+ feet"
+      ],
+      "tips": "Deeper ponds hold more water but require more excavation. Consider local frost line and intended use."
+    }
+  },
+  "projectHelp": {
+    "workHours": {
+      "title": "Work Hours Per Day",
+      "description": "Number of productive hours equipment will operate each day on the job site.", 
+      "typicalRange": "6 to 12 hours",
+      "examples": [
+        "Half day operation: 6-8 hours",
+        "Standard work day: 8-10 hours",
+        "Extended operations: 10-12 hours"
+      ],
+      "tips": "Consider setup time, breaks, fuel stops, and weather delays. Actual productive hours are often less than total hours on site."
+    }
+  }
+}

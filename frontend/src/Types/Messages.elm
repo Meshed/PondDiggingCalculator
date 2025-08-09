@@ -57,6 +57,10 @@ type Msg
     | PerformanceTracked Float -- milliseconds
     | DeviceDetected (Result Dom.Error { width : Int, height : Int })
     | WindowResized Int Int
+      -- Help System Messages
+    | ShowHelpTooltip String -- field ID
+    | HideHelpTooltip String -- field ID
+    | KeyPressed String -- key name
 
 
 

@@ -406,6 +406,7 @@ createModelWithValidInputs deviceType =
     , nextExcavatorId = 1
     , nextTruckId = 1
     , infoBannerDismissed = False
+    , helpTooltipState = Nothing
     }
 
 
@@ -426,6 +427,7 @@ createModelWithInvalidInputs deviceType =
     , nextExcavatorId = 1
     , nextTruckId = 1
     , infoBannerDismissed = False
+    , helpTooltipState = Nothing
     }
 
 

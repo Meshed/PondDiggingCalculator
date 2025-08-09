@@ -6,6 +6,7 @@ module Components.EquipmentList exposing (viewExcavatorFleet, viewTruckFleet)
 
 -}
 
+import Components.HelpTooltip as HelpTooltip
 import Html exposing (..)
 import Html.Attributes exposing (..)
 import Html.Events exposing (..)
@@ -14,14 +15,15 @@ import Types.DeviceType exposing (DeviceType(..))
 import Types.Equipment exposing (EquipmentId, Excavator, Truck)
 import Types.Messages exposing (ExcavatorUpdate(..), Msg(..), TruckUpdate(..))
 import Utils.DeviceDetector as DeviceDetector
+import Utils.HelpContent exposing (getHelpContent)
 
 
 
 -- EXCAVATOR FLEET VIEW
 
 
-viewExcavatorFleet : DeviceType -> List Excavator -> Int -> Html Msg
-viewExcavatorFleet deviceType excavators nextId =
+viewExcavatorFleet : DeviceType -> List Excavator -> Int -> (String -> Msg) -> (String -> Msg) -> Maybe String -> Html Msg
+viewExcavatorFleet deviceType excavators nextId showHelpMsg hideHelpMsg activeTooltipId =
     let
         canAddMore =
             List.length excavators < 10
@@ -31,13 +33,10 @@ viewExcavatorFleet deviceType excavators nextId =
             DeviceDetector.shouldShowAdvancedFeatures deviceType
     in
     div [ class "space-y-4" ]
-        [ if showAdvancedFeatures && canAddMore then
-            viewAddExcavatorButton deviceType
-
-          else
-            text ""
+        [ -- DEBUG: Always show button to test styling
+          viewAddExcavatorButton deviceType
         , div [ class "space-y-3" ]
-            (List.indexedMap (viewExcavatorItem deviceType (List.length excavators > 1)) excavators)
+            (List.indexedMap (viewExcavatorItem deviceType (List.length excavators > 1) showHelpMsg hideHelpMsg activeTooltipId) excavators)
         ]
 
 
@@ -47,13 +46,13 @@ viewAddExcavatorButton deviceType =
         buttonClass =
             case deviceType of
                 Desktop ->
-                    "w-full bg-yellow-600 hover:bg-yellow-700 text-white font-medium py-2 px-4 rounded-lg transition-colors duration-200 flex items-center justify-center space-x-2"
+                    "w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-lg transition-colors duration-200 flex items-center justify-center space-x-2"
 
                 Tablet ->
-                    "w-full bg-yellow-600 hover:bg-yellow-700 text-white font-medium py-2 px-3 rounded-lg transition-colors duration-200 flex items-center justify-center space-x-2"
+                    "w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-3 rounded-lg transition-colors duration-200 flex items-center justify-center space-x-2"
 
                 Mobile ->
-                    "hidden"
+                    "w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-3 rounded-lg transition-colors duration-200 flex items-center justify-center space-x-2"
 
         -- Hidden on mobile
     in
@@ -62,13 +61,13 @@ viewAddExcavatorButton deviceType =
         , onClick AddExcavator
         , type_ "button"
         ]
-        [ span [ class "text-lg" ] [ text "🚛" ]
+        [ span [ class "text-lg" ] [ text "🚜" ]
         , text "Add Excavator"
         ]
 
 
-viewExcavatorItem : DeviceType -> Bool -> Int -> Excavator -> Html Msg
-viewExcavatorItem deviceType canRemove index excavator =
+viewExcavatorItem : DeviceType -> Bool -> (String -> Msg) -> (String -> Msg) -> Maybe String -> Int -> Excavator -> Html Msg
+viewExcavatorItem deviceType canRemove showHelpMsg hideHelpMsg activeTooltipId index excavator =
     let
         itemClass =
             case deviceType of
@@ -88,7 +87,7 @@ viewExcavatorItem deviceType canRemove index excavator =
             typography.body
 
         inputClass =
-            "w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:border-transparent"
+            "w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
 
         equipmentNumber =
             index + 1
@@ -96,7 +95,7 @@ viewExcavatorItem deviceType canRemove index excavator =
     div [ class itemClass ]
         [ div [ class "flex items-center justify-between mb-3" ]
             [ h4 [ class (labelClass ++ " font-medium text-gray-800") ]
-                [ span [ class "text-yellow-600 mr-2" ] [ text "🚛" ]
+                [ span [ class "text-blue-600 mr-2" ] [ text "🚜" ]
                 , text ("Excavator " ++ String.fromInt equipmentNumber)
                 ]
             , if canRemove && DeviceDetector.shouldShowAdvancedFeatures deviceType then
@@ -112,8 +111,10 @@ viewExcavatorItem deviceType canRemove index excavator =
             ]
         , div [ class "grid grid-cols-2 gap-3" ]
             [ div []
-                [ label [ class (labelClass ++ " block text-gray-700 mb-1") ]
-                    [ text "Bucket Capacity (yd³)" ]
+                [ label [ class (labelClass ++ " block text-gray-700 mb-1 flex items-center") ]
+                    [ text "Bucket Capacity (yd³)"
+                    , HelpTooltip.helpIcon deviceType "excavatorBucketCapacity" showHelpMsg hideHelpMsg activeTooltipId
+                    ]
                 , input
                     [ type_ "number"
                     , class inputClass
@@ -133,8 +134,10 @@ viewExcavatorItem deviceType canRemove index excavator =
                     []
                 ]
             , div []
-                [ label [ class (labelClass ++ " block text-gray-700 mb-1") ]
-                    [ text "Cycle Time (min)" ]
+                [ label [ class (labelClass ++ " block text-gray-700 mb-1 flex items-center") ]
+                    [ text "Cycle Time (min)"
+                    , HelpTooltip.helpIcon deviceType "excavatorCycleTime" showHelpMsg hideHelpMsg activeTooltipId
+                    ]
                 , input
                     [ type_ "number"
                     , class inputClass
@@ -169,7 +172,7 @@ viewExcavatorItem deviceType canRemove index excavator =
         , div [ class "mt-3 flex items-center" ]
             [ input
                 [ type_ "checkbox"
-                , class "h-4 w-4 text-yellow-600 focus:ring-yellow-500 border-gray-300 rounded"
+                , class "h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
                 , checked excavator.isActive
                 , onCheck (\val -> UpdateExcavator excavator.id (UpdateExcavatorActive val))
                 ]
@@ -184,8 +187,8 @@ viewExcavatorItem deviceType canRemove index excavator =
 -- TRUCK FLEET VIEW
 
 
-viewTruckFleet : DeviceType -> List Truck -> Int -> Html Msg
-viewTruckFleet deviceType trucks nextId =
+viewTruckFleet : DeviceType -> List Truck -> Int -> (String -> Msg) -> (String -> Msg) -> Maybe String -> Html Msg
+viewTruckFleet deviceType trucks nextId showHelpMsg hideHelpMsg activeTooltipId =
     let
         canAddMore =
             List.length trucks < 20
@@ -201,7 +204,7 @@ viewTruckFleet deviceType trucks nextId =
           else
             text ""
         , div [ class "space-y-3" ]
-            (List.indexedMap (viewTruckItem deviceType (List.length trucks > 1)) trucks)
+            (List.indexedMap (viewTruckItem deviceType (List.length trucks > 1) showHelpMsg hideHelpMsg activeTooltipId) trucks)
         ]
 
 
@@ -231,8 +234,8 @@ viewAddTruckButton deviceType =
         ]
 
 
-viewTruckItem : DeviceType -> Bool -> Int -> Truck -> Html Msg
-viewTruckItem deviceType canRemove index truck =
+viewTruckItem : DeviceType -> Bool -> (String -> Msg) -> (String -> Msg) -> Maybe String -> Int -> Truck -> Html Msg
+viewTruckItem deviceType canRemove showHelpMsg hideHelpMsg activeTooltipId index truck =
     let
         itemClass =
             case deviceType of
@@ -276,8 +279,10 @@ viewTruckItem deviceType canRemove index truck =
             ]
         , div [ class "grid grid-cols-2 gap-3" ]
             [ div []
-                [ label [ class (labelClass ++ " block text-gray-700 mb-1") ]
-                    [ text "Capacity (yd³)" ]
+                [ label [ class (labelClass ++ " block text-gray-700 mb-1 flex items-center") ]
+                    [ text "Capacity (yd³)"
+                    , HelpTooltip.helpIcon deviceType "truckCapacity" showHelpMsg hideHelpMsg activeTooltipId
+                    ]
                 , input
                     [ type_ "number"
                     , class inputClass
@@ -297,8 +302,10 @@ viewTruckItem deviceType canRemove index truck =
                     []
                 ]
             , div []
-                [ label [ class (labelClass ++ " block text-gray-700 mb-1") ]
-                    [ text "Round Trip Time (min)" ]
+                [ label [ class (labelClass ++ " block text-gray-700 mb-1 flex items-center") ]
+                    [ text "Round Trip Time (min)"
+                    , HelpTooltip.helpIcon deviceType "truckRoundTripTime" showHelpMsg hideHelpMsg activeTooltipId
+                    ]
                 , input
                     [ type_ "number"
                     , class inputClass

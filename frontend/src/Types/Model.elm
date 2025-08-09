@@ -35,6 +35,7 @@ type alias Model =
     , nextExcavatorId : Int -- ID generator for excavators
     , nextTruckId : Int -- ID generator for trucks
     , infoBannerDismissed : Bool -- Track if user dismissed the info banner
+    , helpTooltipState : Maybe String -- Track active tooltip field ID
 
     -- REMOVED: mobileModel - Mobile now uses same state as desktop!
     }

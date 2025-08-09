@@ -300,6 +300,7 @@ createModelWithValidData =
     , nextExcavatorId = 1
     , nextTruckId = 1
     , infoBannerDismissed = False
+    , helpTooltipState = Nothing
     }
 
 
@@ -320,6 +321,7 @@ createModelWithInvalidData =
     , nextExcavatorId = 1
     , nextTruckId = 1
     , infoBannerDismissed = False
+    , helpTooltipState = Nothing
     }
 
 

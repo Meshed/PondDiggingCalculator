@@ -434,6 +434,7 @@ createIntegrationModel dismissed =
     , nextExcavatorId = 1
     , nextTruckId = 1
     , infoBannerDismissed = dismissed
+    , helpTooltipState = Nothing
     }
 
 

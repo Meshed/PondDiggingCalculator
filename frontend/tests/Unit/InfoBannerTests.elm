@@ -202,6 +202,7 @@ createTestModel dismissed =
     , nextExcavatorId = 1
     , nextTruckId = 1
     , infoBannerDismissed = dismissed
+    , helpTooltipState = Nothing
     }
 
 
@@ -224,6 +225,7 @@ createTestModelWithData dismissed =
     , nextExcavatorId = 2
     , nextTruckId = 2
     , infoBannerDismissed = dismissed
+    , helpTooltipState = Nothing
     }
 
 
