@@ -34,8 +34,6 @@ view model =
                 , Html.Attributes.attribute "data-testid" "device-type"
                 ]
                 [ viewHeader
-                , div [ class "mb-4 p-2 bg-red-100 border border-red-300 rounded mx-4" ]
-                    [ text "DEBUG: MOBILE VIEW RENDERING - This should NOT appear on desktop!" ]
                 , viewResults model.calculationResult
                 , viewInputSection formData model
                 , viewClearButton

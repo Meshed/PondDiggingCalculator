@@ -59,13 +59,6 @@ view model =
         ]
         [ div [ class maxWidthClass ]
             [ viewHeader deviceType
-            , div [ class "mb-4 p-2 bg-yellow-100 border border-yellow-300 rounded" ]
-                [ text ("DEBUG: Device=" ++ (case deviceType of 
-                    Desktop -> "Desktop"
-                    Tablet -> "Tablet" 
-                    Mobile -> "Mobile"
-                  ) ++ ", Excavators=" ++ String.fromInt (List.length model.excavators) ++ ", Trucks=" ++ String.fromInt (List.length model.trucks))
-                ]
             , div [ class layoutClass ]
                 [ viewExcavatorSection model deviceType
                 , viewProjectSection model deviceType

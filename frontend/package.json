@@ -3,10 +3,15 @@
   "version": "1.0.0",
   "description": "Frontend for Pond Digging Calculator - Elm application",
   "scripts": {
-    "dev": "npm run generate:config && npm run build:css && parcel serve public/index.html",
+    "dev": "npm run clean:soft && npm run generate:config && npm run build:css && parcel serve public/index.html",
+    "dev:dirty": "npm run generate:config && npm run build:css && parcel serve public/index.html",
+    "dev:force-clean": "npm run clean && npm run generate:config && npm run build:css && parcel serve public/index.html",
     "validate:config": "node ../config/validate-config.js",
     "generate:config": "node ../config/generate-elm-config.js",
+    "clean": "rimraf dist .parcel-cache",
+    "clean:soft": "rimraf dist .parcel-cache || echo 'Clean failed (files may be locked) - continuing anyway...'",
     "build": "npm run validate:config && npm run generate:config && npm run format && npm run build:css && parcel build public/index.html",
+    "build:clean": "npm run clean && npm run build",
     "build:css:timeout": "powershell -Command \"& { $job = Start-Job { tailwindcss -i src/styles.css -o public/styles.css --watch=false }; Wait-Job $job -Timeout 10; Stop-Job $job; Remove-Job $job }\"",
     "build:css": "npm run build:css:timeout || tailwindcss -i src/styles.css -o public/styles.css --watch=false",
     "build:css:watch": "tailwindcss -i src/styles.css -o public/styles.css --watch",
@@ -28,7 +33,9 @@
     "lint": "npm run format:check",
     "pretest": "npm run format:check",
     "validate": "npm run build && npm run test",
-    "validate:full": "npm run validate && npm run test:e2e:comprehensive"
+    "validate:full": "npm run validate && npm run test:e2e:comprehensive",
+    "validate:build": "node ../scripts/validate-build.js",
+    "validate:build-cache": "npm run test:e2e -- --spec 'tests/E2E/cypress/integration/build-cache-validation.spec.js'"
   },
   "keywords": [
     "elm",
@@ -51,6 +58,7 @@
     "mochawesome-merge": "^4.3.0",
     "mochawesome-report-generator": "^6.2.0",
     "parcel": "^2.0.0",
+    "rimraf": "^6.0.1",
     "tailwindcss": "^3.4.0"
   }
 }
