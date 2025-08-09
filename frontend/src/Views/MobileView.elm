@@ -34,6 +34,7 @@ view model =
                 , Html.Attributes.attribute "data-testid" "device-type"
                 ]
                 [ viewHeader
+                , viewInfoBanner model.infoBannerDismissed
                 , viewResults model.calculationResult
                 , viewInputSection formData model
                 , viewClearButton
@@ -52,6 +53,30 @@ viewHeader =
         [ h1 [ class "text-2xl font-bold text-gray-900 text-center" ] [ text "Pond Calculator" ]
         , div [ class "text-sm text-gray-600 text-center mt-1" ] [ text "Professional Timeline Estimation Tool" ]
         ]
+
+
+viewInfoBanner : Bool -> Html Msg
+viewInfoBanner infoBannerDismissed =
+    if not infoBannerDismissed then
+        div [ class "mx-4 mt-4 p-4 bg-blue-50 border border-blue-200 rounded-md" ]
+            [ div [ class "flex items-start" ]
+                [ div [ class "flex-shrink-0" ]
+                    [ span [ class "text-blue-400" ] [ text "ℹ️" ] ]
+                , div [ class "ml-3 flex-1" ]
+                    [ text "Default values for common equipment are pre-loaded. Adjust any values to match your specific project requirements." ]
+                , div [ class "ml-3 flex-shrink-0" ]
+                    [ button
+                        [ onClick DismissInfoBanner
+                        , class "text-blue-400 hover:text-blue-600 font-bold text-lg leading-none"
+                        , Html.Attributes.attribute "data-testid" "dismiss-banner-button"
+                        ]
+                        [ text "×" ]
+                    ]
+                ]
+            ]
+
+    else
+        text ""
 
 
 viewResults : Maybe CalculationResult -> Html Msg
@@ -90,13 +115,13 @@ viewInputSection : FormData -> Model -> Html Msg
 viewInputSection formData model =
     div [ class "flex-1 p-4 space-y-6 overflow-y-auto" ]
         [ viewInputGroup "Pond Dimensions"
-            [ viewNumberInput "Pond Length" "ft" formData.pondLength (PondFieldChanged PondLength)
-            , viewNumberInput "Pond Width" "ft" formData.pondWidth (PondFieldChanged PondWidth)
-            , viewNumberInput "Pond Depth" "ft" formData.pondDepth (PondFieldChanged PondDepth)
+            [ viewMobileInputWithHelp "Pond Length" "ft" formData.pondLength "e.g., 100 (10-500 typical)" (PondFieldChanged PondLength)
+            , viewMobileInputWithHelp "Pond Width" "ft" formData.pondWidth "e.g., 50 (8-300 typical)" (PondFieldChanged PondWidth)
+            , viewMobileInputWithHelp "Pond Depth" "ft" formData.pondDepth "e.g., 10 (3-25 typical)" (PondFieldChanged PondDepth)
             ]
         , viewEquipmentSection model
         , viewInputGroup "Project Configuration"
-            [ viewNumberInput "Work Hours per Day" "hrs" formData.workHoursPerDay (ProjectFieldChanged WorkHours)
+            [ viewMobileInputWithHelp "Work Hours per Day" "hrs" formData.workHoursPerDay "e.g., 8 (6-12 typical)" (ProjectFieldChanged WorkHours)
             ]
         ]
 
@@ -114,9 +139,10 @@ viewEquipmentSection model =
     case ( firstExcavator, firstTruck ) of
         ( Just excavator, Just truck ) ->
             viewInputGroup "Equipment Specifications"
-                [ viewNumberInput "Excavator Bucket Capacity"
+                [ viewMobileInputWithHelp "Excavator Bucket Capacity"
                     "yd³"
                     (String.fromFloat excavator.bucketCapacity)
+                    "e.g., 2.5 (0.5-15 typical)"
                     (\val ->
                         case String.toFloat val of
                             Just f ->
@@ -125,9 +151,10 @@ viewEquipmentSection model =
                             Nothing ->
                                 NoOp
                     )
-                , viewNumberInput "Excavator Cycle Time"
+                , viewMobileInputWithHelp "Excavator Cycle Time"
                     "min"
                     (String.fromFloat excavator.cycleTime)
+                    "e.g., 2.0 (0.5-10 typical)"
                     (\val ->
                         case String.toFloat val of
                             Just f ->
@@ -136,9 +163,10 @@ viewEquipmentSection model =
                             Nothing ->
                                 NoOp
                     )
-                , viewNumberInput "Truck Capacity"
+                , viewMobileInputWithHelp "Truck Capacity"
                     "yd³"
                     (String.fromFloat truck.capacity)
+                    "e.g., 12 (5-50 typical)"
                     (\val ->
                         case String.toFloat val of
                             Just f ->
@@ -147,9 +175,10 @@ viewEquipmentSection model =
                             Nothing ->
                                 NoOp
                     )
-                , viewNumberInput "Truck Round Trip Time"
+                , viewMobileInputWithHelp "Truck Round Trip Time"
                     "min"
                     (String.fromFloat truck.roundTripTime)
+                    "e.g., 15 (5-60 typical)"
                     (\val ->
                         case String.toFloat val of
                             Just f ->
@@ -189,6 +218,30 @@ viewNumberInput label unit currentValue onChange =
           input
             [ type_ "number"
             , placeholder "0"
+            , value currentValue
+            , onInput onChange
+            , class "w-full px-4 py-3 text-lg border border-gray-300 rounded-lg focus:border-blue-500 focus:ring-1 focus:ring-blue-500 focus:outline-none"
+            , style "min-height" "56px" -- Ensure 44px+ touch target
+            ]
+            []
+        ]
+
+
+{-| Enhanced mobile input with helpful placeholder and typical ranges
+-}
+viewMobileInputWithHelp : String -> String -> String -> String -> (String -> Msg) -> Html Msg
+viewMobileInputWithHelp label unit currentValue helpfulPlaceholder onChange =
+    div [ class "space-y-2" ]
+        [ -- Enhanced label with unit
+          div [ class "block text-sm font-semibold text-gray-700" ]
+            [ text label
+            , span [ class "ml-2 text-xs font-normal text-gray-500" ]
+                [ text ("(" ++ unit ++ ")") ]
+            ]
+        , -- Input field with helpful placeholder
+          input
+            [ type_ "number"
+            , placeholder helpfulPlaceholder
             , value currentValue
             , onInput onChange
             , class "w-full px-4 py-3 text-lg border border-gray-300 rounded-lg focus:border-blue-500 focus:ring-1 focus:ring-blue-500 focus:outline-none"

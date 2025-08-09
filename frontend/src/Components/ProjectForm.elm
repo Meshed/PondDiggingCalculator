@@ -90,114 +90,87 @@ updateFormData msg formData =
 
 {-| Render the project input form with validation
 -}
-view : DeviceType -> FormData -> Bool -> msg -> (PondField -> String -> msg) -> (ProjectField -> String -> msg) -> (String -> msg) -> (String -> msg) -> Maybe String -> Html msg
-view deviceType formData infoBannerDismissed dismissMsg pondMsg projectMsg showHelpMsg hideHelpMsg activeTooltipId =
+view : DeviceType -> FormData -> (PondField -> String -> msg) -> (ProjectField -> String -> msg) -> (String -> msg) -> (String -> msg) -> Maybe String -> Html msg
+view deviceType formData pondMsg projectMsg showHelpMsg hideHelpMsg activeTooltipId =
+    let
+        typography =
+            Theme.getTypographyScale deviceType
+    in
     div [ class "space-y-4" ]
-        [ -- Info banner about defaults (dismissible)
-          if not infoBannerDismissed then
-            div
-                [ class "mb-6 p-4 bg-blue-50 border border-blue-200 rounded-md"
-                , Html.Attributes.attribute "data-testid" "info-banner"
+        [ div [ class "grid grid-cols-2 gap-3" ]
+            [ div []
+                [ label [ class (typography.body ++ " block text-gray-700 mb-1 flex items-center") ]
+                    [ text "Work Hours per Day"
+                    , HelpTooltip.helpIcon deviceType "workHours" showHelpMsg hideHelpMsg activeTooltipId
+                    ]
+                , input
+                    [ type_ "number"
+                    , class "w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    , id "work-hours"
+                    , Html.Attributes.attribute "data-testid" "work-hours-input"
+                    , value formData.workHoursPerDay
+                    , placeholder "e.g., 8"
+                    , onInput (projectMsg WorkHours)
+                    , step "0.1"
+                    , Html.Attributes.min "0.1"
+                    ]
+                    []
                 ]
-                [ div [ class "flex items-start" ]
-                    [ div [ class "flex-shrink-0" ]
-                        [ span [ class "text-blue-400" ] [ text "ℹ️" ] ]
-                    , div [ class "ml-3 flex-1" ]
-                        [ text "Default values for common equipment are pre-loaded. Adjust any values to match your specific project requirements." ]
-                    , div [ class "ml-3 flex-shrink-0" ]
-                        [ button
-                            [ onClick dismissMsg
-                            , class "text-blue-400 hover:text-blue-600 font-bold text-lg leading-none"
-                            , title "Dismiss this message"
-                            , Html.Attributes.attribute "data-testid" "dismiss-banner-button"
-                            ]
-                            [ text "×" ]
-                        ]
+            , div []
+                [ label [ class (typography.body ++ " block text-gray-700 mb-1 flex items-center") ]
+                    [ text "Pond Length (feet)"
+                    , HelpTooltip.helpIcon deviceType "pondLength" showHelpMsg hideHelpMsg activeTooltipId
                     ]
+                , input
+                    [ type_ "number"
+                    , class "w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    , id "pond-length"
+                    , Html.Attributes.attribute "data-testid" "pond-length-input"
+                    , value formData.pondLength
+                    , placeholder "e.g., 100"
+                    , onInput (pondMsg PondLength)
+                    , step "0.1"
+                    , Html.Attributes.min "0.1"
+                    ]
+                    []
                 ]
-
-          else
-            text ""
-        , let
-            typography =
-                Theme.getTypographyScale deviceType
-          in
-          div [ class "space-y-4" ]
-            [ div [ class "grid grid-cols-2 gap-3" ]
-                [ div []
-                    [ label [ class (typography.body ++ " block text-gray-700 mb-1 flex items-center") ]
-                        [ text "Work Hours per Day"
-                        , HelpTooltip.helpIcon deviceType "workHours" showHelpMsg hideHelpMsg activeTooltipId
-                        ]
-                    , input
-                        [ type_ "number"
-                        , class "w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                        , id "work-hours"
-                        , Html.Attributes.attribute "data-testid" "work-hours-input"
-                        , value formData.workHoursPerDay
-                        , placeholder "e.g., 8"
-                        , onInput (projectMsg WorkHours)
-                        , step "0.1"
-                        , Html.Attributes.min "0.1"
-                        ]
-                        []
+            ]
+        , div [ class "grid grid-cols-2 gap-3" ]
+            [ div []
+                [ label [ class (typography.body ++ " block text-gray-700 mb-1 flex items-center") ]
+                    [ text "Pond Width (feet)"
+                    , HelpTooltip.helpIcon deviceType "pondWidth" showHelpMsg hideHelpMsg activeTooltipId
                     ]
-                , div []
-                    [ label [ class (typography.body ++ " block text-gray-700 mb-1 flex items-center") ]
-                        [ text "Pond Length (feet)"
-                        , HelpTooltip.helpIcon deviceType "pondLength" showHelpMsg hideHelpMsg activeTooltipId
-                        ]
-                    , input
-                        [ type_ "number"
-                        , class "w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                        , id "pond-length"
-                        , Html.Attributes.attribute "data-testid" "pond-length-input"
-                        , value formData.pondLength
-                        , placeholder "e.g., 100"
-                        , onInput (pondMsg PondLength)
-                        , step "0.1"
-                        , Html.Attributes.min "0.1"
-                        ]
-                        []
+                , input
+                    [ type_ "number"
+                    , class "w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    , id "pond-width"
+                    , Html.Attributes.attribute "data-testid" "pond-width-input"
+                    , value formData.pondWidth
+                    , placeholder "e.g., 50"
+                    , onInput (pondMsg PondWidth)
+                    , step "0.1"
+                    , Html.Attributes.min "0.1"
                     ]
+                    []
                 ]
-            , div [ class "grid grid-cols-2 gap-3" ]
-                [ div []
-                    [ label [ class (typography.body ++ " block text-gray-700 mb-1 flex items-center") ]
-                        [ text "Pond Width (feet)"
-                        , HelpTooltip.helpIcon deviceType "pondWidth" showHelpMsg hideHelpMsg activeTooltipId
-                        ]
-                    , input
-                        [ type_ "number"
-                        , class "w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                        , id "pond-width"
-                        , Html.Attributes.attribute "data-testid" "pond-width-input"
-                        , value formData.pondWidth
-                        , placeholder "e.g., 50"
-                        , onInput (pondMsg PondWidth)
-                        , step "0.1"
-                        , Html.Attributes.min "0.1"
-                        ]
-                        []
+            , div []
+                [ label [ class (typography.body ++ " block text-gray-700 mb-1 flex items-center") ]
+                    [ text "Pond Depth (feet)"
+                    , HelpTooltip.helpIcon deviceType "pondDepth" showHelpMsg hideHelpMsg activeTooltipId
                     ]
-                , div []
-                    [ label [ class (typography.body ++ " block text-gray-700 mb-1 flex items-center") ]
-                        [ text "Pond Depth (feet)"
-                        , HelpTooltip.helpIcon deviceType "pondDepth" showHelpMsg hideHelpMsg activeTooltipId
-                        ]
-                    , input
-                        [ type_ "number"
-                        , class "w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                        , id "pond-depth"
-                        , Html.Attributes.attribute "data-testid" "pond-depth-input"
-                        , value formData.pondDepth
-                        , placeholder "e.g., 10"
-                        , onInput (pondMsg PondDepth)
-                        , step "0.1"
-                        , Html.Attributes.min "0.1"
-                        ]
-                        []
+                , input
+                    [ type_ "number"
+                    , class "w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    , id "pond-depth"
+                    , Html.Attributes.attribute "data-testid" "pond-depth-input"
+                    , value formData.pondDepth
+                    , placeholder "e.g., 10"
+                    , onInput (pondMsg PondDepth)
+                    , step "0.1"
+                    , Html.Attributes.min "0.1"
                     ]
+                    []
                 ]
             ]
         ]

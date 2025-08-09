@@ -1,10 +1,12 @@
 module Pages.Desktop exposing (view)
 
 import Components.EquipmentList as EquipmentList
+import Components.HelpTooltip as HelpTooltip
 import Components.ProjectForm as ProjectForm
 import Components.ResultsPanel as ResultsPanel
 import Html exposing (..)
 import Html.Attributes exposing (..)
+import Html.Events exposing (onClick)
 import Styles.Responsive as Responsive
 import Styles.Theme as Theme
 import Svg exposing (path, svg)
@@ -12,6 +14,7 @@ import Svg.Attributes
 import Types.DeviceType as DeviceType exposing (DeviceType(..))
 import Types.Messages exposing (Msg)
 import Types.Model exposing (Model)
+import Utils.HelpContent exposing (getHelpContent)
 
 
 view : Model -> Html Msg
@@ -59,6 +62,7 @@ view model =
         ]
         [ div [ class maxWidthClass ]
             [ viewHeader deviceType
+            , viewInfoBanner model.infoBannerDismissed
             , div [ class layoutClass ]
                 [ viewExcavatorSection model deviceType
                 , viewProjectSection model deviceType
@@ -67,6 +71,34 @@ view model =
             , viewResultsSection model deviceType
             ]
         ]
+
+
+viewInfoBanner : Bool -> Html Msg
+viewInfoBanner infoBannerDismissed =
+    if not infoBannerDismissed then
+        div
+            [ class "mb-8 p-4 bg-blue-50 border border-blue-200 rounded-md"
+            , Html.Attributes.attribute "data-testid" "info-banner"
+            ]
+            [ div [ class "flex items-start" ]
+                [ div [ class "flex-shrink-0" ]
+                    [ span [ class "text-blue-400" ] [ text "ℹ️" ] ]
+                , div [ class "ml-3 flex-1" ]
+                    [ text "Default values for common equipment are pre-loaded. Adjust any values to match your specific project requirements." ]
+                , div [ class "ml-3 flex-shrink-0" ]
+                    [ button
+                        [ onClick Types.Messages.DismissInfoBanner
+                        , class "text-blue-400 hover:text-blue-600 font-bold text-lg leading-none"
+                        , title "Dismiss this message"
+                        , Html.Attributes.attribute "data-testid" "dismiss-banner-button"
+                        ]
+                        [ text "×" ]
+                    ]
+                ]
+            ]
+
+    else
+        text ""
 
 
 viewHeader : DeviceType -> Html Msg
@@ -112,7 +144,7 @@ viewExcavatorSection model deviceType =
     div [ class sectionClass ]
         [ h2 [ class (headerClass ++ " mb-4 text-gray-800 border-b pb-2") ]
             [ text "Excavator Fleet" ]
-        , EquipmentList.viewExcavatorFleet deviceType model.excavators model.nextExcavatorId
+        , EquipmentList.viewExcavatorFleet deviceType model.excavators model.nextExcavatorId Types.Messages.ShowHelpTooltip Types.Messages.HideHelpTooltip model.helpTooltipState
         ]
 
 
@@ -143,10 +175,11 @@ viewProjectSection model deviceType =
             Just formData ->
                 ProjectForm.view deviceType
                     formData
-                    model.infoBannerDismissed
-                    Types.Messages.DismissInfoBanner
                     (\field value -> Types.Messages.PondFieldChanged field value)
                     (\field value -> Types.Messages.ProjectFieldChanged field value)
+                    Types.Messages.ShowHelpTooltip
+                    Types.Messages.HideHelpTooltip
+                    model.helpTooltipState
 
             Nothing ->
                 text "Loading form..."
@@ -176,7 +209,7 @@ viewTruckSection model deviceType =
     div [ class sectionClass ]
         [ h2 [ class (headerClass ++ " mb-4 text-gray-800 border-b pb-2") ]
             [ text "Truck Fleet" ]
-        , EquipmentList.viewTruckFleet deviceType model.trucks model.nextTruckId
+        , EquipmentList.viewTruckFleet deviceType model.trucks model.nextTruckId Types.Messages.ShowHelpTooltip Types.Messages.HideHelpTooltip model.helpTooltipState
         ]
 
 
