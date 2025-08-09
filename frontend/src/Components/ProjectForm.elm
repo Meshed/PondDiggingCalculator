@@ -123,12 +123,10 @@ view deviceType formData infoBannerDismissed dismissMsg pondMsg projectMsg showH
                 Theme.getTypographyScale deviceType
           in
           div [ class "space-y-4" ]
-            [ div [ class "text-lg font-semibold text-gray-800 mb-4" ]
-                [ text "Project Parameters" ]
-            , div [ class "grid grid-cols-2 gap-3" ]
+            [ div [ class "grid grid-cols-2 gap-3" ]
                 [ div []
                     [ label [ class (typography.body ++ " block text-gray-700 mb-1 flex items-center") ]
-                        [ text "Work Hours per Day (hours)"
+                        [ text "Work Hours per Day"
                         , HelpTooltip.helpIcon deviceType "workHours" showHelpMsg hideHelpMsg activeTooltipId
                         ]
                     , input
