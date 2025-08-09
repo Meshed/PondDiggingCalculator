@@ -13,6 +13,7 @@ These tests ensure that common import mistakes don't get reintroduced:
 -}
 
 import Components.ProjectForm
+import Dict
 import Expect
 import Test exposing (Test, describe, test)
 import Types.DeviceType as DeviceType exposing (DeviceType(..))
@@ -192,7 +193,10 @@ suite =
                             , trucks = []
                             , nextExcavatorId = 1
                             , nextTruckId = 1
-                            , infoBannerDismissed = False
+                            , helpTooltipState = Nothing
+                            , realTimeValidation = False
+                            , fieldValidationErrors = Dict.empty
+                            , validationDebounce = Dict.empty
                             }
 
                         modelValid =
@@ -203,7 +207,7 @@ suite =
                                 > 0
                                 && mockModel.nextTruckId
                                 > 0
-                                && mockModel.infoBannerDismissed
+                                && mockModel.hasValidationErrors
                                 == False
                     in
                     Expect.all

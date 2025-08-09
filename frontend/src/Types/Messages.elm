@@ -49,7 +49,6 @@ type Msg
     | TruckFieldChanged TruckField String
     | PondFieldChanged PondField String
       -- UI Messages
-    | DismissInfoBanner
     | ProjectFieldChanged ProjectField String
     | CalculateTimeline
     | CalculateTimelineDebounced Float -- Current time in millis

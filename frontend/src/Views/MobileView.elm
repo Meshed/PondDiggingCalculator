@@ -34,7 +34,6 @@ view model =
                 , Html.Attributes.attribute "data-testid" "device-type"
                 ]
                 [ viewHeader
-                , viewInfoBanner model.infoBannerDismissed
                 , viewResults model.calculationResult
                 , viewInputSection formData model
                 , viewClearButton
@@ -53,30 +52,6 @@ viewHeader =
         [ h1 [ class "text-2xl font-bold text-gray-900 text-center" ] [ text "Pond Calculator" ]
         , div [ class "text-sm text-gray-600 text-center mt-1" ] [ text "Professional Timeline Estimation Tool" ]
         ]
-
-
-viewInfoBanner : Bool -> Html Msg
-viewInfoBanner infoBannerDismissed =
-    if not infoBannerDismissed then
-        div [ class "mx-4 mt-4 p-4 bg-blue-50 border border-blue-200 rounded-md" ]
-            [ div [ class "flex items-start" ]
-                [ div [ class "flex-shrink-0" ]
-                    [ span [ class "text-blue-400" ] [ text "ℹ️" ] ]
-                , div [ class "ml-3 flex-1" ]
-                    [ text "Default values for common equipment are pre-loaded. Adjust any values to match your specific project requirements." ]
-                , div [ class "ml-3 flex-shrink-0" ]
-                    [ button
-                        [ onClick DismissInfoBanner
-                        , class "text-blue-400 hover:text-blue-600 font-bold text-lg leading-none"
-                        , Html.Attributes.attribute "data-testid" "dismiss-banner-button"
-                        ]
-                        [ text "×" ]
-                    ]
-                ]
-            ]
-
-    else
-        text ""
 
 
 viewResults : Maybe CalculationResult -> Html Msg

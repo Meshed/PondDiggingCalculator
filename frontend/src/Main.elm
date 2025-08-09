@@ -76,7 +76,6 @@ init _ =
             , trucks = initialTrucks
             , nextExcavatorId = 1 + List.length initialExcavators -- Start ID counter after initial fleet
             , nextTruckId = 1 + List.length initialTrucks -- Start ID counter after initial fleet
-            , infoBannerDismissed = False -- Show info banner initially
             , helpTooltipState = Nothing -- No active tooltip initially
             , realTimeValidation = True -- Enable real-time validation by default
             , fieldValidationErrors = Dict.empty -- No validation errors initially
@@ -102,9 +101,6 @@ update msg model =
             -- Configuration is now loaded at build time, this message is obsolete
             -- Keeping for backward compatibility with Mobile.elm
             ( model, Cmd.none )
-
-        DismissInfoBanner ->
-            ( { model | infoBannerDismissed = True }, Cmd.none )
 
         FormUpdated formMsg ->
             case formMsg of

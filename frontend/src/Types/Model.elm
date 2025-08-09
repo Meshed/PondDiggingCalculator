@@ -37,7 +37,6 @@ type alias Model =
     , trucks : List Truck -- Fleet of trucks
     , nextExcavatorId : Int -- ID generator for excavators
     , nextTruckId : Int -- ID generator for trucks
-    , infoBannerDismissed : Bool -- Track if user dismissed the info banner
     , helpTooltipState : Maybe String -- Track active tooltip field ID
     , realTimeValidation : Bool -- Enable/disable real-time validation
     , fieldValidationErrors : Dict String ValidationError -- Field-specific validation errors
