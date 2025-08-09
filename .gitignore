@@ -92,3 +92,7 @@ temp/
 # BMad and Claude configuration directories
 .bmad-core/
 .claude/
+
+# Cypress test artifacts
+frontend/cypress/screenshots/
+frontend/cypress/videos/
