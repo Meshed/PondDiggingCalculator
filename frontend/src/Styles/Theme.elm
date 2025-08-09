@@ -1,6 +1,6 @@
 module Styles.Theme exposing
     ( container, textCenter, button, card, input, errorText, getButtonClasses, getCardClasses, getInputClasses, getTypographyScale, getMobileCalculatorClasses, getMobileTouchTarget
-    , getMobileCardClasses, getMobileGridClasses, getMobileInputClasses
+    , getHelpIconClasses, getMobileCardClasses, getMobileGridClasses, getMobileInputClasses, getTooltipClasses
     )
 
 {-| Tailwind CSS class constants for type-safe styling
@@ -174,3 +174,17 @@ getMobileCardClasses =
 getMobileGridClasses : String
 getMobileGridClasses =
     "grid grid-cols-2 gap-3"
+
+
+{-| Get tooltip styling classes
+-}
+getTooltipClasses : String
+getTooltipClasses =
+    "absolute z-[9999] w-72 max-w-xs p-4 bg-white border border-gray-300 rounded-lg shadow-lg text-sm"
+
+
+{-| Get help icon styling classes
+-}
+getHelpIconClasses : String
+getHelpIconClasses =
+    "ml-2 text-gray-400 hover:text-blue-500 focus:outline-none focus:text-blue-500 transition-colors inline-block w-4 h-4 text-sm font-bold border border-gray-400 rounded-full leading-4 text-center"

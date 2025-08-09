@@ -1,7 +1,4 @@
-module Components.ProjectForm exposing
-    ( view, FormData, FormMsg(..), initFormData, updateFormData
-    , inputFieldWithUnit
-    )
+module Components.ProjectForm exposing (view, FormData, FormMsg(..), initFormData, updateFormData)
 
 {-| Input form for pond digging project parameters
 
@@ -9,16 +6,17 @@ module Components.ProjectForm exposing
 
 -}
 
+import Components.HelpTooltip as HelpTooltip
 import Html exposing (Html, button, div, input, label, span, text)
-import Html.Attributes exposing (class, id, placeholder, title, type_, value)
+import Html.Attributes exposing (class, id, placeholder, step, title, type_, value)
 import Html.Events exposing (onClick, onInput)
-import Styles.Components as Components
 import Styles.Responsive as Responsive
 import Styles.Theme as Theme
 import Types.DeviceType exposing (DeviceType)
 import Types.Fields exposing (PondField(..), ProjectField(..))
 import Types.Validation exposing (ValidationError)
 import Utils.Config exposing (Config, Defaults)
+import Utils.HelpContent exposing (getHelpContent)
 import Utils.Validation as Validation
 
 
@@ -92,9 +90,9 @@ updateFormData msg formData =
 
 {-| Render the project input form with validation
 -}
-view : DeviceType -> FormData -> Bool -> msg -> (PondField -> String -> msg) -> (ProjectField -> String -> msg) -> Html msg
-view deviceType formData infoBannerDismissed dismissMsg pondMsg projectMsg =
-    div [ class (Components.getFormClasses deviceType) ]
+view : DeviceType -> FormData -> Bool -> msg -> (PondField -> String -> msg) -> (ProjectField -> String -> msg) -> (String -> msg) -> (String -> msg) -> Maybe String -> Html msg
+view deviceType formData infoBannerDismissed dismissMsg pondMsg projectMsg showHelpMsg hideHelpMsg activeTooltipId =
+    div [ class "space-y-4" ]
         [ -- Info banner about defaults (dismissible)
           if not infoBannerDismissed then
             div
@@ -120,200 +118,95 @@ view deviceType formData infoBannerDismissed dismissMsg pondMsg projectMsg =
 
           else
             text ""
-        , div [ class "space-y-4" ]
+        , let
+            typography =
+                Theme.getTypographyScale deviceType
+          in
+          div [ class "space-y-4" ]
             [ div [ class "text-lg font-semibold text-gray-800 mb-4" ]
                 [ text "Project Parameters" ]
-            , inputFieldWithUnit deviceType
-                { label = "Work Hours per Day"
-                , unit = "hours"
-                , helpText = "Number of productive work hours per day"
-                , id = "work-hours"
-                , testId = "work-hours-input"
-                , errorId = "work-hours-error"
-                , value = formData.workHoursPerDay
-                , placeholder = "e.g., 8"
-                , onInput = projectMsg WorkHours
-                , error = getFieldError "workHoursPerDay" formData.errors
-                }
-            , inputFieldWithUnit deviceType
-                { label = "Pond Length"
-                , unit = "feet"
-                , helpText = "Length of the pond to be excavated"
-                , id = "pond-length"
-                , testId = "pond-length-input"
-                , errorId = "pond-length-error"
-                , value = formData.pondLength
-                , placeholder = "e.g., 100"
-                , onInput = pondMsg PondLength
-                , error = getFieldError "pondLength" formData.errors
-                }
-            , inputFieldWithUnit deviceType
-                { label = "Pond Width"
-                , unit = "feet"
-                , helpText = "Width of the pond to be excavated"
-                , id = "pond-width"
-                , testId = "pond-width-input"
-                , errorId = "pond-width-error"
-                , value = formData.pondWidth
-                , placeholder = "e.g., 50"
-                , onInput = pondMsg PondWidth
-                , error = getFieldError "pondWidth" formData.errors
-                }
-            , inputFieldWithUnit deviceType
-                { label = "Pond Depth"
-                , unit = "feet"
-                , helpText = "Average depth of the pond to be excavated"
-                , id = "pond-depth"
-                , testId = "pond-depth-input"
-                , errorId = "pond-depth-error"
-                , value = formData.pondDepth
-                , placeholder = "e.g., 10"
-                , onInput = pondMsg PondDepth
-                , error = getFieldError "pondDepth" formData.errors
-                }
+            , div [ class "grid grid-cols-2 gap-3" ]
+                [ div []
+                    [ label [ class (typography.body ++ " block text-gray-700 mb-1 flex items-center") ]
+                        [ text "Work Hours per Day (hours)"
+                        , HelpTooltip.helpIcon deviceType "workHours" showHelpMsg hideHelpMsg activeTooltipId
+                        ]
+                    , input
+                        [ type_ "number"
+                        , class "w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                        , id "work-hours"
+                        , Html.Attributes.attribute "data-testid" "work-hours-input"
+                        , value formData.workHoursPerDay
+                        , placeholder "e.g., 8"
+                        , onInput (projectMsg WorkHours)
+                        , step "0.1"
+                        , Html.Attributes.min "0.1"
+                        ]
+                        []
+                    ]
+                , div []
+                    [ label [ class (typography.body ++ " block text-gray-700 mb-1 flex items-center") ]
+                        [ text "Pond Length (feet)"
+                        , HelpTooltip.helpIcon deviceType "pondLength" showHelpMsg hideHelpMsg activeTooltipId
+                        ]
+                    , input
+                        [ type_ "number"
+                        , class "w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                        , id "pond-length"
+                        , Html.Attributes.attribute "data-testid" "pond-length-input"
+                        , value formData.pondLength
+                        , placeholder "e.g., 100"
+                        , onInput (pondMsg PondLength)
+                        , step "0.1"
+                        , Html.Attributes.min "0.1"
+                        ]
+                        []
+                    ]
+                ]
+            , div [ class "grid grid-cols-2 gap-3" ]
+                [ div []
+                    [ label [ class (typography.body ++ " block text-gray-700 mb-1 flex items-center") ]
+                        [ text "Pond Width (feet)"
+                        , HelpTooltip.helpIcon deviceType "pondWidth" showHelpMsg hideHelpMsg activeTooltipId
+                        ]
+                    , input
+                        [ type_ "number"
+                        , class "w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                        , id "pond-width"
+                        , Html.Attributes.attribute "data-testid" "pond-width-input"
+                        , value formData.pondWidth
+                        , placeholder "e.g., 50"
+                        , onInput (pondMsg PondWidth)
+                        , step "0.1"
+                        , Html.Attributes.min "0.1"
+                        ]
+                        []
+                    ]
+                , div []
+                    [ label [ class (typography.body ++ " block text-gray-700 mb-1 flex items-center") ]
+                        [ text "Pond Depth (feet)"
+                        , HelpTooltip.helpIcon deviceType "pondDepth" showHelpMsg hideHelpMsg activeTooltipId
+                        ]
+                    , input
+                        [ type_ "number"
+                        , class "w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                        , id "pond-depth"
+                        , Html.Attributes.attribute "data-testid" "pond-depth-input"
+                        , value formData.pondDepth
+                        , placeholder "e.g., 10"
+                        , onInput (pondMsg PondDepth)
+                        , step "0.1"
+                        , Html.Attributes.min "0.1"
+                        ]
+                        []
+                    ]
+                ]
             ]
         ]
 
 
 
 -- HELPER FUNCTIONS
-
-
-type alias InputFieldConfig msg =
-    { label : String
-    , id : String
-    , value : String
-    , placeholder : String
-    , onInput : String -> msg
-    , error : Maybe String
-    }
-
-
-type alias InputFieldWithUnitConfig msg =
-    { label : String
-    , unit : String
-    , helpText : String
-    , id : String
-    , testId : String
-    , errorId : String
-    , value : String
-    , placeholder : String
-    , onInput : String -> msg
-    , error : Maybe String
-    }
-
-
-{-| Reusable input field component with validation display
--}
-inputField : DeviceType -> InputFieldConfig msg -> Html msg
-inputField deviceType config =
-    div [ class "space-y-2" ]
-        [ label
-            [ class "block text-sm font-medium text-gray-700"
-            , Html.Attributes.for config.id
-            ]
-            [ text config.label ]
-        , input
-            [ type_ "number"
-            , id config.id
-            , value config.value
-            , placeholder config.placeholder
-            , onInput config.onInput
-            , class (inputClasses deviceType config.error)
-            ]
-            []
-        , case config.error of
-            Just errorMsg ->
-                span [ class (Components.getValidationMessageClasses deviceType) ] [ text errorMsg ]
-
-            Nothing ->
-                span [ class "text-sm text-gray-500" ] []
-        ]
-
-
-{-| Get CSS classes for input based on validation state and device type
--}
-inputClasses : DeviceType -> Maybe String -> String
-inputClasses deviceType error =
-    let
-        baseClasses =
-            Theme.getInputClasses deviceType
-    in
-    case error of
-        Just _ ->
-            baseClasses ++ " border-red-300 text-red-900 placeholder-red-300 focus:border-red-500 focus:ring-red-500"
-
-        Nothing ->
-            baseClasses ++ " border-gray-300 placeholder-gray-400 focus:border-indigo-500 focus:ring-indigo-500"
-
-
-{-| Enhanced input field component with unit display and help text
--}
-inputFieldWithUnit : DeviceType -> InputFieldWithUnitConfig msg -> Html msg
-inputFieldWithUnit deviceType config =
-    let
-        labelClass =
-            case deviceType of
-                Types.DeviceType.Desktop ->
-                    "block text-sm font-semibold text-gray-700 mb-1"
-
-                Types.DeviceType.Tablet ->
-                    "block text-sm font-semibold text-gray-700 mb-1"
-
-                _ ->
-                    "block text-sm font-medium text-gray-700"
-
-        helpTextClass =
-            case deviceType of
-                Types.DeviceType.Desktop ->
-                    "text-xs text-gray-500 mt-1"
-
-                Types.DeviceType.Tablet ->
-                    "text-xs text-gray-500 mt-1"
-
-                _ ->
-                    "hidden"
-    in
-    div [ class "space-y-2" ]
-        [ label
-            [ class labelClass
-            , Html.Attributes.for config.id
-            ]
-            [ text config.label
-            , span [ class "ml-2 text-xs font-normal text-gray-500" ]
-                [ text ("(" ++ config.unit ++ ")") ]
-            ]
-        , div [ class "input-with-unit" ]
-            [ input
-                [ type_ "number"
-                , id config.id
-                , Html.Attributes.attribute "data-testid" config.testId
-                , value config.value
-                , placeholder config.placeholder
-                , onInput config.onInput
-                , class (inputClasses deviceType config.error ++ " no-spinners")
-                ]
-                []
-            , div [ class "unit-display" ]
-                [ span [] [ text config.unit ]
-                ]
-            ]
-        , if deviceType /= Types.DeviceType.Mobile then
-            div [ class helpTextClass ] [ text config.helpText ]
-
-          else
-            text ""
-        , case config.error of
-            Just errorMsg ->
-                span
-                    [ class (Components.getValidationMessageClasses deviceType)
-                    , Html.Attributes.attribute "data-testid" config.errorId
-                    ]
-                    [ text errorMsg ]
-
-            Nothing ->
-                text ""
-        ]
 
 
 {-| Get error message for a specific field
