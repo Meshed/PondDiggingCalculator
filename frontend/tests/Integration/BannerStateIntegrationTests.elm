@@ -22,7 +22,10 @@ import Types.Equipment exposing (Excavator, Truck)
 import Types.Fields exposing (ExcavatorField(..), PondField(..), ProjectField(..), TruckField(..))
 import Types.Messages exposing (Msg(..))
 import Types.Model exposing (Model)
+import Utils.Calculations
 import Utils.Config as Config
+import Utils.Debounce
+import Utils.Performance
 
 
 suite : Test
@@ -184,15 +187,15 @@ suite =
 
                         -- Switch to tablet
                         onTablet =
-                            updateModel (DeviceDetected Tablet) afterDismissOnDesktop
+                            updateModel (DeviceDetected (Ok { width = 800, height = 600 })) afterDismissOnDesktop
 
                         -- Switch to mobile
                         onMobile =
-                            updateModel (DeviceDetected Mobile) onTablet
+                            updateModel (DeviceDetected (Ok { width = 500, height = 800 })) onTablet
 
                         -- Back to desktop
                         backToDesktop =
-                            updateModel (DeviceDetected Desktop) onMobile
+                            updateModel (DeviceDetected (Ok { width = 1200, height = 800 })) onMobile
                     in
                     Expect.all
                         [ \_ -> Expect.equal Desktop desktopModel.deviceType
@@ -237,9 +240,11 @@ suite =
                                 ]
                                 ()
                     in
-                    deviceTypes
-                        |> List.map testDeviceType
-                        |> Expect.all
+                    Expect.all
+                        (deviceTypes
+                            |> List.map (\deviceType -> \_ -> testDeviceType deviceType)
+                        )
+                        ()
             ]
         , describe "Banner and Fleet Management Integration"
             [ test "banner state should persist during fleet operations" <|
@@ -316,7 +321,7 @@ suite =
 
                         -- User changes device orientation
                         model5 =
-                            updateModel (DeviceDetected Tablet) model4
+                            updateModel (DeviceDetected (Ok { width = 800, height = 600 })) model4
 
                         -- Calculation occurs
                         model6 =
@@ -469,8 +474,13 @@ updateModel msg model =
         DismissInfoBanner ->
             { model | infoBannerDismissed = True }
 
-        DeviceDetected deviceType ->
-            { model | deviceType = deviceType }
+        DeviceDetected result ->
+            case result of
+                Ok windowSize ->
+                    { model | deviceType = Types.DeviceType.fromWindowSize windowSize }
+
+                Err _ ->
+                    model
 
         ExcavatorFieldChanged field value ->
             model
@@ -535,6 +545,7 @@ createMockFormData =
     , pondLength = "40.0"
     , pondWidth = "25.0"
     , pondDepth = "5.0"
+    , errors = []
     }
 
 
@@ -560,10 +571,12 @@ createMockTruck =
 
 createMockCalculationResult : Utils.Calculations.CalculationResult
 createMockCalculationResult =
-    { timelineDays = 5.0
-    , totalCubicYards = 1000.0
-    , excavatorRate = 50.0
-    , truckRate = 40.0
-    , bottleneckEquipment = "Truck"
-    , workingHours = 40.0
+    { timelineInDays = 5
+    , totalHours = 40.0
+    , excavationRate = 50.0
+    , haulingRate = 40.0
+    , bottleneck = Utils.Calculations.HaulingBottleneck
+    , confidence = Utils.Calculations.Medium
+    , assumptions = [ "Standard conditions assumed" ]
+    , warnings = []
     }

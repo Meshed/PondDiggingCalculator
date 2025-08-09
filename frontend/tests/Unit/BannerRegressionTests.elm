@@ -142,7 +142,7 @@ suite =
                             simulateUpdate (ProjectFieldChanged WorkHours "10") afterPondMsg
 
                         afterDeviceMsg =
-                            simulateUpdate (DeviceDetected Mobile) afterProjectMsg
+                            simulateUpdate (DeviceDetected (Ok { width = 500, height = 800 })) afterProjectMsg
                     in
                     Expect.all
                         [ \_ -> Expect.equal True afterExcavatorMsg.infoBannerDismissed
@@ -243,7 +243,7 @@ suite =
                             simulateUpdate DismissInfoBanner initialModel
 
                         afterDeviceChange =
-                            simulateUpdate (DeviceDetected Desktop) dismissedModel
+                            simulateUpdate (DeviceDetected (Ok { width = 1200, height = 800 })) dismissedModel
                     in
                     Expect.all
                         [ \_ -> Expect.equal True dismissedModel.infoBannerDismissed
@@ -257,16 +257,16 @@ suite =
                             createTestModel True
 
                         afterMobile =
-                            simulateUpdate (DeviceDetected Mobile) dismissedModel
+                            simulateUpdate (DeviceDetected (Ok { width = 500, height = 800 })) dismissedModel
 
                         afterTablet =
-                            simulateUpdate (DeviceDetected Tablet) afterMobile
+                            simulateUpdate (DeviceDetected (Ok { width = 800, height = 600 })) afterMobile
 
                         afterDesktop =
-                            simulateUpdate (DeviceDetected Desktop) afterTablet
+                            simulateUpdate (DeviceDetected (Ok { width = 1200, height = 800 })) afterTablet
 
                         backToMobile =
-                            simulateUpdate (DeviceDetected Mobile) afterDesktop
+                            simulateUpdate (DeviceDetected (Ok { width = 500, height = 800 })) afterDesktop
                     in
                     Expect.all
                         [ \_ -> Expect.equal True afterMobile.infoBannerDismissed
@@ -435,8 +435,13 @@ simulateUpdate msg model =
         DismissInfoBanner ->
             { model | infoBannerDismissed = True }
 
-        DeviceDetected deviceType ->
-            { model | deviceType = deviceType }
+        DeviceDetected result ->
+            case result of
+                Ok windowSize ->
+                    { model | deviceType = DeviceType.fromWindowSize windowSize }
+
+                Err _ ->
+                    model
 
         ExcavatorFieldChanged _ _ ->
             model
@@ -500,6 +505,7 @@ createMockFormData =
     , pondLength = "40.0"
     , pondWidth = "25.0"
     , pondDepth = "5.0"
+    , errors = []
     }
 
 

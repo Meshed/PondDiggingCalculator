@@ -13,10 +13,17 @@ Tests the dismissible info banner feature to ensure:
 
 -}
 
+import Components.ProjectForm
 import Expect
 import Test exposing (Test, describe, test)
+import Types.DeviceType
+import Types.Equipment
+import Types.Fields exposing (ExcavatorField(..), PondField(..), TruckField(..))
 import Types.Messages exposing (Msg(..))
 import Types.Model exposing (Model)
+import Utils.Config
+import Utils.Debounce
+import Utils.Performance
 
 
 suite : Test
@@ -105,7 +112,7 @@ suite =
                             createTestModel True
 
                         afterDeviceChange =
-                            simulateUpdate (DeviceDetected Types.DeviceType.Mobile) dismissedModel
+                            simulateUpdate (DeviceDetected (Ok { width = 500, height = 800 })) dismissedModel
                     in
                     Expect.equal True afterDeviceChange.infoBannerDismissed
             ]
@@ -244,9 +251,14 @@ simulateUpdate msg model =
             -- Simulate field change without changing banner state
             model
 
-        DeviceDetected deviceType ->
+        DeviceDetected result ->
             -- Simulate device detection without changing banner state
-            { model | deviceType = deviceType }
+            case result of
+                Ok windowSize ->
+                    { model | deviceType = Types.DeviceType.fromWindowSize windowSize }
+
+                Err _ ->
+                    model
 
         _ ->
             -- For other messages, return model unchanged
@@ -280,10 +292,10 @@ validateModelConsistency model =
             model.infoBannerDismissed == True || model.infoBannerDismissed == False
     in
     Expect.all
-        [ \_ -> Expect.true "Next excavator ID should be positive" hasValidExcavatorId
-        , \_ -> Expect.true "Next truck ID should be positive" hasValidTruckId
-        , \_ -> Expect.true "Device type should be valid" deviceTypeIsValid
-        , \_ -> Expect.true "Banner state should be boolean" bannerStateIsBoolean
+        [ \_ -> Expect.equal True hasValidExcavatorId
+        , \_ -> Expect.equal True hasValidTruckId
+        , \_ -> Expect.equal True deviceTypeIsValid
+        , \_ -> Expect.equal True bannerStateIsBoolean
         ]
         ()
 
@@ -358,6 +370,7 @@ createMockFormData =
     , pondLength = "40.0"
     , pondWidth = "25.0"
     , pondDepth = "5.0"
+    , errors = []
     }
 
 

@@ -231,7 +231,10 @@ parseInputs model =
 
 view : Model -> Html Msg
 view model =
-    div [ class "min-h-screen bg-gray-50 flex flex-col" ]
+    div
+        [ class "min-h-screen bg-gray-50 flex flex-col"
+        , Html.Attributes.attribute "data-testid" "device-type"
+        ]
         [ viewHeader
         , viewResults model.result
         , viewInputSection model

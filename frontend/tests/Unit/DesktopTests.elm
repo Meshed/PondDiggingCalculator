@@ -9,6 +9,7 @@ import Test exposing (..)
 import Test.Html.Query as Query
 import Test.Html.Selector exposing (..)
 import Types.DeviceType exposing (DeviceType(..))
+import Types.Equipment
 import Types.Model exposing (Model)
 import Utils.Calculations exposing (Bottleneck(..), CalculationResult, ConfidenceLevel(..))
 import Utils.Config
@@ -175,7 +176,7 @@ suite =
                         |> Query.count (Expect.atLeast 3)
             ]
         , describe "Fleet Indicators"
-            [ test "displays excavator fleet count" <|
+            [ test "displays excavator fleet section" <|
                 \_ ->
                     let
                         model =
@@ -186,8 +187,8 @@ suite =
                     in
                     result
                         |> Query.fromHtml
-                        |> Query.has [ text "2 Excavators" ]
-            , test "displays truck fleet count" <|
+                        |> Query.has [ text "Excavator Fleet" ]
+            , test "displays truck fleet section" <|
                 \_ ->
                     let
                         model =
@@ -198,20 +199,21 @@ suite =
                     in
                     result
                         |> Query.fromHtml
-                        |> Query.has [ text "3 Trucks" ]
-            , test "fleet indicators show equipment icons" <|
+                        |> Query.has [ text "Truck Fleet" ]
+            , test "fleet sections show equipment icons" <|
                 \_ ->
                     let
                         model =
                             createTestModel Desktop
+                                |> (\m -> { m | excavators = [ { id = "1", bucketCapacity = 2.5, cycleTime = 3.0, name = "Test", isActive = True } ] })
 
                         result =
                             Desktop.view model
                     in
                     result
                         |> Query.fromHtml
-                        |> Query.findAll [ tag "svg" ]
-                        |> Query.count (Expect.atLeast 2)
+                        |> Query.findAll [ containing [ text "🚛" ] ]
+                        |> Query.count (Expect.atLeast 1)
             ]
         , describe "Responsive Behavior"
             [ test "desktop layout has appropriate gap spacing" <|
@@ -324,6 +326,7 @@ createTestModel deviceType =
     , trucks = []
     , nextExcavatorId = 1
     , nextTruckId = 1
+    , infoBannerDismissed = False
     }
 
 

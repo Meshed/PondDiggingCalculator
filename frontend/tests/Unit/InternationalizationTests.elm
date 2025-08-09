@@ -52,9 +52,11 @@ suite =
                                 Nothing ->
                                     Expect.fail ("Could not parse: " ++ input)
                     in
-                    europeanNumbers
-                        |> List.map testParsing
-                        |> Expect.all
+                    Expect.all
+                        (europeanNumbers
+                            |> List.map (\num -> \_ -> testParsing num)
+                        )
+                        ()
             , test "should handle thousands separators correctly" <|
                 \_ ->
                     let
@@ -89,9 +91,11 @@ suite =
                                 Nothing ->
                                     Expect.fail ("Could not parse thousands format: " ++ input)
                     in
-                    numbersWithSeparators
-                        |> List.map testThousandsSeparator
-                        |> Expect.all
+                    Expect.all
+                        (numbersWithSeparators
+                            |> List.map (\num -> \_ -> testThousandsSeparator num)
+                        )
+                        ()
             , test "should maintain precision across different locale formats" <|
                 \_ ->
                     let
@@ -114,9 +118,11 @@ suite =
                                 Nothing ->
                                     Expect.fail ("Could not reparse: " ++ stringValue)
                     in
-                    precisionTestCases
-                        |> List.map testPrecisionMaintained
-                        |> Expect.all
+                    Expect.all
+                        (precisionTestCases
+                            |> List.map (\testCase -> \_ -> testPrecisionMaintained testCase)
+                        )
+                        ()
             ]
         , describe "Unicode and Character Encoding"
             [ test "should handle Unicode characters in text content" <|
@@ -143,15 +149,17 @@ suite =
                                     str |> String.reverse |> String.reverse |> (==) str
                             in
                             Expect.all
-                                [ \_ -> Expect.true "Unicode string should not be empty" isNotEmpty
-                                , \_ -> Expect.true "Unicode string should be reversible" reversible
+                                [ \_ -> Expect.equal True isNotEmpty
+                                , \_ -> Expect.equal True reversible
                                 , \_ -> Expect.greaterThan 0 length
                                 ]
                                 ()
                     in
-                    unicodeTestStrings
-                        |> List.map testUnicodeHandling
-                        |> Expect.all
+                    Expect.all
+                        (unicodeTestStrings
+                            |> List.map (\str -> \_ -> testUnicodeHandling str)
+                        )
+                        ()
             , test "should handle special mathematical and currency symbols" <|
                 \_ ->
                     let
@@ -172,13 +180,15 @@ suite =
                             in
                             Expect.all
                                 [ \_ -> Expect.greaterThan 3 length
-                                , \_ -> Expect.true "Should contain symbol" containsSymbol
+                                , \_ -> Expect.equal True containsSymbol
                                 ]
                                 ()
                     in
-                    specialSymbols
-                        |> List.map testSymbolHandling
-                        |> Expect.all
+                    Expect.all
+                        (specialSymbols
+                            |> List.map (\symbol -> \_ -> testSymbolHandling symbol)
+                        )
+                        ()
             , test "should handle different line ending and whitespace characters" <|
                 \_ ->
                     let
@@ -198,11 +208,13 @@ suite =
                                 hasContent =
                                     String.length trimmed > 0
                             in
-                            Expect.true "Whitespace should be handled properly" hasContent
+                            Expect.equal True hasContent
                     in
-                    whitespaceChars
-                        |> List.map testWhitespaceHandling
-                        |> Expect.all
+                    Expect.all
+                        (whitespaceChars
+                            |> List.map (\char -> \_ -> testWhitespaceHandling char)
+                        )
+                        ()
             ]
         , describe "Regional Number Formats"
             [ test "should handle different decimal point representations" <|
@@ -232,9 +244,11 @@ suite =
                                 Nothing ->
                                     Expect.fail ("Could not parse decimal format: " ++ input)
                     in
-                    decimalVariations
-                        |> List.map testDecimalFormat
-                        |> Expect.all
+                    Expect.all
+                        (decimalVariations
+                            |> List.map (\variation -> \_ -> testDecimalFormat variation)
+                        )
+                        ()
             , test "should handle large numbers in different locale formats" <|
                 \_ ->
                     let
@@ -252,20 +266,22 @@ suite =
                                 Nothing ->
                                     Expect.fail ("Could not parse large number: " ++ input)
                     in
-                    largeNumberFormats
-                        |> List.map testLargeNumber
-                        |> Expect.all
+                    Expect.all
+                        (largeNumberFormats
+                            |> List.map (\format -> \_ -> testLargeNumber format)
+                        )
+                        ()
             , test "should maintain calculation accuracy across locale formats" <|
                 \_ ->
                     let
                         -- Test that calculations remain accurate regardless of input format
                         testCalculations =
-                            [ ( 2.5, 1000.0, 30.0, 2500.0 ) -- excavator, pond length, width, expected volume portion
-                            , ( 3.0, 500.0, 25.0, 1250.0 )
-                            , ( 1.5, 750.0, 40.0, 3000.0 )
+                            [ { capacity = 2.5, length = 1000.0, width = 30.0, expectedVolume = 30000.0 } -- excavator, pond length, width, expected volume (length * width)
+                            , { capacity = 3.0, length = 500.0, width = 25.0, expectedVolume = 12500.0 }
+                            , { capacity = 1.5, length = 750.0, width = 40.0, expectedVolume = 30000.0 }
                             ]
 
-                        testCalculationAccuracy ( capacity, length, width, expectedVolume ) =
+                        testCalculationAccuracy { capacity, length, width, expectedVolume } =
                             let
                                 -- Simple volume calculation for testing
                                 calculatedVolume =
@@ -276,9 +292,11 @@ suite =
                             in
                             Expect.within (Expect.Absolute 0.1) expectedVolume calculatedVolume
                     in
-                    testCalculations
-                        |> List.map testCalculationAccuracy
-                        |> Expect.all
+                    Expect.all
+                        (testCalculations
+                            |> List.map (\calc -> \_ -> testCalculationAccuracy calc)
+                        )
+                        ()
             ]
         , describe "Text Direction and Layout"
             [ test "should handle Right-to-Left (RTL) text appropriately" <|
@@ -302,14 +320,16 @@ suite =
                                     String.reverse text |> String.isEmpty |> not
                             in
                             Expect.all
-                                [ \_ -> Expect.true "RTL text should be valid" isValidString
-                                , \_ -> Expect.true "RTL text should be processable" canReverse
+                                [ \_ -> Expect.equal True isValidString
+                                , \_ -> Expect.equal True canReverse
                                 ]
                                 ()
                     in
-                    rtlTexts
-                        |> List.map testRTLHandling
-                        |> Expect.all
+                    Expect.all
+                        (rtlTexts
+                            |> List.map (\text -> \_ -> testRTLHandling text)
+                        )
+                        ()
             , test "should handle bidirectional text mixed with numbers" <|
                 \_ ->
                     let
@@ -327,11 +347,13 @@ suite =
                                 isValidMixed =
                                     containsNumbers && hasNonLatinChars
                             in
-                            Expect.true "Mixed bidirectional text should be handled" isValidMixed
+                            Expect.equal True isValidMixed
                     in
-                    bidiTestCases
-                        |> List.map testBidiHandling
-                        |> Expect.all
+                    Expect.all
+                        (bidiTestCases
+                            |> List.map (\testCase -> \_ -> testBidiHandling testCase)
+                        )
+                        ()
             ]
         , describe "Date and Time Formatting"
             [ test "should handle different date format expectations" <|
@@ -350,7 +372,7 @@ suite =
                         testResult =
                             isValidYear currentYear
                     in
-                    Expect.true "Date handling should work internationally" testResult
+                    Expect.equal True testResult
             , test "should handle timezone-related calculations if applicable" <|
                 \_ ->
                     -- Test that any time-based calculations work across timezones
@@ -365,7 +387,7 @@ suite =
                         isReasonableWorkHours =
                             workHours > 0 && workHours <= 24
                     in
-                    Expect.true "Work hours should be timezone-agnostic" isReasonableWorkHours
+                    Expect.equal True isReasonableWorkHours
             ]
         , describe "Measurement Unit Compatibility"
             [ test "should handle metric vs imperial unit implications" <|
@@ -406,7 +428,7 @@ suite =
                                 _ ->
                                     False
                     in
-                    Expect.true "Unit measurements should be consistent and reasonable" testMetricConsistency
+                    Expect.equal True testMetricConsistency
             , test "should handle unit conversion scenarios" <|
                 \_ ->
                     let
@@ -427,9 +449,11 @@ suite =
                             in
                             Expect.within (Expect.Absolute 0.001) expected result
                     in
-                    testValues
-                        |> List.map testConversion
-                        |> Expect.all
+                    Expect.all
+                        (testValues
+                            |> List.map (\value -> \_ -> testConversion value)
+                        )
+                        ()
             ]
         , describe "Locale-Specific Configuration"
             [ test "should maintain configuration integrity across different locales" <|
@@ -447,7 +471,7 @@ suite =
                                 && List.length config.defaults.trucks
                                 > 0
                     in
-                    Expect.true "Configuration should be locale-independent" configIntegrity
+                    Expect.equal True configIntegrity
             , test "should handle locale-specific validation rules consistently" <|
                 \_ ->
                     let
@@ -469,7 +493,7 @@ suite =
                                 && validation.pondDimensions.min
                                 < validation.pondDimensions.max
                     in
-                    Expect.true "Validation ranges should be consistent across locales" rangeConsistency
+                    Expect.equal True rangeConsistency
             , test "should support international construction industry standards" <|
                 \_ ->
                     let
@@ -501,6 +525,6 @@ suite =
                                 _ ->
                                     False
                     in
-                    Expect.true "Should comply with international construction standards" industryStandardCompliance
+                    Expect.equal True industryStandardCompliance
             ]
         ]

@@ -4,6 +4,8 @@
 // Import new test utilities
 import './accessibility-commands.js';
 import './memory-testing.js';
+import './fleet-commands.js';
+import './test-data-factory.js';
 
 // Custom command for tabbing through elements
 Cypress.Commands.add('tab', { prevSubject: 'optional' }, (subject, options) => {

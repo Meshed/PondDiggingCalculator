@@ -205,6 +205,7 @@ createTestModel deviceType =
     , trucks = []
     , nextExcavatorId = 1
     , nextTruckId = 1
+    , infoBannerDismissed = False
     }
 
 

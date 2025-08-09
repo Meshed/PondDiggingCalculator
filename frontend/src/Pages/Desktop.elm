@@ -1,5 +1,6 @@
 module Pages.Desktop exposing (view)
 
+import Components.EquipmentList as EquipmentList
 import Components.ProjectForm as ProjectForm
 import Components.ResultsPanel as ResultsPanel
 import Html exposing (..)
@@ -52,9 +53,19 @@ view model =
                 Mobile ->
                     "flex flex-col space-y-4"
     in
-    div [ class containerClass ]
+    div
+        [ class containerClass
+        , Html.Attributes.attribute "data-testid" "device-type"
+        ]
         [ div [ class maxWidthClass ]
             [ viewHeader deviceType
+            , div [ class "mb-4 p-2 bg-yellow-100 border border-yellow-300 rounded" ]
+                [ text ("DEBUG: Device=" ++ (case deviceType of 
+                    Desktop -> "Desktop"
+                    Tablet -> "Tablet" 
+                    Mobile -> "Mobile"
+                  ) ++ ", Excavators=" ++ String.fromInt (List.length model.excavators) ++ ", Trucks=" ++ String.fromInt (List.length model.trucks))
+                ]
             , div [ class layoutClass ]
                 [ viewExcavatorSection model deviceType
                 , viewProjectSection model deviceType
@@ -108,10 +119,7 @@ viewExcavatorSection model deviceType =
     div [ class sectionClass ]
         [ h2 [ class (headerClass ++ " mb-4 text-gray-800 border-b pb-2") ]
             [ text "Excavator Fleet" ]
-        , div [ class "space-y-4" ]
-            [ viewExcavatorInputs model deviceType
-            , viewFleetIndicator "Excavators" 2 deviceType
-            ]
+        , EquipmentList.viewExcavatorFleet deviceType model.excavators model.nextExcavatorId
         ]
 
 
@@ -142,8 +150,8 @@ viewProjectSection model deviceType =
             Just formData ->
                 ProjectForm.view deviceType
                     formData
-                    (\field value -> Types.Messages.ExcavatorFieldChanged field value)
-                    (\field value -> Types.Messages.TruckFieldChanged field value)
+                    model.infoBannerDismissed
+                    Types.Messages.DismissInfoBanner
                     (\field value -> Types.Messages.PondFieldChanged field value)
                     (\field value -> Types.Messages.ProjectFieldChanged field value)
 
@@ -175,10 +183,7 @@ viewTruckSection model deviceType =
     div [ class sectionClass ]
         [ h2 [ class (headerClass ++ " mb-4 text-gray-800 border-b pb-2") ]
             [ text "Truck Fleet" ]
-        , div [ class "space-y-4" ]
-            [ viewTruckInputs model deviceType
-            , viewFleetIndicator "Trucks" 3 deviceType
-            ]
+        , EquipmentList.viewTruckFleet deviceType model.trucks model.nextTruckId
         ]
 
 
@@ -203,78 +208,4 @@ viewResultsSection model deviceType =
 
             Nothing ->
                 text "No calculation results yet"
-        ]
-
-
-viewExcavatorInputs : Model -> DeviceType -> Html Msg
-viewExcavatorInputs model deviceType =
-    div []
-        [ text "Excavator configuration inputs will be populated from ProjectForm" ]
-
-
-viewTruckInputs : Model -> DeviceType -> Html Msg
-viewTruckInputs model deviceType =
-    div []
-        [ text "Truck configuration inputs will be populated from ProjectForm" ]
-
-
-viewFleetIndicator : String -> Int -> DeviceType -> Html Msg
-viewFleetIndicator fleetType count deviceType =
-    let
-        iconSize =
-            case deviceType of
-                Desktop ->
-                    "w-8 h-8"
-
-                Tablet ->
-                    "w-7 h-7"
-
-                Mobile ->
-                    "w-6 h-6"
-
-        typography =
-            Theme.getTypographyScale deviceType
-
-        textClass =
-            typography.body
-    in
-    div [ class "flex items-center space-x-2 mt-4 p-3 bg-gray-50 rounded" ]
-        [ div [ class "flex space-x-1" ]
-            (List.repeat (Basics.min count 5) (viewEquipmentIcon fleetType iconSize))
-        , if count > 5 then
-            span [ class (textClass ++ " text-gray-600 ml-2") ]
-                [ text ("+" ++ String.fromInt (count - 5) ++ " more") ]
-
-          else
-            text ""
-        , span [ class (textClass ++ " text-gray-700 ml-auto") ]
-            [ text (String.fromInt count ++ " " ++ fleetType) ]
-        ]
-
-
-viewEquipmentIcon : String -> String -> Html Msg
-viewEquipmentIcon equipmentType sizeClass =
-    let
-        iconColor =
-            if equipmentType == "Excavators" then
-                "text-yellow-600"
-
-            else
-                "text-blue-600"
-
-        iconPath =
-            if equipmentType == "Excavators" then
-                "M4 7h16v10H4z M7 11h10 M2 7l2-3h16l2 3 M9 17v2 M15 17v2"
-
-            else
-                "M3 9h14v8H3z M17 11h3v4h-3z M7 17v2 M13 17v2"
-    in
-    svg
-        [ class (sizeClass ++ " " ++ iconColor)
-        , Svg.Attributes.viewBox "0 0 24 24"
-        , Svg.Attributes.fill "none"
-        , Svg.Attributes.stroke "currentColor"
-        , Svg.Attributes.strokeWidth "2"
-        ]
-        [ path [ Svg.Attributes.d iconPath ] []
         ]

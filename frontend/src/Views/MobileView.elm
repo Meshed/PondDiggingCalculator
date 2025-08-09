@@ -15,22 +15,29 @@ import Html.Attributes exposing (class, placeholder, style, type_, value)
 import Html.Events exposing (onClick, onInput)
 import Styles.Theme as Theme
 import Types.DeviceType exposing (DeviceType(..))
+import Types.Equipment exposing (Excavator, Truck)
 import Types.Fields exposing (ExcavatorField(..), PondField(..), ProjectField(..), TruckField(..))
 import Types.Messages exposing (Msg(..))
+import Types.Model exposing (Model)
 import Utils.Calculations exposing (CalculationResult)
 import Utils.Config exposing (Config)
 
 
 {-| Mobile view that uses shared application state
 -}
-view : Maybe FormData -> Maybe CalculationResult -> Html Msg
-view maybeFormData maybeResult =
-    case maybeFormData of
+view : Model -> Html Msg
+view model =
+    case model.formData of
         Just formData ->
-            div [ class "min-h-screen bg-gray-100 flex flex-col" ]
+            div
+                [ class "min-h-screen bg-gray-100 flex flex-col"
+                , Html.Attributes.attribute "data-testid" "device-type"
+                ]
                 [ viewHeader
-                , viewResults maybeResult
-                , viewInputSection formData
+                , div [ class "mb-4 p-2 bg-red-100 border border-red-300 rounded mx-4" ]
+                    [ text "DEBUG: MOBILE VIEW RENDERING - This should NOT appear on desktop!" ]
+                , viewResults model.calculationResult
+                , viewInputSection formData model
                 , viewClearButton
                 ]
 
@@ -81,24 +88,69 @@ viewResults maybeResult =
         ]
 
 
-viewInputSection : FormData -> Html Msg
-viewInputSection formData =
+viewInputSection : FormData -> Model -> Html Msg
+viewInputSection formData model =
     div [ class "flex-1 p-4 space-y-6 overflow-y-auto" ]
         [ viewInputGroup "Pond Dimensions"
             [ viewNumberInput "Pond Length" "ft" formData.pondLength (PondFieldChanged PondLength)
             , viewNumberInput "Pond Width" "ft" formData.pondWidth (PondFieldChanged PondWidth)
             , viewNumberInput "Pond Depth" "ft" formData.pondDepth (PondFieldChanged PondDepth)
             ]
-        , viewInputGroup "Equipment Specifications"
-            [ viewNumberInput "Excavator Bucket Capacity" "yd³" formData.excavatorCapacity (ExcavatorFieldChanged BucketCapacity)
-            , viewNumberInput "Excavator Cycle Time" "min" formData.excavatorCycleTime (ExcavatorFieldChanged CycleTime)
-            , viewNumberInput "Truck Capacity" "yd³" formData.truckCapacity (TruckFieldChanged TruckCapacity)
-            , viewNumberInput "Truck Round Trip Time" "min" formData.truckRoundTripTime (TruckFieldChanged RoundTripTime)
-            ]
+        , viewEquipmentSection model
         , viewInputGroup "Project Configuration"
             [ viewNumberInput "Work Hours per Day" "hrs" formData.workHoursPerDay (ProjectFieldChanged WorkHours)
             ]
         ]
+
+
+viewEquipmentSection : Model -> Html Msg
+viewEquipmentSection model =
+    let
+        -- Mobile shows only the first excavator and truck (simplified fleet view)
+        firstExcavator = 
+            List.head model.excavators
+
+        firstTruck = 
+            List.head model.trucks
+    in
+    case (firstExcavator, firstTruck) of
+        (Just excavator, Just truck) ->
+            viewInputGroup "Equipment Specifications"
+                [ viewNumberInput "Excavator Bucket Capacity" "yd³" 
+                    (String.fromFloat excavator.bucketCapacity) 
+                    (\val -> 
+                        case String.toFloat val of
+                            Just f -> UpdateExcavator excavator.id (Types.Messages.UpdateExcavatorBucketCapacity f)
+                            Nothing -> NoOp
+                    )
+                , viewNumberInput "Excavator Cycle Time" "min" 
+                    (String.fromFloat excavator.cycleTime) 
+                    (\val -> 
+                        case String.toFloat val of
+                            Just f -> UpdateExcavator excavator.id (Types.Messages.UpdateExcavatorCycleTime f)
+                            Nothing -> NoOp
+                    )
+                , viewNumberInput "Truck Capacity" "yd³" 
+                    (String.fromFloat truck.capacity) 
+                    (\val -> 
+                        case String.toFloat val of
+                            Just f -> UpdateTruck truck.id (Types.Messages.UpdateTruckCapacity f)
+                            Nothing -> NoOp
+                    )
+                , viewNumberInput "Truck Round Trip Time" "min" 
+                    (String.fromFloat truck.roundTripTime) 
+                    (\val -> 
+                        case String.toFloat val of
+                            Just f -> UpdateTruck truck.id (Types.Messages.UpdateTruckRoundTripTime f)
+                            Nothing -> NoOp
+                    )
+                ]
+        
+        _ ->
+            viewInputGroup "Equipment Specifications"
+                [ div [ class "text-gray-500 text-center py-4" ]
+                    [ text "Loading equipment data..." ]
+                ]
 
 
 viewInputGroup : String -> List (Html Msg) -> Html Msg

@@ -299,6 +299,7 @@ createModelWithValidData =
     , trucks = []
     , nextExcavatorId = 1
     , nextTruckId = 1
+    , infoBannerDismissed = False
     }
 
 
@@ -318,6 +319,7 @@ createModelWithInvalidData =
     , trucks = []
     , nextExcavatorId = 1
     , nextTruckId = 1
+    , infoBannerDismissed = False
     }
 
 

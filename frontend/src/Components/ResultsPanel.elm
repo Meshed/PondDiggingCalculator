@@ -58,7 +58,10 @@ view deviceType result isStale =
     div [ class panelClass ]
         [ -- Stale result indicator
           if isStale then
-            div [ class "mb-4 p-3 bg-yellow-50 border border-yellow-200 rounded-md" ]
+            div
+                [ class "mb-4 p-3 bg-yellow-50 border border-yellow-200 rounded-md"
+                , Html.Attributes.attribute "data-testid" "last-valid-result"
+                ]
                 [ div [ class "flex items-center" ]
                     [ span [ class "text-yellow-400 mr-2" ] [ text "⚠️" ]
                     , div [ class "text-sm text-yellow-800" ]
@@ -70,10 +73,16 @@ view deviceType result isStale =
             text ""
 
         -- Main Result with Enhanced Display
-        , div [ class "text-center mb-8" ]
+        , div
+            [ class "text-center mb-8"
+            , Html.Attributes.attribute "data-testid" "timeline-result"
+            ]
             [ h3 [ class headingClass ]
                 [ text "Estimated Completion Timeline" ]
-            , div [ class mainNumberClass ]
+            , div
+                [ class mainNumberClass
+                , Html.Attributes.attribute "data-testid" "timeline-days"
+                ]
                 [ text (String.fromInt result.timelineInDays) ]
             , div [ class "text-xl text-gray-600" ]
                 [ text
@@ -100,9 +109,9 @@ view deviceType result isStale =
                 [ h4 [ class "text-lg font-semibold text-gray-800 mb-3" ]
                     [ text "Equipment Productivity" ]
                 , div [ class "space-y-2" ]
-                    [ productivityRow "Excavation Rate" result.excavationRate "cy/hour"
-                    , productivityRow "Hauling Rate" result.haulingRate "cy/hour"
-                    , bottleneckIndicator result.bottleneck
+                    [ productivityRowWithTestId "Excavation Rate" result.excavationRate "cy/hour" "excavation-rate"
+                    , productivityRowWithTestId "Hauling Rate" result.haulingRate "cy/hour" "hauling-rate"
+                    , bottleneckIndicatorWithTestId result.bottleneck
                     , if deviceType /= Types.DeviceType.Mobile then
                         viewEfficiencyBar result.excavationRate result.haulingRate
 
@@ -159,6 +168,20 @@ productivityRow label rate units =
         ]
 
 
+{-| Display a productivity rate with label, units, and test ID
+-}
+productivityRowWithTestId : String -> Float -> String -> String -> Html msg
+productivityRowWithTestId label rate units testId =
+    div [ class "flex justify-between items-center" ]
+        [ span [ class "text-sm font-medium text-gray-700" ] [ text label ]
+        , span
+            [ class "text-sm text-gray-900"
+            , Html.Attributes.attribute "data-testid" testId
+            ]
+            [ text (formatRate rate ++ " " ++ units) ]
+        ]
+
+
 {-| Display bottleneck indicator with appropriate styling
 -}
 bottleneckIndicator : Bottleneck -> Html msg
@@ -178,6 +201,32 @@ bottleneckIndicator bottleneck =
     div [ class "flex justify-between items-center" ]
         [ span [ class "text-sm font-medium text-gray-700" ] [ text "Bottleneck" ]
         , span [ class ("text-sm font-medium " ++ color) ] [ text label ]
+        ]
+
+
+{-| Display bottleneck indicator with appropriate styling and test ID
+-}
+bottleneckIndicatorWithTestId : Bottleneck -> Html msg
+bottleneckIndicatorWithTestId bottleneck =
+    let
+        ( label, color ) =
+            case bottleneck of
+                ExcavationBottleneck ->
+                    ( "Excavation Limited", "text-amber-600" )
+
+                HaulingBottleneck ->
+                    ( "Hauling Limited", "text-amber-600" )
+
+                Balanced ->
+                    ( "Well Balanced", "text-green-600" )
+    in
+    div [ class "flex justify-between items-center" ]
+        [ span [ class "text-sm font-medium text-gray-700" ] [ text "Bottleneck" ]
+        , span
+            [ class ("text-sm font-medium " ++ color)
+            , Html.Attributes.attribute "data-testid" "bottleneck"
+            ]
+            [ text label ]
         ]
 
 

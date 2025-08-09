@@ -131,9 +131,11 @@ suite =
                             , ( validation.pondDimensions, "pondDimensions", 10000.0 )
                             ]
                     in
-                    ranges
-                        |> List.map (\( range, name, maxReasonable ) -> validateRangeReasonable range name maxReasonable)
-                        |> Expect.all
+                    Expect.all
+                        (ranges
+                            |> List.map (\( range, name, maxReasonable ) -> \_ -> validateRangeReasonable range name maxReasonable)
+                        )
+                        ()
             , test "numeric precision remains consistent across calculations" <|
                 \_ ->
                     let
@@ -182,8 +184,8 @@ suite =
                     in
                     Expect.all
                         [ \_ -> Expect.greaterThan 0 (String.length version)
-                        , \_ -> Expect.true "Version should match semver pattern" (isValidVersion version)
-                        , \_ -> Expect.false "Version should not contain dangerous characters" (containsDangerousChars version)
+                        , \_ -> Expect.equal True (isValidVersion version)
+                        , \_ -> Expect.equal False (containsDangerousChars version)
                         ]
                         ()
             , test "version consistency across static and fallback configurations" <|
@@ -209,7 +211,7 @@ suite =
                         , \_ -> Expect.notEqual version "undefined"
                         , \_ -> Expect.notEqual version "null"
                         , \_ -> Expect.notEqual version "NaN"
-                        , \_ -> Expect.false "Version should not be whitespace" (String.trim version |> String.isEmpty)
+                        , \_ -> Expect.equal False (String.trim version |> String.isEmpty)
                         ]
                         ()
             ]
@@ -225,9 +227,11 @@ suite =
                     case recoveryAttempts of
                         config1 :: rest ->
                             -- All recovery attempts should return identical data
-                            rest
-                                |> List.map (\config -> Expect.equal config1.version config.version)
-                                |> Expect.all
+                            Expect.all
+                                (rest
+                                    |> List.map (\config -> \_ -> Expect.equal config1.version config.version)
+                                )
+                                ()
 
                         [] ->
                             Expect.fail "Recovery attempts list should not be empty"
@@ -273,7 +277,7 @@ suite =
                             -- All rapid accesses should return identical version
                             rest
                                 |> List.all (\version -> version == first)
-                                |> Expect.true "All rapid access attempts should return identical data"
+                                |> Expect.equal True
 
                         [] ->
                             Expect.fail "Rapid access should return data"
@@ -298,9 +302,11 @@ suite =
                             , ( validation.pondDimensions.min, validation.pondDimensions.max, "pondDimensions" )
                             ]
                     in
-                    boundaryTests
-                        |> List.map (\( min, max, field ) -> validateBoundaryValues min max field)
-                        |> Expect.all
+                    Expect.all
+                        (boundaryTests
+                            |> List.map (\( min, max, field ) -> \_ -> validateBoundaryValues min max field)
+                        )
+                        ()
             , test "string data contains only safe characters" <|
                 \_ ->
                     let

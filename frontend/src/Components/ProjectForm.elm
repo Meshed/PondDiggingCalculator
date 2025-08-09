@@ -16,7 +16,7 @@ import Styles.Components as Components
 import Styles.Responsive as Responsive
 import Styles.Theme as Theme
 import Types.DeviceType exposing (DeviceType)
-import Types.Fields exposing (ExcavatorField(..), PondField(..), ProjectField(..), TruckField(..))
+import Types.Fields exposing (PondField(..), ProjectField(..))
 import Types.Validation exposing (ValidationError)
 import Utils.Config exposing (Config, Defaults)
 import Utils.Validation as Validation
@@ -27,11 +27,7 @@ import Utils.Validation as Validation
 
 
 type alias FormData =
-    { excavatorCapacity : String
-    , excavatorCycleTime : String
-    , truckCapacity : String
-    , truckRoundTripTime : String
-    , workHoursPerDay : String
+    { workHoursPerDay : String
     , pondLength : String
     , pondWidth : String
     , pondDepth : String
@@ -40,11 +36,7 @@ type alias FormData =
 
 
 type FormMsg
-    = UpdateExcavatorCapacity String
-    | UpdateExcavatorCycleTime String
-    | UpdateTruckCapacity String
-    | UpdateTruckRoundTripTime String
-    | UpdateWorkHours String
+    = UpdateWorkHours String
     | UpdatePondLength String
     | UpdatePondWidth String
     | UpdatePondDepth String
@@ -59,21 +51,7 @@ type FormMsg
 -}
 initFormData : Defaults -> FormData
 initFormData defaults =
-    let
-        -- Use first excavator and truck from lists as default
-        defaultExcavator =
-            List.head defaults.excavators
-                |> Maybe.withDefault { bucketCapacity = 2.5, cycleTime = 2.0, name = "Default Excavator" }
-
-        defaultTruck =
-            List.head defaults.trucks
-                |> Maybe.withDefault { capacity = 12.0, roundTripTime = 15.0, name = "Default Truck" }
-    in
-    { excavatorCapacity = String.fromFloat defaultExcavator.bucketCapacity
-    , excavatorCycleTime = String.fromFloat defaultExcavator.cycleTime
-    , truckCapacity = String.fromFloat defaultTruck.capacity
-    , truckRoundTripTime = String.fromFloat defaultTruck.roundTripTime
-    , workHoursPerDay = String.fromFloat defaults.project.workHoursPerDay
+    { workHoursPerDay = String.fromFloat defaults.project.workHoursPerDay
     , pondLength = String.fromFloat defaults.project.pondLength
     , pondWidth = String.fromFloat defaults.project.pondWidth
     , pondDepth = String.fromFloat defaults.project.pondDepth
@@ -90,18 +68,6 @@ initFormData defaults =
 updateFormData : FormMsg -> FormData -> FormData
 updateFormData msg formData =
     case msg of
-        UpdateExcavatorCapacity value ->
-            { formData | excavatorCapacity = value }
-
-        UpdateExcavatorCycleTime value ->
-            { formData | excavatorCycleTime = value }
-
-        UpdateTruckCapacity value ->
-            { formData | truckCapacity = value }
-
-        UpdateTruckRoundTripTime value ->
-            { formData | truckRoundTripTime = value }
-
         UpdateWorkHours value ->
             { formData | workHoursPerDay = value }
 
@@ -126,12 +92,15 @@ updateFormData msg formData =
 
 {-| Render the project input form with validation
 -}
-view : DeviceType -> FormData -> Bool -> msg -> (ExcavatorField -> String -> msg) -> (TruckField -> String -> msg) -> (PondField -> String -> msg) -> (ProjectField -> String -> msg) -> Html msg
-view deviceType formData infoBannerDismissed dismissMsg excavatorMsg truckMsg pondMsg projectMsg =
+view : DeviceType -> FormData -> Bool -> msg -> (PondField -> String -> msg) -> (ProjectField -> String -> msg) -> Html msg
+view deviceType formData infoBannerDismissed dismissMsg pondMsg projectMsg =
     div [ class (Components.getFormClasses deviceType) ]
         [ -- Info banner about defaults (dismissible)
           if not infoBannerDismissed then
-            div [ class "mb-6 p-4 bg-blue-50 border border-blue-200 rounded-md" ]
+            div
+                [ class "mb-6 p-4 bg-blue-50 border border-blue-200 rounded-md"
+                , Html.Attributes.attribute "data-testid" "info-banner"
+                ]
                 [ div [ class "flex items-start" ]
                     [ div [ class "flex-shrink-0" ]
                         [ span [ class "text-blue-400" ] [ text "ℹ️" ] ]
@@ -142,6 +111,7 @@ view deviceType formData infoBannerDismissed dismissMsg excavatorMsg truckMsg po
                             [ onClick dismissMsg
                             , class "text-blue-400 hover:text-blue-600 font-bold text-lg leading-none"
                             , title "Dismiss this message"
+                            , Html.Attributes.attribute "data-testid" "dismiss-banner-button"
                             ]
                             [ text "×" ]
                         ]
@@ -150,97 +120,57 @@ view deviceType formData infoBannerDismissed dismissMsg excavatorMsg truckMsg po
 
           else
             text ""
-        , div [ class (Responsive.getGridClasses deviceType) ]
-            [ -- Equipment Section
-              div [ class "space-y-4" ]
-                [ div [ class "text-lg font-semibold text-gray-800 mb-4" ]
-                    [ text "Equipment Specifications" ]
-                , inputFieldWithUnit deviceType
-                    { label = "Excavator Bucket Capacity"
-                    , unit = "cubic yards"
-                    , helpText = "Volume of material the excavator bucket can hold per scoop"
-                    , id = "excavator-capacity"
-                    , value = formData.excavatorCapacity
-                    , placeholder = "e.g., 2.5"
-                    , onInput = excavatorMsg BucketCapacity
-                    , error = getFieldError "excavatorCapacity" formData.errors
-                    }
-                , inputFieldWithUnit deviceType
-                    { label = "Excavator Cycle Time"
-                    , unit = "minutes"
-                    , helpText = "Time to dig, swing, dump, and return to digging position"
-                    , id = "excavator-cycle"
-                    , value = formData.excavatorCycleTime
-                    , placeholder = "e.g., 0.5"
-                    , onInput = excavatorMsg CycleTime
-                    , error = getFieldError "excavatorCycleTime" formData.errors
-                    }
-                , inputFieldWithUnit deviceType
-                    { label = "Truck Capacity"
-                    , unit = "cubic yards"
-                    , helpText = "Maximum volume of material the truck can carry"
-                    , id = "truck-capacity"
-                    , value = formData.truckCapacity
-                    , placeholder = "e.g., 15"
-                    , onInput = truckMsg TruckCapacity
-                    , error = getFieldError "truckCapacity" formData.errors
-                    }
-                , inputFieldWithUnit deviceType
-                    { label = "Truck Round-trip Time"
-                    , unit = "minutes"
-                    , helpText = "Total time for truck to travel to dump site, unload, and return"
-                    , id = "truck-roundtrip"
-                    , value = formData.truckRoundTripTime
-                    , placeholder = "e.g., 30"
-                    , onInput = truckMsg RoundTripTime
-                    , error = getFieldError "truckRoundTripTime" formData.errors
-                    }
-                ]
-            , -- Project Section
-              div [ class "space-y-4" ]
-                [ div [ class "text-lg font-semibold text-gray-800 mb-4" ]
-                    [ text "Project Parameters" ]
-                , inputFieldWithUnit deviceType
-                    { label = "Work Hours per Day"
-                    , unit = "hours"
-                    , helpText = "Number of productive work hours per day"
-                    , id = "work-hours"
-                    , value = formData.workHoursPerDay
-                    , placeholder = "e.g., 8"
-                    , onInput = projectMsg WorkHours
-                    , error = getFieldError "workHoursPerDay" formData.errors
-                    }
-                , inputFieldWithUnit deviceType
-                    { label = "Pond Length"
-                    , unit = "feet"
-                    , helpText = "Length of the pond to be excavated"
-                    , id = "pond-length"
-                    , value = formData.pondLength
-                    , placeholder = "e.g., 100"
-                    , onInput = pondMsg PondLength
-                    , error = getFieldError "pondLength" formData.errors
-                    }
-                , inputFieldWithUnit deviceType
-                    { label = "Pond Width"
-                    , unit = "feet"
-                    , helpText = "Width of the pond to be excavated"
-                    , id = "pond-width"
-                    , value = formData.pondWidth
-                    , placeholder = "e.g., 50"
-                    , onInput = pondMsg PondWidth
-                    , error = getFieldError "pondWidth" formData.errors
-                    }
-                , inputFieldWithUnit deviceType
-                    { label = "Pond Depth"
-                    , unit = "feet"
-                    , helpText = "Average depth of the pond to be excavated"
-                    , id = "pond-depth"
-                    , value = formData.pondDepth
-                    , placeholder = "e.g., 10"
-                    , onInput = pondMsg PondDepth
-                    , error = getFieldError "pondDepth" formData.errors
-                    }
-                ]
+        , div [ class "space-y-4" ]
+            [ div [ class "text-lg font-semibold text-gray-800 mb-4" ]
+                [ text "Project Parameters" ]
+            , inputFieldWithUnit deviceType
+                { label = "Work Hours per Day"
+                , unit = "hours"
+                , helpText = "Number of productive work hours per day"
+                , id = "work-hours"
+                , testId = "work-hours-input"
+                , errorId = "work-hours-error"
+                , value = formData.workHoursPerDay
+                , placeholder = "e.g., 8"
+                , onInput = projectMsg WorkHours
+                , error = getFieldError "workHoursPerDay" formData.errors
+                }
+            , inputFieldWithUnit deviceType
+                { label = "Pond Length"
+                , unit = "feet"
+                , helpText = "Length of the pond to be excavated"
+                , id = "pond-length"
+                , testId = "pond-length-input"
+                , errorId = "pond-length-error"
+                , value = formData.pondLength
+                , placeholder = "e.g., 100"
+                , onInput = pondMsg PondLength
+                , error = getFieldError "pondLength" formData.errors
+                }
+            , inputFieldWithUnit deviceType
+                { label = "Pond Width"
+                , unit = "feet"
+                , helpText = "Width of the pond to be excavated"
+                , id = "pond-width"
+                , testId = "pond-width-input"
+                , errorId = "pond-width-error"
+                , value = formData.pondWidth
+                , placeholder = "e.g., 50"
+                , onInput = pondMsg PondWidth
+                , error = getFieldError "pondWidth" formData.errors
+                }
+            , inputFieldWithUnit deviceType
+                { label = "Pond Depth"
+                , unit = "feet"
+                , helpText = "Average depth of the pond to be excavated"
+                , id = "pond-depth"
+                , testId = "pond-depth-input"
+                , errorId = "pond-depth-error"
+                , value = formData.pondDepth
+                , placeholder = "e.g., 10"
+                , onInput = pondMsg PondDepth
+                , error = getFieldError "pondDepth" formData.errors
+                }
             ]
         ]
 
@@ -264,6 +194,8 @@ type alias InputFieldWithUnitConfig msg =
     , unit : String
     , helpText : String
     , id : String
+    , testId : String
+    , errorId : String
     , value : String
     , placeholder : String
     , onInput : String -> msg
@@ -355,6 +287,7 @@ inputFieldWithUnit deviceType config =
             [ input
                 [ type_ "number"
                 , id config.id
+                , Html.Attributes.attribute "data-testid" config.testId
                 , value config.value
                 , placeholder config.placeholder
                 , onInput config.onInput
@@ -372,7 +305,11 @@ inputFieldWithUnit deviceType config =
             text ""
         , case config.error of
             Just errorMsg ->
-                span [ class (Components.getValidationMessageClasses deviceType) ] [ text errorMsg ]
+                span
+                    [ class (Components.getValidationMessageClasses deviceType)
+                    , Html.Attributes.attribute "data-testid" config.errorId
+                    ]
+                    [ text errorMsg ]
 
             Nothing ->
                 text ""

@@ -6,6 +6,7 @@ import Components.ProjectForm as ProjectForm
 import Components.ResultsPanel as ResultsPanel
 import Html exposing (Html, div, h1, h2, text)
 import Html.Attributes exposing (class)
+import Pages.Desktop as Desktop
 import Process
 import Task
 import Types.DeviceType exposing (DeviceType(..))
@@ -150,52 +151,14 @@ update msg model =
                         Nothing ->
                             ( model, Cmd.none )
 
-        -- Real-time input handlers
-        ExcavatorFieldChanged field value ->
-            case model.formData of
-                Just formData ->
-                    let
-                        updatedFormData =
-                            case field of
-                                BucketCapacity ->
-                                    { formData | excavatorCapacity = value }
+        -- Equipment field handlers removed - equipment now managed via fleet system (UpdateExcavator, UpdateTruck)
+        ExcavatorFieldChanged _ _ ->
+            -- Equipment field changes now handled by fleet system - this is a no-op for compatibility
+            ( model, Cmd.none )
 
-                                CycleTime ->
-                                    { formData | excavatorCycleTime = value }
-
-                        newModel =
-                            { model
-                                | formData = Just updatedFormData
-                                , calculationInProgress = True
-                            }
-                    in
-                    update CalculateTimeline newModel
-
-                Nothing ->
-                    ( model, Cmd.none )
-
-        TruckFieldChanged field value ->
-            case model.formData of
-                Just formData ->
-                    let
-                        updatedFormData =
-                            case field of
-                                TruckCapacity ->
-                                    { formData | truckCapacity = value }
-
-                                RoundTripTime ->
-                                    { formData | truckRoundTripTime = value }
-
-                        newModel =
-                            { model
-                                | formData = Just updatedFormData
-                                , calculationInProgress = True
-                            }
-                    in
-                    update CalculateTimeline newModel
-
-                Nothing ->
-                    ( model, Cmd.none )
+        TruckFieldChanged _ _ ->
+            -- Equipment field changes now handled by fleet system - this is a no-op for compatibility
+            ( model, Cmd.none )
 
         PondFieldChanged field value ->
             case model.formData of
@@ -544,9 +507,9 @@ updateTruck equipmentId truckUpdate model =
 -}
 calculateAndUpdate : Model -> ( Model, Cmd Msg )
 calculateAndUpdate model =
-    case ( model.formData, model.config ) of
-        ( Just formData, Just config ) ->
-            case parseFormData formData of
+    case model.config of
+        Just config ->
+            case parseModelData model of
                 Ok inputs ->
                     case Validation.validateAllInputs config.validation inputs of
                         Ok validInputs ->
@@ -605,7 +568,7 @@ calculateAndUpdate model =
                     , Cmd.none
                     )
 
-        _ ->
+        Nothing ->
             ( model, Cmd.none )
 
 
@@ -617,47 +580,53 @@ calculatePondVolume length width depth =
     (length * width * depth) / 27.0
 
 
-{-| Parse form string data to numeric inputs
+{-| Parse model data to numeric inputs using fleet system
 -}
-parseFormData : ProjectForm.FormData -> Result String Validation.ProjectInputs
-parseFormData formData =
-    let
-        maybeFloats =
-            { excavatorCapacity = String.toFloat formData.excavatorCapacity
-            , excavatorCycleTime = String.toFloat formData.excavatorCycleTime
-            , truckCapacity = String.toFloat formData.truckCapacity
-            , truckRoundTripTime = String.toFloat formData.truckRoundTripTime
-            , workHoursPerDay = String.toFloat formData.workHoursPerDay
-            , pondLength = String.toFloat formData.pondLength
-            , pondWidth = String.toFloat formData.pondWidth
-            , pondDepth = String.toFloat formData.pondDepth
-            }
-    in
-    case ( maybeFloats.excavatorCapacity, maybeFloats.excavatorCycleTime, maybeFloats.truckCapacity ) of
-        ( Just excavatorCapacity, Just excavatorCycleTime, Just truckCapacity ) ->
-            case ( maybeFloats.truckRoundTripTime, maybeFloats.workHoursPerDay, maybeFloats.pondLength ) of
-                ( Just truckRoundTripTime, Just workHoursPerDay, Just pondLength ) ->
-                    case ( maybeFloats.pondWidth, maybeFloats.pondDepth ) of
-                        ( Just pondWidth, Just pondDepth ) ->
-                            Ok
-                                { excavatorCapacity = excavatorCapacity
-                                , excavatorCycleTime = excavatorCycleTime
-                                , truckCapacity = truckCapacity
-                                , truckRoundTripTime = truckRoundTripTime
-                                , workHoursPerDay = workHoursPerDay
-                                , pondLength = pondLength
-                                , pondWidth = pondWidth
-                                , pondDepth = pondDepth
-                                }
+parseModelData : Model -> Result String Validation.ProjectInputs
+parseModelData model =
+    case model.formData of
+        Just formData ->
+            let
+                -- Get first excavator and truck for calculation (mobile compatibility)
+                firstExcavator = List.head model.excavators
+                firstTruck = List.head model.trucks
+                
+                -- Parse project parameters from form
+                maybeProjectFloats =
+                    { workHoursPerDay = String.toFloat formData.workHoursPerDay
+                    , pondLength = String.toFloat formData.pondLength
+                    , pondWidth = String.toFloat formData.pondWidth
+                    , pondDepth = String.toFloat formData.pondDepth
+                    }
+            in
+            case (firstExcavator, firstTruck) of
+                (Just excavator, Just truck) ->
+                    case ( maybeProjectFloats.workHoursPerDay, maybeProjectFloats.pondLength ) of
+                        ( Just workHoursPerDay, Just pondLength ) ->
+                            case ( maybeProjectFloats.pondWidth, maybeProjectFloats.pondDepth ) of
+                                ( Just pondWidth, Just pondDepth ) ->
+                                    Ok
+                                        { excavatorCapacity = excavator.bucketCapacity
+                                        , excavatorCycleTime = excavator.cycleTime
+                                        , truckCapacity = truck.capacity
+                                        , truckRoundTripTime = truck.roundTripTime
+                                        , workHoursPerDay = workHoursPerDay
+                                        , pondLength = pondLength
+                                        , pondWidth = pondWidth
+                                        , pondDepth = pondDepth
+                                        }
+
+                                _ ->
+                                    Err "Invalid pond dimensions format"
 
                         _ ->
-                            Err "Invalid pond dimensions format"
-
+                            Err "Invalid work parameters format"
+                
                 _ ->
-                    Err "Invalid equipment or work parameters format"
-
-        _ ->
-            Err "Invalid excavator or truck parameters format"
+                    Err "No equipment available for calculation"
+        
+        Nothing ->
+            Err "No form data available"
 
 
 
@@ -678,46 +647,8 @@ view model =
     -- Route to mobile view for mobile devices (now using SHARED state!)
     case model.deviceType of
         Mobile ->
-            MobileView.view model.formData model.calculationResult
+            MobileView.view model
 
         _ ->
-            -- Desktop/Tablet view
-            div [ class "min-h-screen bg-gray-100 py-8" ]
-                [ div [ class "container mx-auto px-4" ]
-                    [ -- Header
-                      div [ class "text-center mb-8" ]
-                        [ h1 [ class "text-4xl font-bold text-gray-900 mb-2" ]
-                            [ text "Pond Digging Calculator" ]
-                        , h2 [ class "text-xl text-gray-600" ]
-                            [ text "Professional Timeline Estimation Tool" ]
-                        ]
-                    , -- Main Content
-                      case ( model.formData, model.config ) of
-                        ( Just formData, Just config ) ->
-                            div [ class "space-y-8" ]
-                                [ -- Input Form
-                                  ProjectForm.view model.deviceType formData model.infoBannerDismissed DismissInfoBanner ExcavatorFieldChanged TruckFieldChanged PondFieldChanged ProjectFieldChanged
-                                , -- Results Panel
-                                  case model.calculationResult of
-                                    Just result ->
-                                        let
-                                            -- Show as stale if we have validation errors and showing last valid result
-                                            isStale =
-                                                model.hasValidationErrors
-                                        in
-                                        ResultsPanel.view model.deviceType result isStale
-
-                                    Nothing ->
-                                        div [ class "text-center text-gray-500" ]
-                                            [ text "Enter project parameters above to see timeline calculation" ]
-                                ]
-
-                        ( Nothing, Just _ ) ->
-                            div [ class "text-center text-gray-500" ]
-                                [ text "Initializing form..." ]
-
-                        ( _, Nothing ) ->
-                            div [ class "text-center text-gray-500" ]
-                                [ text "Loading configuration..." ]
-                    ]
-                ]
+            -- Desktop/Tablet view - Use the full Desktop page with fleet management
+            Desktop.view model
