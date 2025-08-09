@@ -61,6 +61,10 @@ type Msg
     | ShowHelpTooltip String -- field ID
     | HideHelpTooltip String -- field ID
     | KeyPressed String -- key name
+      -- Real-time Validation Messages
+    | ValidateField String String -- field name, input value
+    | ValidationComplete String (Result ValidationError Float) -- field name, validation result
+    | ToggleRealTimeValidation Bool
 
 
 

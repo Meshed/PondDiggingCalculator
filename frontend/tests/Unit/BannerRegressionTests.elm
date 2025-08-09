@@ -10,6 +10,7 @@ model and message level, complementing the E2E regression tests.
 -}
 
 import Components.ProjectForm
+import Dict
 import Expect
 import Fuzz
 import Test exposing (Test, describe, fuzz, test)
@@ -403,6 +404,9 @@ createTestModel dismissed =
     , nextTruckId = 1
     , infoBannerDismissed = dismissed
     , helpTooltipState = Nothing
+    , realTimeValidation = False
+    , fieldValidationErrors = Dict.empty
+    , validationDebounce = Dict.empty
     }
 
 
@@ -426,6 +430,9 @@ createCompleteTestModel dismissed =
     , nextTruckId = 2
     , infoBannerDismissed = dismissed
     , helpTooltipState = Nothing
+    , realTimeValidation = False
+    , fieldValidationErrors = Dict.empty
+    , validationDebounce = Dict.empty
     }
 
 

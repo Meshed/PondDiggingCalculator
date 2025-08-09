@@ -14,6 +14,7 @@ Tests the dismissible info banner feature to ensure:
 -}
 
 import Components.ProjectForm
+import Dict
 import Expect
 import Test exposing (Test, describe, test)
 import Types.DeviceType
@@ -203,6 +204,9 @@ createTestModel dismissed =
     , nextTruckId = 1
     , infoBannerDismissed = dismissed
     , helpTooltipState = Nothing
+    , realTimeValidation = False
+    , fieldValidationErrors = Dict.empty
+    , validationDebounce = Dict.empty
     }
 
 
@@ -226,6 +230,9 @@ createTestModelWithData dismissed =
     , nextTruckId = 2
     , infoBannerDismissed = dismissed
     , helpTooltipState = Nothing
+    , realTimeValidation = False
+    , fieldValidationErrors = Dict.empty
+    , validationDebounce = Dict.empty
     }
 
 

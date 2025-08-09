@@ -10,6 +10,7 @@ shared state as desktop/tablet views, only with different presentation.
 -}
 
 import Components.ProjectForm as ProjectForm
+import Dict
 import Expect
 import Test exposing (Test, describe, test)
 import Types.DeviceType exposing (DeviceType(..))
@@ -206,6 +207,9 @@ createTestModel deviceType =
     , nextTruckId = 1
     , infoBannerDismissed = False
     , helpTooltipState = Nothing
+    , realTimeValidation = False
+    , fieldValidationErrors = Dict.empty
+    , validationDebounce = Dict.empty
     }
 
 

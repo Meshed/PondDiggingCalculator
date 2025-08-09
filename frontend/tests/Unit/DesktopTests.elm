@@ -1,6 +1,7 @@
 module Unit.DesktopTests exposing (suite)
 
 import Components.ProjectForm exposing (FormData)
+import Dict
 import Expect
 import Html
 import Html.Attributes
@@ -212,7 +213,7 @@ suite =
                     in
                     result
                         |> Query.fromHtml
-                        |> Query.findAll [ containing [ text "🏗️" ] ]
+                        |> Query.findAll [ containing [ text "🚜" ] ]
                         |> Query.count (Expect.atLeast 1)
             ]
         , describe "Responsive Behavior"
@@ -328,6 +329,9 @@ createTestModel deviceType =
     , nextTruckId = 1
     , infoBannerDismissed = False
     , helpTooltipState = Nothing
+    , realTimeValidation = False
+    , fieldValidationErrors = Dict.empty
+    , validationDebounce = Dict.empty
     }
 
 

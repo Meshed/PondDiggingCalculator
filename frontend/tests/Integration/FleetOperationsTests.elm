@@ -7,6 +7,7 @@ module Integration.FleetOperationsTests exposing (suite)
 -}
 
 import Components.ProjectForm as ProjectForm
+import Dict
 import Expect
 import Test exposing (Test, describe, test)
 import Types.DeviceType exposing (DeviceType(..))
@@ -474,6 +475,9 @@ createIntegrationModel excavators trucks =
     , nextTruckId = List.length trucks + 1
     , infoBannerDismissed = False
     , helpTooltipState = Nothing
+    , realTimeValidation = False
+    , fieldValidationErrors = Dict.empty
+    , validationDebounce = Dict.empty
     }
 
 

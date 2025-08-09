@@ -342,7 +342,7 @@ validationErrorPreservationTests =
                         Validation.validateExcavatorCapacity rules 0.0
                 in
                 case ( tooLowError, tooHighError, zeroError ) of
-                    ( Err (ValueTooLow _ _), Err (ValueTooHigh _ _), Err (RequiredField _) ) ->
+                    ( Err (ValueTooLow _), Err (ValueTooHigh _), Err (RequiredField _) ) ->
                         -- Error types should be preserved across device transitions
                         Expect.pass
 

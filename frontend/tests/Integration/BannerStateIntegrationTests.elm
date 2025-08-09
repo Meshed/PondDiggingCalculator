@@ -15,6 +15,7 @@ Tests the interaction between banner state and other application components:
 -}
 
 import Components.ProjectForm as ProjectForm
+import Dict
 import Expect
 import Test exposing (Test, describe, test)
 import Types.DeviceType exposing (DeviceType(..))
@@ -435,6 +436,9 @@ createIntegrationModel dismissed =
     , nextTruckId = 1
     , infoBannerDismissed = dismissed
     , helpTooltipState = Nothing
+    , realTimeValidation = False
+    , fieldValidationErrors = Dict.empty
+    , validationDebounce = Dict.empty
     }
 
 

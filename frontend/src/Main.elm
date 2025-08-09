@@ -4,6 +4,7 @@ import Browser
 import Browser.Events
 import Components.ProjectForm as ProjectForm
 import Components.ResultsPanel as ResultsPanel
+import Dict
 import Html exposing (Html, div, h1, h2, text)
 import Html.Attributes exposing (class)
 import Json.Decode as Decode
@@ -15,8 +16,9 @@ import Types.Equipment exposing (EquipmentId, Excavator, Truck)
 import Types.Fields exposing (ExcavatorField(..), PondField(..), ProjectField(..), TruckField(..))
 import Types.Messages exposing (ExcavatorUpdate(..), Msg(..), TruckUpdate(..))
 import Types.Model exposing (Flags, Model)
+import Types.Validation exposing (ValidationError(..))
 import Utils.Calculations as Calculations
-import Utils.Config exposing (fallbackConfig, getConfig)
+import Utils.Config exposing (Config, fallbackConfig, getConfig)
 import Utils.Debounce as Debounce
 import Utils.DeviceDetector as DeviceDetector
 import Utils.Performance as Performance
@@ -76,6 +78,9 @@ init _ =
             , nextTruckId = 1 + List.length initialTrucks -- Start ID counter after initial fleet
             , infoBannerDismissed = False -- Show info banner initially
             , helpTooltipState = Nothing -- No active tooltip initially
+            , realTimeValidation = True -- Enable real-time validation by default
+            , fieldValidationErrors = Dict.empty -- No validation errors initially
+            , validationDebounce = Dict.empty -- No debounce state initially
             }
     in
     -- Initialize with data and immediately trigger calculation with default values
@@ -166,16 +171,16 @@ update msg model =
             case model.formData of
                 Just formData ->
                     let
-                        updatedFormData =
+                        ( updatedFormData, fieldName ) =
                             case field of
                                 PondLength ->
-                                    { formData | pondLength = value }
+                                    ( { formData | pondLength = value }, "pondLength" )
 
                                 PondWidth ->
-                                    { formData | pondWidth = value }
+                                    ( { formData | pondWidth = value }, "pondWidth" )
 
                                 PondDepth ->
-                                    { formData | pondDepth = value }
+                                    ( { formData | pondDepth = value }, "pondDepth" )
 
                         newModel =
                             { model
@@ -183,7 +188,9 @@ update msg model =
                                 , calculationInProgress = True
                             }
                     in
+                    -- Chain validation and calculation updates
                     update CalculateTimeline newModel
+                        |> Tuple.mapSecond (\cmd -> Cmd.batch [ cmd, Task.perform (ValidateField fieldName) (Task.succeed value) ])
 
                 Nothing ->
                     ( model, Cmd.none )
@@ -192,10 +199,10 @@ update msg model =
             case model.formData of
                 Just formData ->
                     let
-                        updatedFormData =
+                        ( updatedFormData, fieldName ) =
                             case field of
                                 WorkHours ->
-                                    { formData | workHoursPerDay = value }
+                                    ( { formData | workHoursPerDay = value }, "workHours" )
 
                         newModel =
                             { model
@@ -203,7 +210,9 @@ update msg model =
                                 , calculationInProgress = True
                             }
                     in
+                    -- Chain validation and calculation updates
                     update CalculateTimeline newModel
+                        |> Tuple.mapSecond (\cmd -> Cmd.batch [ cmd, Task.perform (ValidateField fieldName) (Task.succeed value) ])
 
                 Nothing ->
                     ( model, Cmd.none )
@@ -293,6 +302,60 @@ update msg model =
 
                 _ ->
                     ( model, Cmd.none )
+
+        ValidateField fieldName value ->
+            if model.realTimeValidation then
+                case model.config of
+                    Just config ->
+                        let
+                            validationResult =
+                                validateFieldValue fieldName value config
+
+                            updatedErrors =
+                                case validationResult of
+                                    Ok _ ->
+                                        Dict.remove fieldName model.fieldValidationErrors
+
+                                    Err error ->
+                                        Dict.insert fieldName error model.fieldValidationErrors
+
+                            updatedModel =
+                                { model | fieldValidationErrors = updatedErrors }
+                        in
+                        ( updatedModel, Cmd.none )
+
+                    Nothing ->
+                        ( model, Cmd.none )
+
+            else
+                ( model, Cmd.none )
+
+        ValidationComplete fieldName result ->
+            let
+                updatedErrors =
+                    case result of
+                        Ok _ ->
+                            Dict.remove fieldName model.fieldValidationErrors
+
+                        Err error ->
+                            Dict.insert fieldName error model.fieldValidationErrors
+            in
+            ( { model | fieldValidationErrors = updatedErrors }, Cmd.none )
+
+        ToggleRealTimeValidation enabled ->
+            let
+                updatedModel =
+                    { model
+                        | realTimeValidation = enabled
+                        , fieldValidationErrors =
+                            if enabled then
+                                model.fieldValidationErrors
+
+                            else
+                                Dict.empty
+                    }
+            in
+            ( updatedModel, Cmd.none )
 
 
 
@@ -586,6 +649,39 @@ calculateAndUpdate model =
 
         Nothing ->
             ( model, Cmd.none )
+
+
+{-| Validate a field value in real-time
+-}
+validateFieldValue : String -> String -> Config -> Result ValidationError Float
+validateFieldValue fieldName value config =
+    case fieldName of
+        "workHours" ->
+            Validation.validateStringInput "Work Hours" config.validation.workHours value
+
+        "pondLength" ->
+            Validation.validateStringInput "Pond Dimension" config.validation.pondDimensions value
+
+        "pondWidth" ->
+            Validation.validateStringInput "Pond Dimension" config.validation.pondDimensions value
+
+        "pondDepth" ->
+            Validation.validateStringInput "Pond Dimension" config.validation.pondDimensions value
+
+        "excavatorCapacity" ->
+            Validation.validateStringInput "Excavator Capacity" config.validation.excavatorCapacity value
+
+        "cycleTime" ->
+            Validation.validateStringInput "Cycle Time" config.validation.cycleTime value
+
+        "truckCapacity" ->
+            Validation.validateStringInput "Truck Capacity" config.validation.truckCapacity value
+
+        "roundTripTime" ->
+            Validation.validateStringInput "Round Trip Time" config.validation.roundTripTime value
+
+        _ ->
+            Err (ConfigurationError ("Unknown field: " ++ fieldName))
 
 
 {-| Calculate pond volume from dimensions in cubic yards

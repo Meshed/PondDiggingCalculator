@@ -1,6 +1,6 @@
 module Styles.Theme exposing
     ( container, textCenter, button, card, input, errorText, getButtonClasses, getCardClasses, getInputClasses, getTypographyScale, getMobileCalculatorClasses, getMobileTouchTarget
-    , getHelpIconClasses, getMobileCardClasses, getMobileGridClasses, getMobileInputClasses, getTooltipClasses
+    , errorBorderClass, errorIconClass, errorInputClass, getErrorInputClasses, getErrorMessageClasses, getHelpIconClasses, getMobileCardClasses, getMobileGridClasses, getMobileInputClasses, getTooltipClasses
     )
 
 {-| Tailwind CSS class constants for type-safe styling
@@ -188,3 +188,61 @@ getTooltipClasses =
 getHelpIconClasses : String
 getHelpIconClasses =
     "ml-2 text-gray-400 hover:text-blue-500 focus:outline-none focus:text-blue-500 transition-colors inline-block w-4 h-4 text-sm font-bold border border-gray-400 rounded-full leading-4 text-center"
+
+
+
+-- ERROR STATE STYLING
+
+
+{-| Error border styling for invalid input fields
+-}
+errorBorderClass : String
+errorBorderClass =
+    "border-red-500 border-2"
+
+
+{-| Complete error input styling combining border and focus states
+-}
+errorInputClass : String
+errorInputClass =
+    "border-red-500 border-2 focus:border-red-500 focus:ring-2 focus:ring-red-200"
+
+
+{-| Error icon styling for desktop/tablet interfaces
+-}
+errorIconClass : String
+errorIconClass =
+    "text-red-500 w-5 h-5"
+
+
+{-| Get device-specific error input classes
+-}
+getErrorInputClasses : DeviceType -> String
+getErrorInputClasses deviceType =
+    let
+        baseErrorClasses =
+            "border-red-500 border-2 focus:border-red-500 focus:ring-2 focus:ring-red-200"
+
+        baseInputClasses =
+            getInputClasses deviceType
+
+        -- Remove the default border class and add error styling
+        cleanedInputClasses =
+            String.replace "border " "" baseInputClasses
+    in
+    cleanedInputClasses ++ " " ++ baseErrorClasses
+
+
+{-| Get device-specific error message classes with appropriate sizing
+-}
+getErrorMessageClasses : DeviceType -> String
+getErrorMessageClasses deviceType =
+    case deviceType of
+        Mobile ->
+            "text-red-600 text-sm mt-2 px-1"
+
+        Tablet ->
+            "text-red-600 text-sm mt-2 flex items-start"
+
+        Desktop ->
+            "text-red-600 text-sm mt-1 flex items-start"

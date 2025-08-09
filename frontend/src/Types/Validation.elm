@@ -10,10 +10,12 @@ module Types.Validation exposing (ValidationError(..), ValidationResult)
 
 
 type ValidationError
-    = ValueTooLow Float Float -- actual, minimum
-    | ValueTooHigh Float Float -- actual, maximum
-    | InvalidFormat String
-    | RequiredField String
+    = ValueTooLow { actual : Float, minimum : Float, guidance : String }
+    | ValueTooHigh { actual : Float, maximum : Float, guidance : String }
+    | RequiredField { guidance : String }
+    | InvalidFormat { input : String, guidance : String }
+    | DecimalPrecisionError { actual : Float, maxDecimals : Int, guidance : String }
+    | EdgeCaseError { issue : String, guidance : String }
     | ConfigurationError String
 
 

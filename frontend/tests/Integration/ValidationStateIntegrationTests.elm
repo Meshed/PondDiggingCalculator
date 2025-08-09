@@ -14,6 +14,7 @@ This prevents regression of the bug where validation error messages were persist
 -}
 
 import Components.ProjectForm as ProjectForm
+import Dict
 import Expect
 import Test exposing (Test, describe, test)
 import Types.DeviceType exposing (DeviceType(..))
@@ -407,6 +408,9 @@ createModelWithValidInputs deviceType =
     , nextTruckId = 1
     , infoBannerDismissed = False
     , helpTooltipState = Nothing
+    , realTimeValidation = False
+    , fieldValidationErrors = Dict.empty
+    , validationDebounce = Dict.empty
     }
 
 
@@ -428,6 +432,9 @@ createModelWithInvalidInputs deviceType =
     , nextTruckId = 1
     , infoBannerDismissed = False
     , helpTooltipState = Nothing
+    , realTimeValidation = False
+    , fieldValidationErrors = Dict.empty
+    , validationDebounce = Dict.empty
     }
 
 
