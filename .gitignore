@@ -11,6 +11,9 @@ build/
 elm.js
 index.js
 
+# Auto-generated Elm configuration files
+frontend/src/Utils/ConfigGenerated.elm
+
 # Elm packages cache
 ~/.elm/
 
