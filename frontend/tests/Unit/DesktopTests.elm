@@ -336,11 +336,7 @@ createTestModel deviceType =
 
 createTestFormData : FormData
 createTestFormData =
-    { excavatorCapacity = "2.5"
-    , excavatorCycleTime = "0.5"
-    , truckCapacity = "15.0"
-    , truckRoundTripTime = "30.0"
-    , workHoursPerDay = "8.0"
+    { workHoursPerDay = "8.0"
     , pondLength = "100.0"
     , pondWidth = "50.0"
     , pondDepth = "8.0"

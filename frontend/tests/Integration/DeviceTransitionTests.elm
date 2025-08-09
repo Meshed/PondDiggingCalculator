@@ -42,7 +42,7 @@ userInputPersistenceTests =
                         ProjectForm.initFormData Config.fallbackConfig.defaults
 
                     modifiedFormData =
-                        { desktopFormData | excavatorCapacity = "3.5" }
+                        { desktopFormData | pondLength = "50.0" }
 
                     -- Simulate device transition - form data should be preserved
                     -- In real implementation, this would be through the model state
@@ -51,23 +51,20 @@ userInputPersistenceTests =
 
                     -- State persists through shared model
                     -- Values should be identical after transition
-                    excavatorCapacityPreserved =
-                        desktopFormData.excavatorCapacity == mobileFormData.excavatorCapacity
+                    pondLengthPreserved =
+                        desktopFormData.pondLength == mobileFormData.pondLength
                 in
-                Expect.equal "3.5" mobileFormData.excavatorCapacity
+                Expect.equal "50.0" mobileFormData.pondLength
         , test "should_preserve_all_form_inputs_during_tablet_to_desktop_transition" <|
             \_ ->
                 let
-                    -- Tablet state with multiple custom inputs
+                    -- Tablet state with multiple custom project inputs
                     tabletFormData =
-                        { excavatorCapacity = "4.2"
-                        , excavatorCycleTime = "1.8"
-                        , truckCapacity = "16.5"
-                        , truckRoundTripTime = "18.0"
-                        , workHoursPerDay = "9.5"
+                        { workHoursPerDay = "9.5"
                         , pondLength = "65.0"
                         , pondWidth = "42.0"
                         , pondDepth = "7.5"
+                        , errors = []
                         }
 
                     -- Simulate transition to desktop
@@ -77,14 +74,11 @@ userInputPersistenceTests =
                     -- Preserved through shared state
                 in
                 Expect.all
-                    [ \fd -> Expect.equal "4.2" fd.excavatorCapacity
-                    , \fd -> Expect.equal "1.8" fd.excavatorCycleTime
-                    , \fd -> Expect.equal "16.5" fd.truckCapacity
-                    , \fd -> Expect.equal "18.0" fd.truckRoundTripTime
-                    , \fd -> Expect.equal "9.5" fd.workHoursPerDay
+                    [ \fd -> Expect.equal "9.5" fd.workHoursPerDay
                     , \fd -> Expect.equal "65.0" fd.pondLength
                     , \fd -> Expect.equal "42.0" fd.pondWidth
                     , \fd -> Expect.equal "7.5" fd.pondDepth
+                    , \fd -> Expect.equal [] fd.errors
                     ]
                     desktopFormData
         , test "should_preserve_complex_input_values_during_mobile_to_tablet_transition" <|

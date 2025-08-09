@@ -588,9 +588,12 @@ parseModelData model =
         Just formData ->
             let
                 -- Get first excavator and truck for calculation (mobile compatibility)
-                firstExcavator = List.head model.excavators
-                firstTruck = List.head model.trucks
-                
+                firstExcavator =
+                    List.head model.excavators
+
+                firstTruck =
+                    List.head model.trucks
+
                 -- Parse project parameters from form
                 maybeProjectFloats =
                     { workHoursPerDay = String.toFloat formData.workHoursPerDay
@@ -599,8 +602,8 @@ parseModelData model =
                     , pondDepth = String.toFloat formData.pondDepth
                     }
             in
-            case (firstExcavator, firstTruck) of
-                (Just excavator, Just truck) ->
+            case ( firstExcavator, firstTruck ) of
+                ( Just excavator, Just truck ) ->
                     case ( maybeProjectFloats.workHoursPerDay, maybeProjectFloats.pondLength ) of
                         ( Just workHoursPerDay, Just pondLength ) ->
                             case ( maybeProjectFloats.pondWidth, maybeProjectFloats.pondDepth ) of
@@ -621,10 +624,10 @@ parseModelData model =
 
                         _ ->
                             Err "Invalid work parameters format"
-                
+
                 _ ->
                     Err "No equipment available for calculation"
-        
+
         Nothing ->
             Err "No form data available"
 

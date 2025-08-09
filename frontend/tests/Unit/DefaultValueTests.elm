@@ -25,22 +25,36 @@ suite =
                             fallbackConfig
                     in
                     Expect.equal config.version "1.0.0"
-            , test "should_populate_default_excavator_values_on_init" <|
+            , test "should_populate_default_excavator_values_from_config" <|
                 \_ ->
                     let
-                        formData =
-                            initFormData fallbackConfig.defaults
+                        config =
+                            fallbackConfig
+
+                        firstExcavator =
+                            List.head config.defaults.excavators
                     in
-                    formData.excavatorCapacity
-                        |> Expect.equal "2.5"
-            , test "should_populate_default_truck_values_on_init" <|
+                    case firstExcavator of
+                        Just excavator ->
+                            Expect.within (Expect.Absolute 0.01) 2.5 excavator.bucketCapacity
+
+                        Nothing ->
+                            Expect.fail "Expected at least one excavator in config defaults"
+            , test "should_populate_default_truck_values_from_config" <|
                 \_ ->
                     let
-                        formData =
-                            initFormData fallbackConfig.defaults
+                        config =
+                            fallbackConfig
+
+                        firstTruck =
+                            List.head config.defaults.trucks
                     in
-                    formData.truckCapacity
-                        |> Expect.equal "12"
+                    case firstTruck of
+                        Just truck ->
+                            Expect.equal truck.capacity 12.0
+
+                        Nothing ->
+                            Expect.fail "Expected at least one truck in config defaults"
             , test "should_populate_default_project_dimensions_on_init" <|
                 \_ ->
                     let
@@ -117,35 +131,35 @@ suite =
                             Expect.fail "Calculation should succeed"
             ]
         , describe "Form Data String Conversion"
-            [ test "should_convert_default_floats_to_strings_correctly" <|
+            [ test "should_convert_default_project_floats_to_strings_correctly" <|
                 \_ ->
                     let
                         formData =
                             initFormData fallbackConfig.defaults
                     in
                     Expect.all
-                        [ \fd -> String.toFloat fd.excavatorCapacity |> Expect.equal (Just 2.5)
-                        , \fd -> String.toFloat fd.excavatorCycleTime |> Expect.equal (Just 2.0)
-                        , \fd -> String.toFloat fd.truckCapacity |> Expect.equal (Just 12.0)
-                        , \fd -> String.toFloat fd.truckRoundTripTime |> Expect.equal (Just 15.0)
+                        [ \fd -> String.toFloat fd.pondLength |> Expect.equal (Just 40.0)
+                        , \fd -> String.toFloat fd.pondWidth |> Expect.equal (Just 25.0)
+                        , \fd -> String.toFloat fd.pondDepth |> Expect.equal (Just 5.0)
+                        , \fd -> String.toFloat fd.workHoursPerDay |> Expect.equal (Just 8.0)
                         ]
                         formData
-            , test "should_maintain_precision_in_string_conversion" <|
+            , test "should_maintain_precision_in_project_string_conversion" <|
                 \_ ->
                     let
                         formData =
                             initFormData fallbackConfig.defaults
 
                         -- Parse back to float and ensure no precision loss
-                        excavatorCapacity =
-                            String.toFloat formData.excavatorCapacity
+                        pondLength =
+                            String.toFloat formData.pondLength
                     in
-                    case excavatorCapacity of
+                    case pondLength of
                         Just value ->
-                            Expect.within (Expect.Absolute 0.001) 2.5 value
+                            Expect.within (Expect.Absolute 0.001) 40.0 value
 
                         Nothing ->
-                            Expect.fail "Should parse back to float"
+                            Expect.fail "Should parse pond length back to float"
             ]
         , describe "Validation Rules with Defaults"
             [ test "should_have_default_values_within_validation_ranges" <|
@@ -202,11 +216,11 @@ suite =
                             initFormData fallbackConfig.defaults
 
                         hasAllValues =
-                            formData.excavatorCapacity
+                            formData.pondLength
                                 /= ""
-                                && formData.truckCapacity
+                                && formData.pondWidth
                                 /= ""
-                                && formData.pondLength
+                                && formData.workHoursPerDay
                                 /= ""
                     in
                     Expect.equal hasAllValues True
@@ -227,74 +241,33 @@ suite =
                             Expect.fail "Calculation must succeed with defaults"
             ]
         , describe "Cross-Device Default Value Consistency"
-            [ test "should_load_identical_excavator_defaults_across_devices" <|
+            [ test "should_load_identical_equipment_config_across_devices" <|
                 \_ ->
                     let
-                        -- Config loading is device-agnostic - same config.json for all devices
+                        -- Equipment config is device-agnostic - same config for all devices
                         config =
                             fallbackConfig
 
-                        -- Form initialization should be identical for all device types
-                        mobileFormData =
-                            initFormData config.defaults
+                        firstExcavator =
+                            List.head config.defaults.excavators
 
-                        tabletFormData =
-                            initFormData config.defaults
-
-                        desktopFormData =
-                            initFormData config.defaults
-
-                        -- Expected values from config.json
-                        expectedExcavatorCapacity =
-                            "2.5"
-
-                        expectedExcavatorCycle =
-                            "2"
+                        firstTruck =
+                            List.head config.defaults.trucks
                     in
-                    Expect.all
-                        [ \_ -> Expect.equal expectedExcavatorCapacity mobileFormData.excavatorCapacity
-                        , \_ -> Expect.equal expectedExcavatorCapacity tabletFormData.excavatorCapacity
-                        , \_ -> Expect.equal expectedExcavatorCapacity desktopFormData.excavatorCapacity
-                        , \_ -> Expect.equal mobileFormData.excavatorCapacity tabletFormData.excavatorCapacity
-                        , \_ -> Expect.equal tabletFormData.excavatorCapacity desktopFormData.excavatorCapacity
-                        , \_ -> Expect.equal expectedExcavatorCycle mobileFormData.excavatorCycleTime
-                        , \_ -> Expect.equal expectedExcavatorCycle tabletFormData.excavatorCycleTime
-                        , \_ -> Expect.equal expectedExcavatorCycle desktopFormData.excavatorCycleTime
-                        ]
-                        ()
-            , test "should_load_identical_truck_defaults_across_devices" <|
-                \_ ->
-                    let
-                        config =
-                            fallbackConfig
+                    case ( firstExcavator, firstTruck ) of
+                        ( Just excavator, Just truck ) ->
+                            Expect.all
+                                [ \_ -> Expect.within (Expect.Absolute 0.01) 2.5 excavator.bucketCapacity
+                                , \_ -> Expect.within (Expect.Absolute 0.01) 2.0 excavator.cycleTime
+                                , \_ -> Expect.equal "CAT 320 Excavator" excavator.name
+                                , \_ -> Expect.within (Expect.Absolute 0.01) 12.0 truck.capacity
+                                , \_ -> Expect.within (Expect.Absolute 0.01) 15.0 truck.roundTripTime
+                                , \_ -> Expect.equal "Standard Dump Truck" truck.name
+                                ]
+                                ()
 
-                        mobileFormData =
-                            initFormData config.defaults
-
-                        tabletFormData =
-                            initFormData config.defaults
-
-                        desktopFormData =
-                            initFormData config.defaults
-
-                        -- Expected values from config.json
-                        expectedTruckCapacity =
-                            "12"
-
-                        expectedTruckRoundTrip =
-                            "15"
-                    in
-                    Expect.all
-                        [ \_ -> Expect.equal expectedTruckCapacity mobileFormData.truckCapacity
-                        , \_ -> Expect.equal expectedTruckCapacity tabletFormData.truckCapacity
-                        , \_ -> Expect.equal expectedTruckCapacity desktopFormData.truckCapacity
-                        , \_ -> Expect.equal mobileFormData.truckCapacity tabletFormData.truckCapacity
-                        , \_ -> Expect.equal tabletFormData.truckCapacity desktopFormData.truckCapacity
-                        , \_ -> Expect.equal expectedTruckRoundTrip mobileFormData.truckRoundTripTime
-                        , \_ -> Expect.equal expectedTruckRoundTrip tabletFormData.truckRoundTripTime
-                        , \_ -> Expect.equal expectedTruckRoundTrip desktopFormData.truckRoundTripTime
-                        ]
-                        ()
+                        _ ->
+                            Expect.fail "Expected at least one excavator and truck in config"
             , test "should_load_identical_project_defaults_across_devices" <|
                 \_ ->
                     let
@@ -310,7 +283,7 @@ suite =
                         desktopFormData =
                             initFormData config.defaults
 
-                        -- Expected values from config.json
+                        -- Expected values from config
                         expectedWorkHours =
                             "8"
 
@@ -344,7 +317,6 @@ suite =
                         pondVolume =
                             (40.0 * 25.0 * 5.0) / 27.0
 
-                        -- ~185 cubic yards
                         -- Calculate timeline using default values (device-agnostic)
                         mobileResult =
                             calculateTimeline 2.5 2.0 12.0 15.0 pondVolume 8.0
@@ -373,119 +345,27 @@ suite =
 
                         _ ->
                             Expect.fail "Default value calculations should succeed identically across all devices"
-            , test "should_handle_configuration_loading_errors_identically_across_devices" <|
-                \_ ->
-                    let
-                        -- Fallback config is device-agnostic
-                        mobileConfig =
-                            fallbackConfig
-
-                        tabletConfig =
-                            fallbackConfig
-
-                        desktopConfig =
-                            fallbackConfig
-                    in
-                    Expect.all
-                        [ \_ -> Expect.equal mobileConfig.version tabletConfig.version
-                        , \_ -> Expect.equal tabletConfig.version desktopConfig.version
-                        , \_ -> Expect.within (Expect.Absolute 0.001) (List.head mobileConfig.defaults.excavators |> Maybe.map .bucketCapacity |> Maybe.withDefault 0.0) (List.head tabletConfig.defaults.excavators |> Maybe.map .bucketCapacity |> Maybe.withDefault 0.0)
-                        , \_ -> Expect.within (Expect.Absolute 0.001) (List.head tabletConfig.defaults.excavators |> Maybe.map .bucketCapacity |> Maybe.withDefault 0.0) (List.head desktopConfig.defaults.excavators |> Maybe.map .bucketCapacity |> Maybe.withDefault 0.0)
-                        , \_ -> Expect.within (Expect.Absolute 0.001) (List.head mobileConfig.defaults.trucks |> Maybe.map .capacity |> Maybe.withDefault 0.0) (List.head tabletConfig.defaults.trucks |> Maybe.map .capacity |> Maybe.withDefault 0.0)
-                        , \_ -> Expect.within (Expect.Absolute 0.001) (List.head tabletConfig.defaults.trucks |> Maybe.map .capacity |> Maybe.withDefault 0.0) (List.head desktopConfig.defaults.trucks |> Maybe.map .capacity |> Maybe.withDefault 0.0)
-                        ]
-                        ()
             , test "should_maintain_validation_consistency_with_defaults_across_devices" <|
                 \_ ->
                     let
                         config =
                             fallbackConfig
 
-                        -- Validation rules should be identical across devices
-                        mobileValidation =
+                        -- Validation rules are identical across devices (same config)
+                        validation =
                             config.validation
 
-                        tabletValidation =
-                            config.validation
-
-                        desktopValidation =
-                            config.validation
-
-                        -- Default values should be within validation ranges on all devices
                         defaults =
                             config.defaults
                     in
                     Expect.all
-                        [ \_ -> Expect.within (Expect.Absolute 0.001) mobileValidation.excavatorCapacity.min tabletValidation.excavatorCapacity.min
-                        , \_ -> Expect.within (Expect.Absolute 0.001) tabletValidation.excavatorCapacity.min desktopValidation.excavatorCapacity.min
-                        , \_ -> Expect.within (Expect.Absolute 0.001) mobileValidation.excavatorCapacity.max tabletValidation.excavatorCapacity.max
-                        , \_ -> Expect.within (Expect.Absolute 0.001) tabletValidation.excavatorCapacity.max desktopValidation.excavatorCapacity.max
-                        , \_ -> Expect.atLeast mobileValidation.excavatorCapacity.min (List.head defaults.excavators |> Maybe.map .bucketCapacity |> Maybe.withDefault 0.0)
-                        , \_ -> Expect.atMost mobileValidation.excavatorCapacity.max (List.head defaults.excavators |> Maybe.map .bucketCapacity |> Maybe.withDefault 0.0)
-                        , \_ -> Expect.atLeast tabletValidation.truckCapacity.min (List.head defaults.trucks |> Maybe.map .capacity |> Maybe.withDefault 0.0)
-                        , \_ -> Expect.atMost tabletValidation.truckCapacity.max (List.head defaults.trucks |> Maybe.map .capacity |> Maybe.withDefault 0.0)
+                        [ \_ -> Expect.atLeast validation.excavatorCapacity.min (List.head defaults.excavators |> Maybe.map .bucketCapacity |> Maybe.withDefault 0.0)
+                        , \_ -> Expect.atMost validation.excavatorCapacity.max (List.head defaults.excavators |> Maybe.map .bucketCapacity |> Maybe.withDefault 0.0)
+                        , \_ -> Expect.atLeast validation.truckCapacity.min (List.head defaults.trucks |> Maybe.map .capacity |> Maybe.withDefault 0.0)
+                        , \_ -> Expect.atMost validation.truckCapacity.max (List.head defaults.trucks |> Maybe.map .capacity |> Maybe.withDefault 0.0)
+                        , \_ -> Expect.atLeast validation.pondDimensions.min 40.0
+                        , \_ -> Expect.atMost validation.pondDimensions.max 40.0
                         ]
                         ()
-            , test "should_populate_equipment_names_identically_across_devices" <|
-                \_ ->
-                    let
-                        config =
-                            fallbackConfig
-
-                        defaults =
-                            config.defaults
-
-                        -- Equipment names from config should be identical across devices
-                        expectedExcavatorName =
-                            "CAT 320 Excavator"
-
-                        expectedTruckName =
-                            "Standard Dump Truck"
-                    in
-                    Expect.all
-                        [ \_ -> Expect.equal expectedExcavatorName (List.head defaults.excavators |> Maybe.map .name |> Maybe.withDefault "")
-                        , \_ -> Expect.equal expectedTruckName (List.head defaults.trucks |> Maybe.map .name |> Maybe.withDefault "")
-                        , \_ -> String.length (List.head defaults.excavators |> Maybe.map .name |> Maybe.withDefault "") |> Expect.greaterThan 0
-                        , \_ -> String.length (List.head defaults.trucks |> Maybe.map .name |> Maybe.withDefault "") |> Expect.greaterThan 0
-                        ]
-                        ()
-            , test "should_ensure_string_conversion_consistency_across_devices" <|
-                \_ ->
-                    let
-                        config =
-                            fallbackConfig
-
-                        mobileFormData =
-                            initFormData config.defaults
-
-                        tabletFormData =
-                            initFormData config.defaults
-
-                        desktopFormData =
-                            initFormData config.defaults
-
-                        -- Parse back to ensure no precision loss on any device
-                        mobileCapacity =
-                            String.toFloat mobileFormData.excavatorCapacity
-
-                        tabletCapacity =
-                            String.toFloat tabletFormData.excavatorCapacity
-
-                        desktopCapacity =
-                            String.toFloat desktopFormData.excavatorCapacity
-                    in
-                    case ( mobileCapacity, tabletCapacity, desktopCapacity ) of
-                        ( Just mobile, Just tablet, Just desktop ) ->
-                            Expect.all
-                                [ \_ -> Expect.within (Expect.Absolute 0.001) 2.5 mobile
-                                , \_ -> Expect.within (Expect.Absolute 0.001) 2.5 tablet
-                                , \_ -> Expect.within (Expect.Absolute 0.001) 2.5 desktop
-                                , \_ -> Expect.within (Expect.Absolute 0.001) mobile tablet
-                                , \_ -> Expect.within (Expect.Absolute 0.001) tablet desktop
-                                ]
-                                ()
-
-                        _ ->
-                            Expect.fail "String conversion should work identically across all devices"
             ]
         ]

@@ -413,14 +413,10 @@ createTestModelWithState : List Excavator -> List Truck -> Model
 createTestModelWithState excavators trucks =
     let
         testFormData =
-            { excavatorCapacity = "2.5"
-            , excavatorCycleTime = "2.0"
-            , truckCapacity = "12.0"
-            , truckRoundTripTime = "15.0"
+            { workHoursPerDay = "8.0"
             , pondLength = "40.0"
             , pondWidth = "25.0"
             , pondDepth = "5.0"
-            , workHoursPerDay = "8.0"
             , errors = []
             }
     in

@@ -121,12 +121,11 @@ deviceSwitchingTests =
                     ( Just mobileForm, Just desktopForm ) ->
                         -- Form data should be identical
                         Expect.all
-                            [ \_ -> Expect.equal mobileForm.excavatorCapacity desktopForm.excavatorCapacity
-                            , \_ -> Expect.equal mobileForm.truckCapacity desktopForm.truckCapacity
-                            , \_ -> Expect.equal mobileForm.pondLength desktopForm.pondLength
+                            [ \_ -> Expect.equal mobileForm.pondLength desktopForm.pondLength
                             , \_ -> Expect.equal mobileForm.pondWidth desktopForm.pondWidth
                             , \_ -> Expect.equal mobileForm.pondDepth desktopForm.pondDepth
                             , \_ -> Expect.equal mobileForm.workHoursPerDay desktopForm.workHoursPerDay
+                            , \_ -> Expect.equal mobileForm.errors desktopForm.errors
                             ]
                             ()
 
@@ -229,11 +228,7 @@ createModelWithResult deviceType result =
 
 createTestFormData : ProjectForm.FormData
 createTestFormData =
-    { excavatorCapacity = "4.0"
-    , excavatorCycleTime = "1.8"
-    , truckCapacity = "18.0"
-    , truckRoundTripTime = "12.0"
-    , workHoursPerDay = "9.0"
+    { workHoursPerDay = "9.0"
     , pondLength = "80.0"
     , pondWidth = "40.0"
     , pondDepth = "7.0"

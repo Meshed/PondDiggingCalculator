@@ -431,11 +431,7 @@ createModelWithInvalidInputs deviceType =
 
 createValidFormData : ProjectForm.FormData
 createValidFormData =
-    { excavatorCapacity = "2.5"
-    , excavatorCycleTime = "0.75"
-    , truckCapacity = "15.0"
-    , truckRoundTripTime = "45.0"
-    , workHoursPerDay = "8.0"
+    { workHoursPerDay = "8.0"
     , pondLength = "100.0"
     , pondWidth = "50.0"
     , pondDepth = "6.0"
@@ -445,11 +441,7 @@ createValidFormData =
 
 createInvalidFormData : ProjectForm.FormData
 createInvalidFormData =
-    { excavatorCapacity = "not-a-number"
-    , excavatorCycleTime = "0.75"
-    , truckCapacity = "15.0"
-    , truckRoundTripTime = "45.0"
-    , workHoursPerDay = "8.0"
+    { workHoursPerDay = "not-a-number" -- Invalid to test validation
     , pondLength = "100.0"
     , pondWidth = "50.0"
     , pondDepth = "6.0"

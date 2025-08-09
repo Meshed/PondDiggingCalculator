@@ -105,45 +105,61 @@ viewEquipmentSection : Model -> Html Msg
 viewEquipmentSection model =
     let
         -- Mobile shows only the first excavator and truck (simplified fleet view)
-        firstExcavator = 
+        firstExcavator =
             List.head model.excavators
 
-        firstTruck = 
+        firstTruck =
             List.head model.trucks
     in
-    case (firstExcavator, firstTruck) of
-        (Just excavator, Just truck) ->
+    case ( firstExcavator, firstTruck ) of
+        ( Just excavator, Just truck ) ->
             viewInputGroup "Equipment Specifications"
-                [ viewNumberInput "Excavator Bucket Capacity" "yd³" 
-                    (String.fromFloat excavator.bucketCapacity) 
-                    (\val -> 
+                [ viewNumberInput "Excavator Bucket Capacity"
+                    "yd³"
+                    (String.fromFloat excavator.bucketCapacity)
+                    (\val ->
                         case String.toFloat val of
-                            Just f -> UpdateExcavator excavator.id (Types.Messages.UpdateExcavatorBucketCapacity f)
-                            Nothing -> NoOp
+                            Just f ->
+                                UpdateExcavator excavator.id (Types.Messages.UpdateExcavatorBucketCapacity f)
+
+                            Nothing ->
+                                NoOp
                     )
-                , viewNumberInput "Excavator Cycle Time" "min" 
-                    (String.fromFloat excavator.cycleTime) 
-                    (\val -> 
+                , viewNumberInput "Excavator Cycle Time"
+                    "min"
+                    (String.fromFloat excavator.cycleTime)
+                    (\val ->
                         case String.toFloat val of
-                            Just f -> UpdateExcavator excavator.id (Types.Messages.UpdateExcavatorCycleTime f)
-                            Nothing -> NoOp
+                            Just f ->
+                                UpdateExcavator excavator.id (Types.Messages.UpdateExcavatorCycleTime f)
+
+                            Nothing ->
+                                NoOp
                     )
-                , viewNumberInput "Truck Capacity" "yd³" 
-                    (String.fromFloat truck.capacity) 
-                    (\val -> 
+                , viewNumberInput "Truck Capacity"
+                    "yd³"
+                    (String.fromFloat truck.capacity)
+                    (\val ->
                         case String.toFloat val of
-                            Just f -> UpdateTruck truck.id (Types.Messages.UpdateTruckCapacity f)
-                            Nothing -> NoOp
+                            Just f ->
+                                UpdateTruck truck.id (Types.Messages.UpdateTruckCapacity f)
+
+                            Nothing ->
+                                NoOp
                     )
-                , viewNumberInput "Truck Round Trip Time" "min" 
-                    (String.fromFloat truck.roundTripTime) 
-                    (\val -> 
+                , viewNumberInput "Truck Round Trip Time"
+                    "min"
+                    (String.fromFloat truck.roundTripTime)
+                    (\val ->
                         case String.toFloat val of
-                            Just f -> UpdateTruck truck.id (Types.Messages.UpdateTruckRoundTripTime f)
-                            Nothing -> NoOp
+                            Just f ->
+                                UpdateTruck truck.id (Types.Messages.UpdateTruckRoundTripTime f)
+
+                            Nothing ->
+                                NoOp
                     )
                 ]
-        
+
         _ ->
             viewInputGroup "Equipment Specifications"
                 [ div [ class "text-gray-500 text-center py-4" ]
