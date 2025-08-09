@@ -96,3 +96,6 @@ temp/
 # Cypress test artifacts
 frontend/cypress/screenshots/
 frontend/cypress/videos/
+
+# Windows command artifacts
+nul
