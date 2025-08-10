@@ -39,6 +39,8 @@ type alias Model =
     , nextExcavatorId : Int -- ID generator for excavators
     , nextTruckId : Int -- ID generator for trucks
     , helpTooltipState : Maybe String -- Track active tooltip field ID
+    , showHelpPanel : Bool -- Whether help modal is visible
+    , currentContextualHelp : Maybe String -- Current contextual help section
     , realTimeValidation : Bool -- Enable/disable real-time validation
     , fieldValidationErrors : Dict String ValidationError -- Field-specific validation errors
     , validationDebounce : Dict String Time.Posix -- Validation debounce state per field

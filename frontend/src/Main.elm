@@ -2,6 +2,7 @@ module Main exposing (main)
 
 import Browser
 import Browser.Events
+import Components.HelpSystem as HelpSystem
 import Components.OnboardingManager as OnboardingManager
 import Components.ProjectForm as ProjectForm
 import Components.ResultsPanel as ResultsPanel
@@ -81,6 +82,8 @@ init _ =
             , nextExcavatorId = 1 + List.length initialExcavators -- Start ID counter after initial fleet
             , nextTruckId = 1 + List.length initialTrucks -- Start ID counter after initial fleet
             , helpTooltipState = Nothing -- No active tooltip initially
+            , showHelpPanel = False -- Help panel hidden initially
+            , currentContextualHelp = Nothing -- No contextual help shown initially
             , realTimeValidation = True -- Enable real-time validation by default
             , fieldValidationErrors = Dict.empty -- No validation errors initially
             , validationDebounce = Dict.empty -- No debounce state initially
@@ -308,6 +311,24 @@ update msg model =
 
         HideHelpTooltip fieldId ->
             ( { model | helpTooltipState = Nothing }, Cmd.none )
+
+        ToggleHelpPanel ->
+            ( { model | showHelpPanel = not model.showHelpPanel }, Cmd.none )
+
+        ShowContextualHelp sectionId ->
+            ( { model | currentContextualHelp = Just sectionId, showHelpPanel = True }, Cmd.none )
+
+        RestartGuidedTour ->
+            let
+                updatedModel =
+                    { model
+                        | showHelpPanel = False
+                        , onboardingState = NotStarted
+                        , currentTourStep = Nothing
+                        , showWelcomeOverlay = True
+                    }
+            in
+            ( updatedModel, Cmd.none )
 
         KeyPressed key ->
             case key of
@@ -943,4 +964,11 @@ view model =
 
         -- Show onboarding components (welcome overlay, guided tour, etc.)
         , OnboardingManager.view model
+
+        -- Show help system only when welcome overlay is not active (prevents question marks in overlay)
+        , if not model.showWelcomeOverlay then
+            HelpSystem.view model.deviceType model.helpTooltipState model.showHelpPanel model.currentContextualHelp
+
+          else
+            text ""
         ]

@@ -59,6 +59,9 @@ type Msg
       -- Help System Messages
     | ShowHelpTooltip String -- field ID
     | HideHelpTooltip String -- field ID
+    | ToggleHelpPanel -- Show/hide main help modal
+    | ShowContextualHelp String -- feature/section ID for contextual help
+    | RestartGuidedTour -- Restart onboarding tour from help system
     | KeyPressed String -- key name
       -- Real-time Validation Messages
     | ValidateField String String -- field name, input value
