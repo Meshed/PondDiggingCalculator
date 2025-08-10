@@ -70,7 +70,7 @@ jobs:
     
     - name: Deploy rollback to GitHub Pages
       id: deployment
-      uses: actions/deploy-pages@v2
+      uses: actions/deploy-pages@v4
     
     - name: Create rollback issue
       uses: actions/github-script@v6
