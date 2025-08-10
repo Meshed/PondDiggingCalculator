@@ -64,6 +64,16 @@ type Msg
     | ValidateField String String -- field name, input value
     | ValidationComplete String (Result ValidationError Float) -- field name, validation result
     | ToggleRealTimeValidation Bool
+      -- Onboarding Messages
+    | OnboardingStateLoaded (Maybe String) -- JSON from storage
+    | StartGuidedTour
+    | NextTourStep
+    | PreviousTourStep
+    | CompleteTour
+    | SkipOnboarding
+    | LoadExampleScenario
+    | ClearExampleScenario
+    | DismissWelcomeOverlay
 
 
 

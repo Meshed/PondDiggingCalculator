@@ -11,6 +11,7 @@ import Dict exposing (Dict)
 import Time
 import Types.DeviceType exposing (DeviceType)
 import Types.Equipment exposing (Excavator, Truck)
+import Types.Onboarding exposing (OnboardingState, TourStep)
 import Types.Validation exposing (ValidationError)
 import Utils.Calculations exposing (CalculationResult)
 import Utils.Config exposing (Config)
@@ -41,6 +42,13 @@ type alias Model =
     , realTimeValidation : Bool -- Enable/disable real-time validation
     , fieldValidationErrors : Dict String ValidationError -- Field-specific validation errors
     , validationDebounce : Dict String Time.Posix -- Validation debounce state per field
+
+    -- Onboarding State
+    , onboardingState : OnboardingState -- Current onboarding progress
+    , showWelcomeOverlay : Bool -- Whether to show welcome overlay
+    , currentTourStep : Maybe TourStep -- Current step in guided tour
+    , isFirstTimeUser : Bool -- Whether this is the user's first visit
+    , exampleScenarioLoaded : Bool -- Whether example scenario is currently loaded
 
     -- REMOVED: mobileModel - Mobile now uses same state as desktop!
     }

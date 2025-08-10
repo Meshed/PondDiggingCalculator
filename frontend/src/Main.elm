@@ -2,6 +2,7 @@ module Main exposing (main)
 
 import Browser
 import Browser.Events
+import Components.OnboardingManager as OnboardingManager
 import Components.ProjectForm as ProjectForm
 import Components.ResultsPanel as ResultsPanel
 import Dict
@@ -16,12 +17,15 @@ import Types.Equipment exposing (EquipmentId, Excavator, Truck)
 import Types.Fields exposing (ExcavatorField(..), PondField(..), ProjectField(..), TruckField(..))
 import Types.Messages exposing (ExcavatorUpdate(..), Msg(..), TruckUpdate(..))
 import Types.Model exposing (Flags, Model)
+import Types.Onboarding exposing (OnboardingState(..))
 import Types.Validation exposing (ValidationError(..))
 import Utils.Calculations as Calculations
 import Utils.Config exposing (Config, fallbackConfig, getConfig)
 import Utils.Debounce as Debounce
 import Utils.DeviceDetector as DeviceDetector
+import Utils.ExampleScenario as ExampleScenario
 import Utils.Performance as Performance
+import Utils.Storage as Storage
 import Utils.Validation as Validation
 import Views.MobileView as MobileView
 
@@ -80,11 +84,25 @@ init _ =
             , realTimeValidation = True -- Enable real-time validation by default
             , fieldValidationErrors = Dict.empty -- No validation errors initially
             , validationDebounce = Dict.empty -- No debounce state initially
+
+            -- Initialize onboarding state
+            , onboardingState = NotStarted
+            , showWelcomeOverlay = True -- Show welcome overlay for first-time users
+            , currentTourStep = Nothing
+            , isFirstTimeUser = True -- Will be updated based on storage
+            , exampleScenarioLoaded = False
             }
     in
     -- Initialize with data and immediately trigger calculation with default values
     update CalculateTimeline modelWithData
-        |> Tuple.mapSecond (\cmd -> Cmd.batch [ cmd, DeviceDetector.detectDevice () |> Cmd.map DeviceDetected ])
+        |> Tuple.mapSecond
+            (\cmd ->
+                Cmd.batch
+                    [ cmd
+                    , DeviceDetector.detectDevice () |> Cmd.map DeviceDetected
+                    , Storage.loadOnboardingState OnboardingStateLoaded
+                    ]
+            )
 
 
 
@@ -352,6 +370,146 @@ update msg model =
                     }
             in
             ( updatedModel, Cmd.none )
+
+        -- Onboarding Messages
+        OnboardingStateLoaded maybeJsonState ->
+            case maybeJsonState of
+                Just jsonString ->
+                    let
+                        loadedState =
+                            Storage.decodeOnboardingState jsonString
+
+                        updatedModel =
+                            { model
+                                | onboardingState = loadedState
+                                , isFirstTimeUser = False
+                                , showWelcomeOverlay = loadedState == NotStarted
+                            }
+                    in
+                    ( updatedModel, Cmd.none )
+
+                Nothing ->
+                    -- First-time user - keep initial onboarding state
+                    ( model, Cmd.none )
+
+        StartGuidedTour ->
+            let
+                updatedModel =
+                    { model
+                        | onboardingState = TourInProgress 0
+                        , currentTourStep = Just Types.Onboarding.IntroStep
+                        , showWelcomeOverlay = False
+                    }
+            in
+            ( updatedModel, Storage.saveOnboardingState (TourInProgress 0) )
+
+        NextTourStep ->
+            case model.onboardingState of
+                TourInProgress currentStepIndex ->
+                    let
+                        config =
+                            Types.Onboarding.defaultOnboardingConfig model.deviceType
+
+                        nextStepIndex =
+                            currentStepIndex + 1
+
+                        maxStepIndex =
+                            List.length config.tourSteps - 1
+                    in
+                    if nextStepIndex <= maxStepIndex then
+                        let
+                            nextStep =
+                                List.drop nextStepIndex config.tourSteps
+                                    |> List.head
+                                    |> Maybe.withDefault Types.Onboarding.CompletionStep
+
+                            updatedModel =
+                                { model
+                                    | onboardingState = TourInProgress nextStepIndex
+                                    , currentTourStep = Just nextStep
+                                }
+                        in
+                        ( updatedModel, Storage.saveOnboardingState (TourInProgress nextStepIndex) )
+
+                    else
+                        -- Tour completed
+                        update CompleteTour model
+
+                _ ->
+                    ( model, Cmd.none )
+
+        PreviousTourStep ->
+            case model.onboardingState of
+                TourInProgress currentStepIndex ->
+                    if currentStepIndex > 0 then
+                        let
+                            config =
+                                Types.Onboarding.defaultOnboardingConfig model.deviceType
+
+                            prevStepIndex =
+                                currentStepIndex - 1
+
+                            prevStep =
+                                List.drop prevStepIndex config.tourSteps
+                                    |> List.head
+                                    |> Maybe.withDefault Types.Onboarding.IntroStep
+
+                            updatedModel =
+                                { model
+                                    | onboardingState = TourInProgress prevStepIndex
+                                    , currentTourStep = Just prevStep
+                                }
+                        in
+                        ( updatedModel, Storage.saveOnboardingState (TourInProgress prevStepIndex) )
+
+                    else
+                        ( model, Cmd.none )
+
+                _ ->
+                    ( model, Cmd.none )
+
+        CompleteTour ->
+            let
+                updatedModel =
+                    { model
+                        | onboardingState = Completed
+                        , currentTourStep = Nothing
+                        , showWelcomeOverlay = False
+                    }
+            in
+            ( updatedModel, Storage.saveOnboardingState Completed )
+
+        SkipOnboarding ->
+            let
+                updatedModel =
+                    { model
+                        | onboardingState = Completed
+                        , showWelcomeOverlay = False
+                        , currentTourStep = Nothing
+                    }
+            in
+            ( updatedModel, Storage.saveOnboardingState Completed )
+
+        LoadExampleScenario ->
+            let
+                ( updatedModel, cmd ) =
+                    ExampleScenario.loadExampleScenario model
+            in
+            -- Trigger calculation after loading example
+            update CalculateTimeline updatedModel
+                |> Tuple.mapSecond (\calcCmd -> Cmd.batch [ cmd, calcCmd ])
+
+        ClearExampleScenario ->
+            let
+                ( updatedModel, cmd ) =
+                    ExampleScenario.clearExampleScenario model
+            in
+            -- Trigger calculation after clearing example
+            update CalculateTimeline updatedModel
+                |> Tuple.mapSecond (\calcCmd -> Cmd.batch [ cmd, calcCmd ])
+
+        DismissWelcomeOverlay ->
+            ( { model | showWelcomeOverlay = False }, Cmd.none )
 
 
 
@@ -769,11 +927,20 @@ keyDecoder =
 
 view : Model -> Html Msg
 view model =
-    -- Route to mobile view for mobile devices (now using SHARED state!)
-    case model.deviceType of
-        Mobile ->
-            MobileView.view model
+    let
+        mainView =
+            -- Route to mobile view for mobile devices (now using SHARED state!)
+            case model.deviceType of
+                Mobile ->
+                    MobileView.view model
 
-        _ ->
-            -- Desktop/Tablet view - Use the full Desktop page with fleet management
-            Desktop.view model
+                _ ->
+                    -- Desktop/Tablet view - Use the full Desktop page with fleet management
+                    Desktop.view model
+    in
+    div []
+        [ mainView
+
+        -- Show onboarding components (welcome overlay, guided tour, etc.)
+        , OnboardingManager.view model
+        ]

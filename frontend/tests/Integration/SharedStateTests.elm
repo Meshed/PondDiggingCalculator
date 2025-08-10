@@ -17,6 +17,7 @@ import Types.DeviceType exposing (DeviceType(..))
 import Types.Fields exposing (ExcavatorField(..), PondField(..), ProjectField(..), TruckField(..))
 import Types.Messages exposing (Msg(..))
 import Types.Model exposing (Model)
+import Types.Onboarding
 import Utils.Calculations exposing (Bottleneck(..), CalculationResult, ConfidenceLevel(..))
 import Utils.Config as Config
 import Utils.Debounce
@@ -209,6 +210,13 @@ createTestModel deviceType =
     , realTimeValidation = False
     , fieldValidationErrors = Dict.empty
     , validationDebounce = Dict.empty
+
+    -- Onboarding state
+    , onboardingState = Types.Onboarding.Completed
+    , showWelcomeOverlay = False
+    , currentTourStep = Nothing
+    , isFirstTimeUser = False
+    , exampleScenarioLoaded = False
     }
 
 

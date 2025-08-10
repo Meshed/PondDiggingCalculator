@@ -20,6 +20,7 @@ import Test exposing (Test, describe, test)
 import Types.DeviceType exposing (DeviceType(..))
 import Types.Messages exposing (Msg(..))
 import Types.Model exposing (Model)
+import Types.Onboarding
 import Utils.Calculations exposing (CalculationResult)
 import Utils.Config
 import Utils.Debounce
@@ -304,6 +305,13 @@ createModelWithValidData =
     , realTimeValidation = False
     , fieldValidationErrors = Dict.empty
     , validationDebounce = Dict.empty
+
+    -- Onboarding state
+    , onboardingState = Types.Onboarding.Completed
+    , showWelcomeOverlay = False
+    , currentTourStep = Nothing
+    , isFirstTimeUser = False
+    , exampleScenarioLoaded = False
     }
 
 
@@ -327,6 +335,13 @@ createModelWithInvalidData =
     , realTimeValidation = False
     , fieldValidationErrors = Dict.empty
     , validationDebounce = Dict.empty
+
+    -- Onboarding state
+    , onboardingState = Types.Onboarding.Completed
+    , showWelcomeOverlay = False
+    , currentTourStep = Nothing
+    , isFirstTimeUser = False
+    , exampleScenarioLoaded = False
     }
 
 

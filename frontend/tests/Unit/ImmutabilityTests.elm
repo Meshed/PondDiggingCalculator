@@ -13,6 +13,7 @@ import Types.DeviceType exposing (DeviceType(..))
 import Types.Equipment exposing (EquipmentId, Excavator, Truck)
 import Types.Messages exposing (ExcavatorUpdate(..), Msg(..), TruckUpdate(..))
 import Types.Model exposing (Model)
+import Types.Onboarding
 import Utils.Config
 import Utils.Debounce
 import Utils.Performance
@@ -383,4 +384,11 @@ createTestModel excavators trucks =
     , realTimeValidation = False
     , fieldValidationErrors = Dict.empty
     , validationDebounce = Dict.empty
+
+    -- Onboarding state
+    , onboardingState = Types.Onboarding.Completed
+    , showWelcomeOverlay = False
+    , currentTourStep = Nothing
+    , isFirstTimeUser = False
+    , exampleScenarioLoaded = False
     }
