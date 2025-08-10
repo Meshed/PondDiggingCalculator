@@ -3,9 +3,9 @@
   "defaults": {
     "excavators": [
       {
-        "bucketCapacity": 2.5,
+        "bucketCapacity": 1.1,
         "cycleTime": 2.0,
-        "name": "CAT 320 Excavator"
+        "name": "CAT 320C Excavator"
       }
     ],
     "trucks": [
@@ -27,11 +27,52 @@
     "maxTrucks": 20
   },
   "validation": {
-    "excavatorCapacity": { "min": 0.1, "max": 15.0 },
+    "excavatorCapacity": { "min": 0.5, "max": 15.0 },
     "cycleTime": { "min": 0.5, "max": 10.0 },
-    "truckCapacity": { "min": 5.0, "max": 50.0 },
-    "roundTripTime": { "min": 5.0, "max": 120.0 },
+    "truckCapacity": { "min": 10.0, "max": 50.0 },
+    "roundTripTime": { "min": 5.0, "max": 60.0 },
     "workHours": { "min": 1.0, "max": 24.0 },
     "pondDimensions": { "min": 1.0, "max": 1000.0 }
+  },
+  "equipmentResearch": {
+    "sources": "Research conducted 2025-08-10",
+    "excavatorSpecs": {
+      "small": {
+        "range": "0.5-3.0 cubic yards",
+        "examples": "Mini excavators, compact models",
+        "typicalCycleTime": "16-25 seconds per cycle"
+      },
+      "medium": {
+        "range": "1.0-2.5 cubic yards",
+        "examples": "CAT 320C (1.1 cy standard), CAT 330 (2.3 cy)",
+        "notes": "Standard construction excavators"
+      },
+      "large": {
+        "range": "6.8-8.8+ cubic yards",
+        "examples": "CAT 395 (6.8-8.8 cy), mining class equipment",
+        "notes": "Heavy construction and mining applications"
+      }
+    },
+    "truckSpecs": {
+      "highway": {
+        "range": "10-20 cubic yards",
+        "notes": "Standard on-road dump trucks for typical projects"
+      },
+      "articulated": {
+        "range": "20-45 cubic yards",
+        "examples": "Volvo A25G (20cy) to A60H (43.9cy), CAT 745 (32.7cy)",
+        "notes": "Off-road articulated dump trucks for construction sites"
+      },
+      "rigid": {
+        "range": "20-90+ cubic yards",
+        "notes": "Large projects and mining, 60+ tons capacity"
+      }
+    },
+    "validationNotes": {
+      "excavatorCapacity": "Updated min to 0.5cy based on mini excavator research",
+      "truckCapacity": "Updated min to 10cy based on standard highway dump truck research",
+      "roundTripTime": "Updated max to 60min based on suburban construction site research",
+      "defaultExcavator": "CAT 320C standard bucket: 1.1cy (validated against manufacturer specs)"
+    }
   }
 }
