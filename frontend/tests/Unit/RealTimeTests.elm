@@ -86,10 +86,10 @@ suite =
                             Performance.initMetrics
                     in
                     Expect.all
-                        [ \() -> Expect.equal metrics.lastCalculationTime 0.0
-                        , \() -> Expect.equal metrics.averageTime 0.0
-                        , \() -> Expect.equal metrics.maxTime 0.0
-                        , \() -> Expect.equal metrics.calculationCount 0
+                        [ \() -> Expect.equal Nothing metrics.calculationTime
+                        , \() -> Expect.equal 0.0 metrics.averageCalculationTime
+                        , \() -> Expect.equal 0.0 metrics.maxCalculationTime
+                        , \() -> Expect.equal 0 metrics.calculationCount
                         ]
                         ()
             , test "should_record_calculation_time" <|
@@ -102,10 +102,10 @@ suite =
                             Performance.recordCalculationTime 50.0 initialMetrics
                     in
                     Expect.all
-                        [ \() -> Expect.equal updatedMetrics.lastCalculationTime 50.0
-                        , \() -> Expect.equal updatedMetrics.averageTime 50.0
-                        , \() -> Expect.equal updatedMetrics.maxTime 50.0
-                        , \() -> Expect.equal updatedMetrics.calculationCount 1
+                        [ \() -> Expect.equal (Just 50.0) updatedMetrics.calculationTime
+                        , \() -> Expect.equal 50.0 updatedMetrics.averageCalculationTime
+                        , \() -> Expect.equal 50.0 updatedMetrics.maxCalculationTime
+                        , \() -> Expect.equal 1 updatedMetrics.calculationCount
                         ]
                         ()
             , test "should_warn_when_performance_exceeds_threshold" <|
@@ -143,7 +143,7 @@ suite =
                             Performance.recordCalculationTime 50.0 firstUpdate
                     in
                     -- Rolling average: (100 * 0.8) + (50 * 0.2) = 80 + 10 = 90
-                    Expect.within (Expect.Absolute 0.1) 90.0 secondUpdate.averageTime
+                    Expect.within (Expect.Absolute 0.1) 90.0 secondUpdate.averageCalculationTime
             ]
         , describe "Cross-Device Real-Time Update Consistency"
             [ test "should_apply_identical_debounce_delay_across_devices" <|
@@ -314,9 +314,27 @@ suite =
                         [ \_ -> Expect.equal False mobileWarning
                         , \_ -> Expect.equal False tabletWarning
                         , \_ -> Expect.equal False desktopWarning
-                        , \_ -> Expect.lessThan targetTime mobileMetrics.lastCalculationTime
-                        , \_ -> Expect.lessThan targetTime tabletMetrics.lastCalculationTime
-                        , \_ -> Expect.lessThan targetTime desktopMetrics.lastCalculationTime
+                        , \_ ->
+                            case mobileMetrics.calculationTime of
+                                Just time ->
+                                    Expect.lessThan targetTime time
+
+                                Nothing ->
+                                    Expect.fail "Mobile metrics should have calculation time"
+                        , \_ ->
+                            case tabletMetrics.calculationTime of
+                                Just time ->
+                                    Expect.lessThan targetTime time
+
+                                Nothing ->
+                                    Expect.fail "Tablet metrics should have calculation time"
+                        , \_ ->
+                            case desktopMetrics.calculationTime of
+                                Just time ->
+                                    Expect.lessThan targetTime time
+
+                                Nothing ->
+                                    Expect.fail "Desktop metrics should have calculation time"
                         ]
                         ()
             , test "should_handle_performance_warnings_consistently_across_devices" <|
@@ -351,8 +369,20 @@ suite =
                         , \_ -> Expect.equal True desktopWarning
                         , \_ -> Expect.equal mobileWarning tabletWarning
                         , \_ -> Expect.equal tabletWarning desktopWarning
-                        , \_ -> Expect.within (Expect.Absolute 0.1) slowCalculationTime mobileSlowMetrics.lastCalculationTime
-                        , \_ -> Expect.within (Expect.Absolute 0.1) slowCalculationTime tabletSlowMetrics.lastCalculationTime
+                        , \_ ->
+                            case mobileSlowMetrics.calculationTime of
+                                Just time ->
+                                    Expect.within (Expect.Absolute 0.1) slowCalculationTime time
+
+                                Nothing ->
+                                    Expect.fail "Mobile slow metrics should have calculation time"
+                        , \_ ->
+                            case tabletSlowMetrics.calculationTime of
+                                Just time ->
+                                    Expect.within (Expect.Absolute 0.1) slowCalculationTime time
+
+                                Nothing ->
+                                    Expect.fail "Tablet slow metrics should have calculation time"
                         ]
                         ()
             , test "should_handle_device_transition_performance_consistently" <|
@@ -374,7 +404,7 @@ suite =
 
                         -- Performance characteristics should remain stable
                         performanceStable =
-                            abs (transitionMetrics.averageTime - initialMetrics.averageTime) < 20.0
+                            abs (transitionMetrics.averageCalculationTime - initialMetrics.averageCalculationTime) < 20.0
 
                         noWarningIncrease =
                             Performance.shouldWarn transitionMetrics == Performance.shouldWarn initialMetrics
@@ -382,7 +412,13 @@ suite =
                     Expect.all
                         [ \_ -> Expect.equal True performanceStable
                         , \_ -> Expect.equal True noWarningIncrease
-                        , \_ -> Expect.lessThan 100.0 transitionMetrics.lastCalculationTime
+                        , \_ ->
+                            case transitionMetrics.calculationTime of
+                                Just time ->
+                                    Expect.lessThan 100.0 time
+
+                                Nothing ->
+                                    Expect.fail "Transition metrics should have calculation time"
                         ]
                         ()
             ]

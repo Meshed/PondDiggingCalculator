@@ -8,6 +8,7 @@ module Types.Messages exposing (Msg(..), ExcavatorUpdate(..), TruckUpdate(..))
 
 import Browser.Dom as Dom
 import Components.ProjectForm exposing (FormMsg)
+import Time
 import Types.Equipment exposing (EquipmentId)
 import Types.Fields exposing (ExcavatorField, PondField, ProjectField, TruckField)
 import Types.Validation exposing (ValidationError)
@@ -54,6 +55,9 @@ type Msg
     | CalculateTimelineDebounced Float -- Current time in millis
     | CalculationCompleted (Result String String) -- Result CalculationError CalculationResult
     | PerformanceTracked Float -- milliseconds
+    | LoadTimeTracked Float -- load time in milliseconds
+    | BudgetViolationCheck -- trigger budget violation check
+    | BudgetViolationUpdate Time.Posix -- update metrics with budget violations
     | DeviceDetected (Result Dom.Error { width : Int, height : Int })
     | WindowResized Int Int
       -- Help System Messages

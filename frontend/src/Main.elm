@@ -11,8 +11,10 @@ import Html exposing (Html, div, h1, h2, text)
 import Html.Attributes exposing (class)
 import Json.Decode as Decode
 import Pages.Desktop as Desktop
+import Ports.Console as Console
 import Process
 import Task
+import Time
 import Types.DeviceType exposing (DeviceType(..))
 import Types.Equipment exposing (EquipmentId, Excavator, Truck)
 import Types.Fields exposing (ExcavatorField(..), PondField(..), ProjectField(..), TruckField(..))
@@ -104,6 +106,9 @@ init _ =
                     [ cmd
                     , DeviceDetector.detectDevice () |> Cmd.map DeviceDetected
                     , Storage.loadOnboardingState OnboardingStateLoaded
+
+                    -- Measure load time: schedule a task to record initialization completion
+                    , Task.perform LoadTimeTracked (Task.succeed 0.0) -- Will be replaced with actual timing
                     ]
             )
 
@@ -261,7 +266,60 @@ update msg model =
 
                 -- Performance tracking for monitoring (removed Debug.log for production)
             in
-            ( { model | performanceMetrics = updatedMetrics }, Cmd.none )
+            ( { model | performanceMetrics = updatedMetrics }
+            , Task.perform (\_ -> BudgetViolationCheck) Time.now
+            )
+
+        LoadTimeTracked timeMs ->
+            let
+                updatedMetrics =
+                    Performance.recordLoadTime timeMs model.performanceMetrics
+            in
+            ( { model | performanceMetrics = updatedMetrics }
+            , Task.perform (\_ -> BudgetViolationCheck) Time.now
+            )
+
+        BudgetViolationCheck ->
+            -- Check for budget violations and update performance metrics
+            ( model, Task.perform BudgetViolationUpdate Time.now )
+
+        BudgetViolationUpdate currentTime ->
+            let
+                oldViolationCount =
+                    model.performanceMetrics.totalViolations
+
+                updatedMetrics =
+                    Performance.checkBudgetViolations currentTime model.performanceMetrics
+
+                newViolationCount =
+                    updatedMetrics.totalViolations
+
+                hasNewViolations =
+                    newViolationCount > oldViolationCount
+
+                -- Console logging for new violations (development only)
+                loggingCmd =
+                    if hasNewViolations then
+                        let
+                            logMessage =
+                                Performance.logPerformanceToConsole updatedMetrics
+
+                            warningMessage =
+                                if Performance.shouldWarn updatedMetrics then
+                                    "⚠️ Performance Budget Violation Detected! " ++ Performance.getPerformanceStatus updatedMetrics
+
+                                else
+                                    Performance.getPerformanceStatus updatedMetrics
+                        in
+                        Cmd.batch
+                            [ Console.logPerformanceToConsole logMessage
+                            , Console.logErrorToConsole warningMessage
+                            ]
+
+                    else
+                        Cmd.none
+            in
+            ( { model | performanceMetrics = updatedMetrics }, loggingCmd )
 
         -- Fleet Management Messages
         AddExcavator ->

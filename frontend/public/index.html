@@ -14,6 +14,25 @@
             node: document.getElementById('elm-app'),
             flags: {}
         });
+
+        // Performance monitoring console ports (development only)
+        if (app.ports && app.ports.logToConsole) {
+            app.ports.logToConsole.subscribe(function(message) {
+                console.log(message);
+            });
+        }
+
+        if (app.ports && app.ports.logErrorToConsole) {
+            app.ports.logErrorToConsole.subscribe(function(message) {
+                console.error(message);
+            });
+        }
+
+        if (app.ports && app.ports.logPerformanceToConsole) {
+            app.ports.logPerformanceToConsole.subscribe(function(message) {
+                console.log('%c' + message, 'color: #4CAF50; font-weight: bold;');
+            });
+        }
     </script>
 </body>
 </html>

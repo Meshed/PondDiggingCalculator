@@ -1,0 +1,16 @@
+{
+  "extends": "@parcel/config-default",
+  "optimizers": {
+    "*.js": [
+      "@parcel/optimizer-terser"
+    ],
+    "*.css": [
+      "@parcel/optimizer-css"
+    ]
+  },
+  "compressors": {
+    "*.{html,css,js,svg,map}": [
+      "@parcel/compressor-gzip"
+    ]
+  }
+}
