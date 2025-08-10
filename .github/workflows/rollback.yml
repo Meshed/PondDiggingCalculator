@@ -1,0 +1,101 @@
+name: Rollback Deployment
+
+on:
+  workflow_dispatch:
+    inputs:
+      commit_sha:
+        description: 'Commit SHA to rollback to'
+        required: true
+        type: string
+      reason:
+        description: 'Reason for rollback'
+        required: true
+        type: string
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: "pages-rollback"
+  cancel-in-progress: false
+
+env:
+  NODE_VERSION: '18'
+  ELM_VERSION: '0.19.1'
+
+jobs:
+  rollback:
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    
+    steps:
+    - name: Checkout specific commit
+      uses: actions/checkout@v3
+      with:
+        ref: ${{ inputs.commit_sha }}
+    
+    - name: Setup Node.js
+      uses: actions/setup-node@v3
+      with:
+        node-version: ${{ env.NODE_VERSION }}
+        cache: 'npm'
+        cache-dependency-path: frontend/package-lock.json
+    
+    - name: Install dependencies
+      run: |
+        cd frontend
+        npm ci
+    
+    - name: Generate configuration
+      run: |
+        cd frontend
+        npm run generate:config
+    
+    - name: Build project from rollback commit
+      run: |
+        cd frontend
+        npm run build
+    
+    - name: Setup Pages
+      uses: actions/configure-pages@v3
+    
+    - name: Upload to GitHub Pages
+      uses: actions/upload-pages-artifact@v2
+      with:
+        path: frontend/dist
+    
+    - name: Deploy rollback to GitHub Pages
+      id: deployment
+      uses: actions/deploy-pages@v2
+    
+    - name: Create rollback issue
+      uses: actions/github-script@v6
+      with:
+        script: |
+          const issue = await github.rest.issues.create({
+            owner: context.repo.owner,
+            repo: context.repo.repo,
+            title: `Deployment Rollback to ${context.payload.inputs.commit_sha}`,
+            body: `## Rollback Information
+            
+            **Rolled back to commit:** ${context.payload.inputs.commit_sha}
+            **Reason:** ${context.payload.inputs.reason}
+            **Initiated by:** @${context.actor}
+            **Timestamp:** ${new Date().toISOString()}
+            
+            ### Action Required
+            - [ ] Investigate the issue that caused the rollback
+            - [ ] Fix the underlying problem
+            - [ ] Test the fix thoroughly
+            - [ ] Deploy the fixed version
+            
+            ### Rollback Details
+            - Workflow Run: [#${context.runNumber}](${context.serverUrl}/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId})
+            `,
+            labels: ['deployment', 'rollback', 'urgent']
+          });
+          console.log(`Created issue #${issue.data.number}`);
