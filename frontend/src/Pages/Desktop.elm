@@ -121,7 +121,18 @@ viewExcavatorSection validationRules model deviceType =
     div [ class sectionClass ]
         [ h2 [ class (headerClass ++ " mb-4 text-gray-800 border-b pb-2") ]
             [ text "Excavator Fleet" ]
-        , EquipmentList.viewExcavatorFleet validationRules deviceType model.excavators model.nextExcavatorId Types.Messages.ShowHelpTooltip Types.Messages.HideHelpTooltip model.helpTooltipState
+        , EquipmentList.viewExcavatorFleet validationRules
+            deviceType
+            model.excavators
+            model.nextExcavatorId
+            Types.Messages.ShowHelpTooltip
+            Types.Messages.HideHelpTooltip
+            (if model.showWelcomeOverlay then
+                Nothing
+
+             else
+                model.helpTooltipState
+            )
         ]
 
 
@@ -157,7 +168,12 @@ viewProjectSection validationRules model deviceType =
                     (\field value -> Types.Messages.ProjectFieldChanged field value)
                     Types.Messages.ShowHelpTooltip
                     Types.Messages.HideHelpTooltip
-                    model.helpTooltipState
+                    (if model.showWelcomeOverlay then
+                        Nothing
+
+                     else
+                        model.helpTooltipState
+                    )
 
             Nothing ->
                 text "Loading form..."
@@ -187,7 +203,18 @@ viewTruckSection validationRules model deviceType =
     div [ class sectionClass ]
         [ h2 [ class (headerClass ++ " mb-4 text-gray-800 border-b pb-2") ]
             [ text "Truck Fleet" ]
-        , EquipmentList.viewTruckFleet validationRules deviceType model.trucks model.nextTruckId Types.Messages.ShowHelpTooltip Types.Messages.HideHelpTooltip model.helpTooltipState
+        , EquipmentList.viewTruckFleet validationRules
+            deviceType
+            model.trucks
+            model.nextTruckId
+            Types.Messages.ShowHelpTooltip
+            Types.Messages.HideHelpTooltip
+            (if model.showWelcomeOverlay then
+                Nothing
+
+             else
+                model.helpTooltipState
+            )
         ]
 
 
