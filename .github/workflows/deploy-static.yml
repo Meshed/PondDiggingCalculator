@@ -41,6 +41,7 @@ jobs:
     - name: Generate configuration
       run: |
         npm run generate:config
+        npx elm-format src/Utils/ConfigGenerated.elm --yes
       working-directory: frontend
     
     - name: Check Elm formatting
