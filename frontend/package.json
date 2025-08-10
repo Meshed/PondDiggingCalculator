@@ -10,7 +10,7 @@
     "generate:config": "node ../config/generate-elm-config.js",
     "clean": "rimraf dist .parcel-cache",
     "clean:soft": "rimraf dist .parcel-cache || echo 'Clean failed (files may be locked) - continuing anyway...'",
-    "build": "npm run validate:config && npm run generate:config && npm run format && npm run build:css && parcel build public/index.html",
+    "build": "npm run validate:config && npm run generate:config && npm run format && npm run build:css && parcel build public/index.html --public-url ./",
     "build:clean": "npm run clean && npm run build",
     "build:css:timeout": "powershell -Command \"& { $job = Start-Job { tailwindcss -i src/styles.css -o public/styles.css --watch=false }; Wait-Job $job -Timeout 10; Stop-Job $job; Remove-Job $job }\"",
     "build:css": "npm run build:css:timeout || tailwindcss -i src/styles.css -o public/styles.css --watch=false",
