@@ -10,6 +10,7 @@
   },
   "compressors": {
     "*.{html,css,js,svg,map}": [
+      "@parcel/compressor-raw",
       "@parcel/compressor-gzip"
     ]
   }
